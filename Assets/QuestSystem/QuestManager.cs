@@ -2,10 +2,12 @@
 using System.Collections;
 using System.Collections.Generic;
 
+using Quest;
+
 public class QuestManager : MonoBehaviour {
 	public static QuestManager instance = null;
 
-	public Dictionary<string, Quest> allQuests;
+	public List<IQuest> availableQuests;
 
 	void Awake () {
 		if (instance == null)
@@ -15,26 +17,31 @@ public class QuestManager : MonoBehaviour {
 
 		DontDestroyOnLoad (gameObject);
 
-		allQuests = new Dictionary<string, Quest> ();
+		availableQuests = new List<IQuest> ();
 	}
 
-	void Start () {
-		Quest _quest = new Quest();
-		_quest.questName = "Test";
-
-		allQuests.Add ("Test", _quest);
-	}
-
-	public void addQuest (string questName, Quest _quest) {
-		allQuests.Add (questName, _quest);
+	public void addQuest (IQuest _quest) {
+		availableQuests.Add (_quest);
 	}
 
 	public bool hasQuest (string questName) {
-		return GameManager.instance.playerState.instance.assignedQuests.ContainsKey (questName);
+		IQuest quest = availableQuests.Find (x => x.name == questName);
+
+		if (quest == nil)
+			return false;
+
+		return quest.state != States.Unstarted;
 	}
 
 	public void assignQuest (string questName) {
-		Quest quest = allQuests [questName];
-		GameManager.instance.playerState.instance.assignedQuests.Add (questName, quest);
+		IQuest quest = availableQuests.Find (x => x.name == questName);
+
+		if (quest == null)
+			return;
+
+		if (!quest.canStart ())
+			return;
+
+		quest.start ();
 	}
 }

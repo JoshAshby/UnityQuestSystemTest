@@ -1,6 +1,8 @@
 ﻿using UnityEngine;
 using System.Collections;
 
+using Quest;
+
 [AddComponentMenu ("Collision/Quest Assigner")]
 [RequireComponent (typeof (BoxCollider))]
 public class QuestAssigner : MonoBehaviour {
@@ -20,6 +22,10 @@ public class QuestAssigner : MonoBehaviour {
 		}
 
 		Debug.LogFormat ("Encountered player: assigning quest {0}", questName);
-		QuestManager.instance.assignQuest (questName);
+
+		IQuest quest = new MainQuest();
+
+		QuestManager.instance.addQuest (quest);
+		QuestManager.instance.assignQuest (quest.name);
 	}
 }

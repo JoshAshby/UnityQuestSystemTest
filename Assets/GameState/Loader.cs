@@ -3,9 +3,13 @@ using System.Collections;
 
 public class Loader : MonoBehaviour {
 	public GameObject gameManager;
+	public GameObject questManager;
 
 	void Awake () {
 		if (GameManager.instance == null)
 			Instantiate (gameManager);
+		
+		if (QuestManager.instance == null)
+			Instantiate (questManager);
 	}
 }
