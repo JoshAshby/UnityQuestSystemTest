@@ -1,31 +1,26 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
-using Quest;
+using QuestSystem;
 
-[AddComponentMenu ("Collision/Quest Assigner")]
+[AddComponentMenu ("Quest System/Quest Assigner")]
 [RequireComponent (typeof (BoxCollider))]
 public class QuestAssigner : MonoBehaviour {
-	[SerializeField] string questName;
-
-	void Start () {
-	}
+	[SerializeField] string pillar_name;
 
 	void OnTriggerEnter (Collider other) {
 		if (other.tag != "Player")
 			return;
 
-		if (QuestManager.instance.hasQuest (questName))
-		{
-			Debug.LogFormat ("Encountered player: skipping assignment of quest {0} since they already have it", questName);
-			return;
-		}
+		Debug.Log ("Encountered player: assigning main quest");
 
-		Debug.LogFormat ("Encountered player: assigning quest {0}", questName);
+		IQuest quest = new MainQuest ();
 
-		IQuest quest = new MainQuest();
+		QuestManager.instance.Assign (quest);
 
-		QuestManager.instance.addQuest (quest);
-		QuestManager.instance.assignQuest (quest.name);
+		GameManager.instance.LastPillar = pillar_name;
+
+		Destroy (gameObject);
 	}
 }
