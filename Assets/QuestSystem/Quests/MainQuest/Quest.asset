@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 697ac187751104b07968014a3ea10093, type: 3}
+  m_Name: Quest
+  m_EditorClassIdentifier: 
+  title: 
+  description: 
+  is_complete: 0
+  steps:
+  - {fileID: 0}
+  - {fileID: 11400000, guid: afee78b6129f54facb36487dcef910c7, type: 2}
+  - {fileID: 11400000, guid: d5f28d1000977422faf1e3d30c36d6cc, type: 2}
+  current_step: {fileID: 0}

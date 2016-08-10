@@ -5,13 +5,13 @@ namespace QuestSystem {
 		string Title { get; }
 		string Description { get; }
 
-		bool IsComplete { get; }
+		List<IQuestStep> Steps { get; }
+		IQuestStep CurrentStep { get; }
 
-		List<IQuestObjective> Objectives { get; }
+		bool IsComplete ();
+		void UpdateProgress ();
 
 		void OnStart ();
 		void OnComplete ();
-
-		void UpdateProgress ();
 	}
 }

@@ -33,7 +33,7 @@ public class QuestManager : MonoBehaviour {
 		foreach (IQuest quest in available_quests) {
 			quest.UpdateProgress ();
 
-			if (quest.IsComplete) {
+			if (quest.IsComplete ()) {
 				to_remove.Add (quest);
 			}
 		}

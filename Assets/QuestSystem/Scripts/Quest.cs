@@ -1,21 +1,15 @@
-﻿using System.Collections.Generic;
+﻿using UnityEngine;
+using System.Collections.Generic;
 
 namespace QuestSystem {
-	public class MainQuest : IQuest {
-		protected string title;
-		protected string description;
+	public class Quest : ScriptableObject {
+		[SerializeField] public string title;
+		[SerializeField] public string description;
 
-		protected List<IQuestObjective> objectives;
+		[SerializeField] public bool is_complete;
 
-		public MainQuest () {
-			title = "Chapter 1";
-			description = "Learn about the Sleeping Trouble";
-
-			objectives = new List<IQuestObjective> ();
-			objectives.Add (new PillarObjective("Find The Intro Pillar", "Main.Intro"));
-			objectives.Add (new PillarObjective("Find The Mid Pillar", "Main.Mid"));
-			objectives.Add (new PillarObjective("Find The Fin Pillar", "Main.Fin"));
-		}
+		[SerializeField] public List<QuestStep> steps;
+		[SerializeField] public QuestStep current_step;
 
 		public string Title {
 			get { return title; }
@@ -25,32 +19,39 @@ namespace QuestSystem {
 			get { return description; }
 		}
 
-		public bool IsComplete {
-			get {
-				foreach (IQuestObjective objective in objectives) {
-					if (!objective.IsComplete)
-						return false;
-				}
-
-				return true;
-			}
+		public List<QuestStep> Steps {
+			get { return steps; }
+			set { steps = value; }
 		}
 
-		public List<IQuestObjective> Objectives {
-			get { return objectives; }
+		public QuestStep CurrentStep {
+			get { return current_step; }
+		}
+
+		public bool IsComplete () {
+			if (is_complete)
+				return true;
+			
+			foreach (QuestStep step in steps) {
+				if (!step.IsComplete ())
+					return false;
+			}
+
+			is_complete = true;
+
+			return true;
 		}
 
 		public void UpdateProgress () {
-			foreach (IQuestObjective objective in objectives) {
-				if(!objective.IsComplete)
-					objective.UpdateProgress ();
+			if (is_complete)
+				return;
+			
+			foreach (QuestStep step in steps) {
+				if(!step.IsComplete ())
+					step.UpdateProgress (this);
 			}
-		}
 
-		public void OnStart () {
-		}
-
-		public void OnComplete () {
+			IsComplete ();
 		}
 	}
 }

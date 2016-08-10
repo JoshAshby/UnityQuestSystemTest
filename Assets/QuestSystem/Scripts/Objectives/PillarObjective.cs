@@ -1,34 +1,28 @@
 ﻿using UnityEngine;
+using System;
 
 namespace QuestSystem {
-	public class PillarObjective : IQuestObjective {
-		private string title;
+	public class QuestObjective : ScriptableObject {
+		[SerializeField] public string title;
+		[SerializeField] public bool is_complete;
 
-		private string pillar_name;
+		[SerializeField] public string pillar_name;
 
-		private bool is_complete;
+		public bool IsComplete () {
+			if (is_complete)
+				return true;
 
-		public PillarObjective (string title, string pillar_name) {
-			this.title = title;
-			this.pillar_name = pillar_name;
+			return false;
+//
+//			is_complete = true;
+//			OnComplete ();
+//
+//			return true;
 		}
 
-		public string Title {
-			get { return title; }
-		}
-
-		public bool IsComplete {
-			get { return is_complete; }
-		}
-
-		public void OnComplete() {
-			Debug.LogFormat ("Completed pillar objective {0}", title);
-		}
-
-		public void UpdateProgress() {
+		public void UpdateProgress(Quest quest) {
 			if(GameManager.instance.LastPillar == pillar_name) {
 				is_complete = true;
-				OnComplete ();
 			}
 		}
 	}

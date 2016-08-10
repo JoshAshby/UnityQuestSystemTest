@@ -1,11 +1,12 @@
 ﻿namespace QuestSystem {
 	public interface IQuestObjective {
-		string Title { get; }
+//		string title { get; }
+//		bool is_complete { get; }
 
-		bool IsComplete { get; }
+		bool IsComplete ();
+		void UpdateProgress(IQuest quest);
 
+		void OnStart ();
 		void OnComplete ();
-
-		void UpdateProgress();
 	}
 }
