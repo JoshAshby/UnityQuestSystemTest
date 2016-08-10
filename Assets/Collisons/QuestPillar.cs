@@ -33,7 +33,8 @@ public class QuestPillar : MonoBehaviour {
 		Debug.Log ("Encountered player: updating last pillar name");
 
 		GameManager.instance.LastPillar = pillar_name;
-	
-		Destroy (gameObject);
+
+		should_act = false;
+		mesh_renderer.enabled = false;
 	}
 }

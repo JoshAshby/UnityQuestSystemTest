@@ -28,13 +28,19 @@ public class QuestManager : MonoBehaviour {
 	}
 
 	void Update () {
+		List<IQuest> to_remove = new List<IQuest> ();
+
 		foreach (IQuest quest in available_quests) {
 			quest.UpdateProgress ();
 
 			if (quest.IsComplete) {
-				available_quests.Remove (quest);
-				completed_quests.Add (quest);
+				to_remove.Add (quest);
 			}
+		}
+
+		foreach (IQuest quest in to_remove) {
+			available_quests.Remove (quest);
+			completed_quests.Add (quest);
 		}
 	}
 }

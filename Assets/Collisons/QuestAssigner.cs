@@ -9,7 +9,17 @@ using QuestSystem;
 public class QuestAssigner : MonoBehaviour {
 	[SerializeField] string pillar_name;
 
+	private bool should_act = true;
+	private MeshRenderer mesh_renderer;
+
+	void Awake () {
+		mesh_renderer = GetComponent<MeshRenderer> ();
+	}
+
 	void OnTriggerEnter (Collider other) {
+		if (!should_act)
+			return;
+		
 		if (other.tag != "Player")
 			return;
 
@@ -21,6 +31,7 @@ public class QuestAssigner : MonoBehaviour {
 
 		GameManager.instance.LastPillar = pillar_name;
 
-		Destroy (gameObject);
+		should_act = false;
+		mesh_renderer.enabled = false;
 	}
 }
