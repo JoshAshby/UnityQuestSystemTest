@@ -11,12 +11,11 @@ public class CreateQuestUtils {
 
 		Quest quest = ScriptableObject.CreateInstance<Quest> ();
 
-		if (absPath.StartsWith (Application.dataPath)) {
-			string relPath = absPath.Substring (Application.dataPath.Length - "Assets".Length);
+		if (absPath.StartsWith (Application.dataPath))
+			absPath = absPath.Substring (Application.dataPath.Length - "Assets".Length);
 
-			AssetDatabase.CreateAsset (quest, System.String.Format ("{0}/Quest.asset", relPath));
-			AssetDatabase.SaveAssets ();
-		}
+		AssetDatabase.CreateAsset (quest, System.String.Format ("{0}/Quest.asset", absPath));
+		AssetDatabase.SaveAssets ();
 
 		return quest;
 	}

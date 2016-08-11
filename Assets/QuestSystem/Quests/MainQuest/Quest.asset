@@ -15,7 +15,7 @@ MonoBehaviour:
   description: 
   is_complete: 0
   steps:
-  - {fileID: 0}
-  - {fileID: 11400000, guid: afee78b6129f54facb36487dcef910c7, type: 2}
-  - {fileID: 11400000, guid: d5f28d1000977422faf1e3d30c36d6cc, type: 2}
+  - {fileID: 11400000, guid: c124be81b0c85433ca3b543255375bb9, type: 2}
+  - {fileID: 11400000, guid: 1cdda58511dda4c228249d3bb0736b57, type: 2}
+  - {fileID: 11400000, guid: 44aabff30b0fb4e25921371e405d822a, type: 2}
   current_step: {fileID: 0}
