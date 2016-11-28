@@ -16,10 +16,12 @@ public class CrosshairSystem : MonoBehaviour {
 
 	private Transform m_TargetObject = null;
 	private Animator m_CrosshairAnimation = null;
+	private Transform m_CrosshairInfo = null;
 	private Camera m_TargetCamera = null;
 
 	private void Start () {
 		m_CrosshairAnimation = m_HudCanvas.transform.Find ("Reticle").GetComponent<Animator> ();
+		m_CrosshairInfo      = m_HudCanvas.transform.Find ("ReticleInfo");
 		m_TargetCamera       = transform.GetComponentInChildren<Camera> ();
 	}
 
@@ -54,6 +56,13 @@ public class CrosshairSystem : MonoBehaviour {
 				m_TargetObject.GetComponentInChildren<InteractiveObject> ().OnLookExit ();
 				m_TargetObject = null;
 			}
+		}
+
+		if (m_TargetObject != null) {
+			m_CrosshairInfo.gameObject.SetActive (true);
+			m_CrosshairInfo.GetComponentInChildren<Text> ().text = m_TargetObject.GetComponentInChildren<InteractiveObject> ().Name;
+		} else {
+			m_CrosshairInfo.gameObject.SetActive (false);
 		}
 
 		if (Input.GetButtonDown (m_InteractButton) && m_TargetObject != null) {
