@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 24e1cbad8d08a4fc096d0933453b6e1d
+timeCreated: 1480346961
+licenseType: Free
+MonoImporter:
+  serializedVersion: 2
+  defaultReferences:
+  - m_TargetCamera: {instanceID: 0}
+  - m_CrosshairTexture: {fileID: 2800000, guid: d590ebb711844475babf7e628686cc9a,
+      type: 3}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

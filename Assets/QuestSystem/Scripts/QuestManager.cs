@@ -1,14 +1,31 @@
 ﻿using UnityEngine;
+using UnityEngine.Events;
+
+using System;
 using System.Collections;
 using System.Collections.Generic;
 
 using QuestSystem;
 
-public class QuestManager : MonoBehaviour {
-	public static QuestManager instance = null;
+[Serializable]
+public class QuestEvent : UnityEvent<Quest> {}
 
-	private List<IQuest> available_quests;
-	private List<IQuest> completed_quests;
+[Serializable]
+public class QuestManager : MonoBehaviour {
+	public List<Quest> Quests;
+
+	public AudioSource audioSource;
+
+	public QuestEvent OnQuestStart = new QuestEvent();
+	public QuestEvent OnQuestUpdate = new QuestEvent();
+	public QuestEvent OnQuestComplete = new QuestEvent();
+	public QuestEvent OnQuestFail = new QuestEvent();
+
+	private static QuestManager instance = null;
+
+	public static QuestManager Instance {
+		get { return instance; }
+	}
 
 	void Awake () {
 		if (instance == null)
@@ -17,30 +34,78 @@ public class QuestManager : MonoBehaviour {
 			Destroy (gameObject);
 
 		DontDestroyOnLoad (gameObject);
-
-		available_quests = new List<IQuest> ();
-		completed_quests = new List<IQuest> ();
-	}
-
-	public void Assign (IQuest quest) {
-		available_quests.Add (quest);
-		quest.OnStart ();
 	}
 
 	void Update () {
-		List<IQuest> to_remove = new List<IQuest> ();
+	}
 
-		foreach (IQuest quest in available_quests) {
-			quest.UpdateProgress ();
+	public Quest FindQuest(int quest_id) {
+		Debug.LogFormat ("Finding quest by id `{0}'", quest_id);
 
-			if (quest.IsComplete ()) {
-				to_remove.Add (quest);
-			}
-		}
+		return Quests[quest_id];
+	}
 
-		foreach (IQuest quest in to_remove) {
-			available_quests.Remove (quest);
-			completed_quests.Add (quest);
-		}
+	public void StartQuest(int quest_id) {
+		Debug.LogFormat ("Starting quest `{0}'", quest_id);
+
+		Quest quest = FindQuest (quest_id);
+
+		OnQuestStart.Invoke (quest);
+	}
+
+	public void UpdateQuest(int quest_id) {
+		Debug.LogFormat ("Updating quest `{0}'", quest_id);
+
+		Quest quest = FindQuest (quest_id);
+
+		OnQuestUpdate.Invoke (quest);
+	}
+
+	public void CompleteQuest(int quest_id) {
+		Debug.LogFormat ("Completing quest `{0}'", quest_id);
+
+		Quest quest = FindQuest (quest_id);
+
+		OnQuestComplete.Invoke (quest);
+	}
+
+	public void CompleteQuestStep(int quest_id, int step_id) {
+		Debug.LogFormat ("Completing quest `{0}' step `{1}'", quest_id, step_id);
+
+		Quest quest = FindQuest (quest_id);
+
+		OnQuestUpdate.Invoke (quest);
+	}
+
+	public void CompleteQuestObjective(int quest_id, int step_id, int objective_id) {
+		Debug.LogFormat ("Completing quest `{0}' objective `{1}' of step `{2}'", quest_id, objective_id, step_id);
+
+		Quest quest = FindQuest (quest_id);
+
+		OnQuestUpdate.Invoke (quest);
+	}
+
+	public void FailQuest(int quest_id) {
+		Debug.LogFormat ("Updating a quest `{0}'", quest_id);
+
+		Quest quest = FindQuest (quest_id);
+
+		OnQuestComplete.Invoke (quest);
+	}
+
+	public void FailQuestStep(int quest_id, int step_id) {
+		Debug.LogFormat ("Updating quest `{0}'", quest_id);
+
+		Quest quest = FindQuest (quest_id);
+
+		OnQuestUpdate.Invoke (quest);
+	}
+
+	public void FailQuestObjective(int quest_id, int step_id, int objective_id) {
+		Debug.LogFormat ("Updating quest `{0}'", quest_id);
+
+		Quest quest = FindQuest (quest_id);
+
+		OnQuestUpdate.Invoke (quest);
 	}
 }

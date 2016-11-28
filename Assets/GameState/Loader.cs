@@ -9,7 +9,7 @@ public class Loader : MonoBehaviour {
 		if (GameManager.instance == null)
 			Instantiate (gameManager);
 		
-		if (QuestManager.instance == null)
+		if (QuestManager.Instance == null)
 			Instantiate (questManager);
 	}
 }
