@@ -1,9 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class InteractiveObject : MonoBehaviour {
-	public string Name;
-
+public class InteractiveBehaviour : MonoBehaviour {
 	virtual public void OnLookEnter() {
 	}
 

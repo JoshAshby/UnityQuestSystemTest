@@ -37,37 +37,37 @@ public class CrosshairSystem : MonoBehaviour {
 		if (Physics.Raycast (ray, out hit, m_ActiveDistance)) {
 			Transform objectHit = hit.transform;
 
-			InteractiveObject interObj = objectHit.GetComponentInChildren<InteractiveObject> ();
+			InteractiveBehaviour interObj = objectHit.GetComponentInChildren<InteractiveBehaviour> ();
 
 			if (interObj != null) {
 				if (objectHit != m_TargetObject) {
 					if (m_TargetObject != null) {
-						m_TargetObject.GetComponentInChildren<InteractiveObject> ().OnLookExit ();
+						m_TargetObject.GetComponentInChildren<InteractiveBehaviour> ().OnLookExit ();
 					}
 
-					objectHit.GetComponentInChildren<InteractiveObject> ().OnLookEnter ();
+					objectHit.GetComponentInChildren<InteractiveBehaviour> ().OnLookEnter ();
 
 					m_TargetObject = objectHit;
 				} else if (objectHit == m_TargetObject)
-					objectHit.GetComponentInChildren<InteractiveObject> ().OnLookStay ();
+					objectHit.GetComponentInChildren<InteractiveBehaviour> ().OnLookStay ();
 			}
 		} else {
 			if (m_TargetObject != null) {
-				m_TargetObject.GetComponentInChildren<InteractiveObject> ().OnLookExit ();
+				m_TargetObject.GetComponentInChildren<InteractiveBehaviour> ().OnLookExit ();
 				m_TargetObject = null;
 			}
 		}
 
 		if (m_TargetObject != null) {
 			m_CrosshairInfo.gameObject.SetActive (true);
-			m_CrosshairInfo.GetComponentInChildren<Text> ().text = m_TargetObject.GetComponentInChildren<InteractiveObject> ().Name;
+			m_CrosshairInfo.GetComponentInChildren<Text> ().text = m_TargetObject.GetComponentInParent<InteractiveSettings> ().Name;
 		} else {
 			m_CrosshairInfo.gameObject.SetActive (false);
 		}
 
 		if (Input.GetButtonDown (m_InteractButton) && m_TargetObject != null) {
 			m_CrosshairAnimation.SetTrigger ("Interact");
-			m_TargetObject.GetComponentInChildren<InteractiveObject> ().OnInteract ();
+			m_TargetObject.GetComponentInChildren<InteractiveBehaviour> ().OnInteract ();
 		}
 	}
 
