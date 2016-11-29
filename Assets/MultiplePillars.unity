@@ -37,7 +37,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 543135355}
-  m_IndirectSpecularColor: {r: 0.38653472, g: 0.41996744, b: 0.4857347, a: 1}
+  m_IndirectSpecularColor: {r: 0.44692534, g: 0.49678725, b: 0.5750856, a: 1}
 --- !u!157 &3
 LightmapSettings:
   m_ObjectHideFlags: 0
@@ -440,6 +440,14 @@ Prefab:
       propertyPath: m_LocalPosition.y
       value: 0.79999995
       objectReference: {fileID: 0}
+    - target: {fileID: 100002, guid: 5e9e851c0e142814dac026a256ba2ac0, type: 2}
+      propertyPath: m_Layer
+      value: 9
+      objectReference: {fileID: 0}
+    - target: {fileID: 100000, guid: 5e9e851c0e142814dac026a256ba2ac0, type: 2}
+      propertyPath: m_Layer
+      value: 9
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: 5e9e851c0e142814dac026a256ba2ac0, type: 2}
   m_IsPrefabParent: 0
@@ -518,7 +526,7 @@ GameObject:
   - 23: {fileID: 1301214096}
   - 114: {fileID: 1301214101}
   - 114: {fileID: 1301214100}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Cylinder
   m_TagString: Interative
   m_Icon: {fileID: 0}
@@ -619,7 +627,7 @@ GameObject:
   m_Component:
   - 4: {fileID: 1305559606}
   - 114: {fileID: 1305559607}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: GameObject
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -805,9 +813,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 24e1cbad8d08a4fc096d0933453b6e1d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_HudCanvas: {fileID: 2021822488}
-  m_InteractButton: Fire1
-  m_ActiveDistance: 1.2
+  HudCanvas: {fileID: 2021822488}
+  InteractButton: Fire1
+  ActiveDistance: 1.2
+  LayersToHit:
+  - Interactive
+  - Player
 --- !u!1 &2021822485
 GameObject:
   m_ObjectHideFlags: 0

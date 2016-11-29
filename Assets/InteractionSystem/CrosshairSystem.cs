@@ -3,89 +3,136 @@ using UnityEngine.UI;
 using System.Collections;
 
 public class CrosshairSystem : MonoBehaviour {
+	[Header("Display")]
+	[SerializeField]
+	public Canvas HudCanvas = null;
+
 	[Header("Input")]
 	[SerializeField]
-	public Canvas m_HudCanvas = null;
-
-	[SerializeField]
-	public string m_InteractButton = "Fire1";
+	public string InteractButton = "Fire1";
 
 	[Header("Raycast")]
 	[SerializeField]
-	public float m_ActiveDistance = 1.2f;
+	public float ActiveDistance = 1.2f;
 
-	private Transform m_TargetObject = null;
-	private Animator m_CrosshairAnimation = null;
-	private Transform m_CrosshairInfo = null;
-	private Camera m_TargetCamera = null;
+	[SerializeField]
+	public string[] LayersToHit = { };
+
+	private Animator CrosshairAnimation = null;
+	private Transform CrosshairInfo = null;
+
+	private Camera TargetCamera = null;
+
+	private int CalculatedLayerMask;
+
+	private Vector3 ScreenCenter;
+	private RaycastHit RaycastHitTarget;
+
+	private Transform PreviousTransform = null;
+	private InteractiveBehaviour[] PreviousBehaviours = { };
+
+	private Transform CurrentTransform = null;
+	private InteractiveBehaviour[] CurrentBehaviours = { };
+	private InteractiveSettings CurrentSettings = null;
 
 	private void Start () {
-		m_CrosshairAnimation = m_HudCanvas.transform.Find ("Reticle").GetComponent<Animator> ();
-		m_CrosshairInfo      = m_HudCanvas.transform.Find ("ReticleInfo");
-		m_TargetCamera       = transform.GetComponentInChildren<Camera> ();
+		CrosshairAnimation  = HudCanvas.transform.Find ("Reticle").GetComponent<Animator> ();
+		CrosshairInfo       = HudCanvas.transform.Find ("ReticleInfo");
+		TargetCamera        = transform.GetComponentInChildren<Camera> ();
+
+		CalculatedLayerMask = LayerMask.GetMask (LayersToHit);
 	}
 
 	private void Update () {
-		Vector3 center = new Vector3 (
-			Screen.width / 2,
+		SetCenter ();
+		RaycastForward ();
+		UpdateReticleInfo ();
+		HandleInput ();
+	}
+
+	private void SetCenter () {
+		ScreenCenter = new Vector3 (
+			Screen.width  / 2,
 			Screen.height / 2
 		);
+	}
 
-		RaycastHit hit;
-		Ray ray = m_TargetCamera.ScreenPointToRay (center);
+	private void RaycastForward () {
+		Ray ray = TargetCamera.ScreenPointToRay (ScreenCenter);
 
-		if (Physics.Raycast (ray, out hit, m_ActiveDistance)) {
-			Transform objectHit = hit.transform;
+		if (PreviousTransform != null)
+			PreviousBehaviours = PreviousTransform.GetComponentsInChildren<InteractiveBehaviour> ();
 
-			InteractiveBehaviour interObj = objectHit.GetComponentInChildren<InteractiveBehaviour> ();
+		if (Physics.Raycast (ray, out RaycastHitTarget, ActiveDistance, CalculatedLayerMask)) {
+			CurrentTransform = RaycastHitTarget.transform;
+			CurrentBehaviours = CurrentTransform.GetComponentsInChildren<InteractiveBehaviour> ();
 
-			if (interObj != null) {
-				if (objectHit != m_TargetObject) {
-					if (m_TargetObject != null) {
-						m_TargetObject.GetComponentInChildren<InteractiveBehaviour> ().OnLookExit ();
+			if (CurrentTransform != PreviousTransform) {
+				if (PreviousTransform != null) {
+					foreach (InteractiveBehaviour Behaviour in PreviousBehaviours) {
+						Behaviour.OnLookExit ();
 					}
+				}
 
-					objectHit.GetComponentInChildren<InteractiveBehaviour> ().OnLookEnter ();
+				foreach (InteractiveBehaviour Behaviour in CurrentBehaviours) {
+					Behaviour.OnLookEnter ();
+				}
 
-					m_TargetObject = objectHit;
-				} else if (objectHit == m_TargetObject)
-					objectHit.GetComponentInChildren<InteractiveBehaviour> ().OnLookStay ();
+				PreviousTransform = CurrentTransform;
+			} else if (CurrentTransform == PreviousTransform) {
+				foreach (InteractiveBehaviour Behaviour in CurrentBehaviours) {
+					Behaviour.OnLookStay ();
+				}
 			}
 		} else {
-			if (m_TargetObject != null) {
-				m_TargetObject.GetComponentInChildren<InteractiveBehaviour> ().OnLookExit ();
-				m_TargetObject = null;
+			CurrentTransform = null;
+
+			if (PreviousTransform != null) {
+				foreach(InteractiveBehaviour Behaviour in PreviousBehaviours) {
+					Behaviour.OnLookExit ();
+				}
+
+				PreviousTransform = null;
 			}
 		}
+	}
 
-		if (m_TargetObject != null) {
-			m_CrosshairInfo.gameObject.SetActive (true);
-			m_CrosshairInfo.GetComponentInChildren<Text> ().text = m_TargetObject.GetComponentInParent<InteractiveSettings> ().Name;
+	private void UpdateReticleInfo () {
+		if (CurrentTransform == null) {
+			CrosshairInfo.gameObject.SetActive (false);
 		} else {
-			m_CrosshairInfo.gameObject.SetActive (false);
-		}
+			CrosshairInfo.gameObject.SetActive (true);
 
-		if (Input.GetButtonDown (m_InteractButton) && m_TargetObject != null) {
-			m_CrosshairAnimation.SetTrigger ("Interact");
-			m_TargetObject.GetComponentInChildren<InteractiveBehaviour> ().OnInteract ();
+			CurrentSettings = CurrentTransform.GetComponentInParent<InteractiveSettings> ();
+			CrosshairInfo.GetComponentInChildren<Text> ().text = CurrentSettings.Name;
+		}
+	}
+
+	private void HandleInput () {
+		if (CurrentTransform == null)
+			return;
+		
+		if (Input.GetButtonDown (InteractButton)) {
+			CrosshairAnimation.SetTrigger ("Interact");
+
+			foreach(InteractiveBehaviour Behaviour in CurrentBehaviours) {
+				Behaviour.OnInteract ();
+			}
 		}
 	}
 
 	private void OnDrawGizmosSelected () {
-		Vector3 center = new Vector3 (
-			Screen.width / 2,
-			Screen.height / 2
-		);
+		if (TargetCamera == null)
+			return;
 
-		RaycastHit hit;
-		Ray ray = m_TargetCamera.ScreenPointToRay (center);
+		Ray ray = TargetCamera.ScreenPointToRay (ScreenCenter);
 
-		if (Physics.Raycast (ray, out hit, m_ActiveDistance)) {
+		if (Physics.Raycast (ray, out RaycastHitTarget, ActiveDistance, CalculatedLayerMask)) {
 			Gizmos.color = Color.red;
 		} else {
 			Gizmos.color = Color.cyan;
 		}
 
-		Gizmos.DrawRay (ray.origin, ray.direction * m_ActiveDistance);
+		Gizmos.DrawRay (ray.origin, ray.direction * ActiveDistance);
 	}
 }

@@ -2,14 +2,7 @@
 using System.Collections;
 
 public class TriggerQuest : InteractiveBehaviour {
-
-	// Use this for initialization
-	void Start () {
-	
-	}
-	
-	// Update is called once per frame
-	void Update () {
-	
+	override public void OnInteract () {
+		Debug.Log ("Triggering quest element {0}");
 	}
 }
