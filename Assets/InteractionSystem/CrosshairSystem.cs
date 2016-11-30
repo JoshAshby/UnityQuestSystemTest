@@ -2,6 +2,9 @@
 using UnityEngine.UI;
 using System.Collections;
 
+/// <summary>
+/// This script handles 
+/// </summary>
 public class CrosshairSystem : MonoBehaviour {
 	[Header("Display")]
 	[SerializeField]
@@ -79,7 +82,7 @@ public class CrosshairSystem : MonoBehaviour {
 				}
 
 				PreviousTransform = CurrentTransform;
-			} else if (CurrentTransform == PreviousTransform) {
+			} else {
 				foreach (InteractiveBehaviour Behaviour in CurrentBehaviours) {
 					Behaviour.OnLookStay ();
 				}
