@@ -47,13 +47,13 @@ public class GameManager {
 		
 	public void Pause (bool pauseState) {
 		if (pauseState == true) {
-			Time.timeScale = previousTimeScale;
-			gameState = previousGameState;
-		} else {
 			previousGameState = gameState;
 			previousTimeScale = Time.timeScale;
 			Time.timeScale = 0;
 			gameState = GameState.Paused;
+		} else {
+			Time.timeScale = previousTimeScale;
+			gameState = previousGameState;
 		}
 	}
 

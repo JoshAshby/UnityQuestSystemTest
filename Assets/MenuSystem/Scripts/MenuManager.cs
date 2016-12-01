@@ -10,18 +10,20 @@ public class MenuManager : MonoBehaviour {
 	}
 
 	private void Update () {
-		if (Input.GetKeyDown (KeyCode.Escape)) {
-			GameManager.Instance.Pause (true);
+		if (Input.GetButtonDown ("Cancel")) {
+			GameManager.Instance.Pause (!PauseMenuCanvas.gameObject.activeSelf);
 		}
 	}
 
-	private void OnGui () {
-		if (GameManager.Instance.paused) {
-			PauseMenuCanvas.enabled = true;
-		}
+	private void OnGUI () {
+		PauseMenuCanvas.gameObject.SetActive (GameManager.Instance.gameState == GameManager.GameState.Paused);
 	}
 
 	public void ResumeGame () {
 		GameManager.Instance.Pause (false);
+	}
+
+	public void QuitGame () {
+		GameManager.Instance.Quit ();
 	}
 }
