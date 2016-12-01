@@ -14,32 +14,46 @@ public class GameManager {
 		get { return instance; }
 	}
 
-	private bool _paused = Time.timeScale == 0 ? true : false;
-	public bool paused {
-		get { return _paused; }
+	public delegate void OnStateChangeHandler ();
+	public event OnStateChangeHandler OnStateChange;
+
+	public enum GameState {
+		NullState,
+		Intro,
+		MainMenu,
+		Playing,
+		Paused
+	}
+
+	public GameState gameState {
+		get;
+		private set;
 	}
 
 	private float previousTimeScale = 1.0f;
+	private GameState previousGameState = GameState.NullState;
 
 	public void Pause () {
 		if (Time.timeScale == 0.0f) {
 			Time.timeScale = previousTimeScale;
-			_paused = true;
+			gameState = previousGameState;
 		} else {
+			previousGameState = gameState;
 			previousTimeScale = Time.timeScale;
 			Time.timeScale = 0;
-			_paused = false;
+			gameState = GameState.Paused;
 		}
 	}
 		
 	public void Pause (bool pauseState) {
 		if (pauseState == true) {
 			Time.timeScale = previousTimeScale;
-			_paused = true;
+			gameState = previousGameState;
 		} else {
+			previousGameState = gameState;
 			previousTimeScale = Time.timeScale;
 			Time.timeScale = 0;
-			_paused = false;
+			gameState = GameState.Paused;
 		}
 	}
 
