@@ -1,12 +1,9 @@
 ﻿using UnityEngine;
-using System.Collections;
+using Zenject;
 
 public class TriggerQuest : InteractiveBehaviour {
-    private GameManager _gameManager;
-
-    public TriggerQuest (GameManager gameManager) {
-        _gameManager = gameManager;
-    }
+    [Inject]
+    private IGameManager _gameManager;
 
     override public void OnInteract () {
         Debug.Log ("Triggering quest element {0}");

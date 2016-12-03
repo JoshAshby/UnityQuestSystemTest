@@ -1,52 +1,8 @@
-﻿using UnityEngine;
-using System.Collections.Generic;
-using UnityEngine.UI;
-using Zenject;
+﻿using UnityEditor;
+using UnityEngine;
 #if UNITY_EDITOR
-using UnityEditor;
+using Zenject;
 #endif
-
-public class FSMMachine<T> {
-    public FSMBaseState<T> CurrentState {
-        get;
-        private set;
-    }
-
-    public T CurrentStateName {
-        get;
-        private set;
-    }
-
-    private Dictionary<T, FSMBaseState<T>> _stateMap;
-
-    public delegate void OnStateChangeHandler ();
-    public event OnStateChangeHandler OnStateChange;
-
-    public void AddState (T name, FSMBaseState<T> state) {
-        // Check for Null reference before deleting
-        if (state == null) {
-            Debug.LogError ("FSM ERROR: Null reference for state object is not allowed");
-        }
-
-        _stateMap.Add (name, state);
-    }
-
-    public void AddTransition (T from, T to, FSMBaseTransition transition = null) { }
-
-    public void PerformTransition (T to_name) { }
-}
-
-public abstract class FSMBaseState<T> {
-    public virtual void DoBeforeEntering () { }
-    public virtual void DoBeforeLeaving () { }
-
-    public abstract T Reason ();
-    public abstract void Act ();
-}
-
-public abstract class FSMBaseTransition {
-    public abstract void Act ();
-}
 
 public enum GameStates {
     NullState,
@@ -69,6 +25,10 @@ public class PauseState : FSMBaseState<GameStates> {
     }
 
     public override GameStates Reason () {
+        if (Input.GetButtonDown ("Cancel")) {
+            return GameStates.Playing;
+        }
+
         return GameStates.Paused;
     }
 
@@ -78,6 +38,9 @@ public class PauseState : FSMBaseState<GameStates> {
 
 public class PlayingState : FSMBaseState<GameStates> {
     public override GameStates Reason () {
+        if (Input.GetButtonDown ("Cancel")) {
+            return GameStates.Paused;
+        }
         return GameStates.Playing;
     }
 
@@ -85,15 +48,14 @@ public class PlayingState : FSMBaseState<GameStates> {
     }
 }
 
-public class PauseTransition : FSMBaseTransition {
-    public override void Act () { }
+public interface IGameManager {
+    FSMMachine<GameStates> fsm { get; }
+
+    void SetTransition(GameStates t);
+    void Quit ();
 }
 
-public class UnPauseTransition : FSMBaseTransition {
-    public override void Act () { }
-}
-
-public class GameManager : IFixedTickable {
+public class GameManager : IGameManager, IFixedTickable {
     public FSMMachine<GameStates> fsm {
         get;
         private set;
@@ -101,13 +63,12 @@ public class GameManager : IFixedTickable {
 
     public void SetTransition (GameStates t) { fsm.PerformTransition(t); }
 
-    public void Start () {
+    public GameManager () {
         BuildFSM ();
     }
 
     public void FixedTick () {
-        fsm.CurrentState.Reason ();
-        fsm.CurrentState.Act ();
+        fsm.Reason ();
     }
 
     private void BuildFSM () {
@@ -116,10 +77,10 @@ public class GameManager : IFixedTickable {
         fsm.AddState (GameStates.Paused, new PauseState ());
         fsm.AddState (GameStates.Playing, new PlayingState ());
 
-        fsm.AddTransition (GameStates.Paused, GameStates.Playing, new UnPauseTransition ());
-        fsm.AddTransition (GameStates.Playing, GameStates.Paused, new PauseTransition ());
+        fsm.AddTransition (GameStates.Paused, GameStates.Playing);
+        fsm.AddTransition (GameStates.Playing, GameStates.Paused);
 
-        fsm.PerformTransition (GameStates.Playing);
+        fsm.SetEntryState (GameStates.Playing);
     }
 
     public void Quit () {

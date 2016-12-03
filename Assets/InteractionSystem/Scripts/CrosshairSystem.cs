@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
-using System.Collections;
+using Zenject;
 
 /// <summary>
 /// This script handles
@@ -38,6 +38,9 @@ public class CrosshairSystem : MonoBehaviour {
     private InteractiveBehaviour[] CurrentBehaviours = { };
     private InteractiveSettings CurrentSettings = null;
 
+    [Inject]
+    private IGameManager _gameManager;
+
     private void Start () {
         CrosshairAnimation  = HudCanvas.transform.Find ("Reticle").GetComponent<Animator> ();
         CrosshairInfo       = HudCanvas.transform.Find ("ReticleInfo");
@@ -47,6 +50,13 @@ public class CrosshairSystem : MonoBehaviour {
     }
 
     private void Update () {
+        if (_gameManager.fsm.CurrentStateName == GameStates.Paused) {
+            HudCanvas.gameObject.SetActive (false);
+            return;
+        }
+
+        HudCanvas.gameObject.SetActive (true);
+
         SetCenter ();
         RaycastForward ();
         UpdateReticleInfo ();
