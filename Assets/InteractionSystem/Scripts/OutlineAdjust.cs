@@ -1,10 +1,14 @@
 ﻿using UnityEngine;
-using System.Collections;
 
 public class OutlineAdjust : InteractiveBehaviour {
-	public Color change_to;
+	[HeaderAttribute("Material Color")]
+	[SerializeField]
+	public Color ChangeToColor;
 
-	private Color old_color;
+	[SerializeField]
+    public string MaterialColorName;
+
+    private Color old_color;
 	private Material material;
 
 	void Start() {
@@ -12,14 +16,14 @@ public class OutlineAdjust : InteractiveBehaviour {
 	}
 
 	override public void OnLookEnter () {
-		Debug.LogFormat ("Changing color to {0}", change_to.ToString());
+		Debug.LogFormat ("Changing color to {0}", ChangeToColor.ToString());
 
-//		old_color = material.GetColor ("_OutlineColor");
-//		material.SetColor("_OutlineColor", change_to);
+		old_color = material.GetColor (MaterialColorName);
+		material.SetColor(MaterialColorName, ChangeToColor);
 	}
 
 	override public void OnLookExit () {
-		Debug.LogFormat ("Reverting color from {0}", change_to.ToString());
-//		material.SetColor("_OutlineColor", old_color);
+		Debug.LogFormat ("Reverting color from {0}", ChangeToColor.ToString());
+		material.SetColor(MaterialColorName, old_color);
 	}
 }

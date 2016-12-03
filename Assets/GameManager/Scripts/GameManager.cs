@@ -1,61 +1,88 @@
 ﻿using UnityEngine;
 using System.Collections;
 using UnityEngine.UI;
+using Zenject;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
 
-public class GameManager {
-	// make sure the constructor is private, so it can only be instantiated here
-	private static GameManager instance = new GameManager();
-	private GameManager() { }
+public enum GameStates {
+	NullState,
+	Playing,
+	Paused,
+	Cutscene,
+	Menu
+}
 
-	public static GameManager Instance {
-		get { return instance; }
+public interface IFSMStateExt {
+	void DoBeforeEntering ();
+}
+
+public interface IFSMState : IFSMStateExt {
+}
+
+public abstract class BaseFSMState : IFSMState {
+
+}
+
+public class FSMBase {
+}
+
+public class PauseState : IFSMState {
+	private float previousTimeScale = 1.0f;
+
+	public void DoBeforeEntering () {
+		previousTimeScale = Time.timeScale;
+		Time.timeScale = 0;
 	}
 
+	public override void DoBeforeLeaving () {
+		Time.timeScale = previousTimeScale;
+	}
+
+	public override void Reason (GameObject actor, GameObject actee) {
+	}
+
+	public override void Act (GameObject actor, GameObject actee) {
+	}
+}
+
+public class PlayingState : IFSMState {
+	public override void Reason (GameObject actor, GameObject actee) {
+	}
+
+	public override void Act (GameObject actor, GameObject actee) {
+	}
+}
+	
+public class GameManager : IFixedTickable {
 	public delegate void OnStateChangeHandler ();
 	public event OnStateChangeHandler OnStateChange;
+	
+	private FSMSystem fsm;
+ 
+    public void SetTransition (Transition t) { fsm.PerformTransition(t); }
+ 
+    public void Start () {
+        MakeFSM();
+    }
+ 
+    public void FixedTick () {
+        fsm.CurrentState.Reason(null, null);
+        fsm.CurrentState.Act(null, null);
+    }
+ 
+    private void MakeFSM () {
+        fsm = new FSMSystem();
 
-	public enum GameState {
-		NullState,
-		Intro,
-		MainMenu,
-		Playing,
-		Paused
-	}
+        fsm.AddState(GameStates.Paused, new PauseState());
+		fsm.AddState(GameStates.Playing, new PlayingState());
 
-	public GameState gameState {
-		get;
-		private set;
-	}
+		fsm.AddTransition(GameStates.Paused, new UnPauseTransition(), GameStates.Playing);
+		fsm.AddTransition(GameStates.Playing, new PauseTransition(), GameStates.Paused);
 
-	private float previousTimeScale = 1.0f;
-	private GameState previousGameState = GameState.NullState;
-
-	public void Pause () {
-		if (Time.timeScale == 0.0f) {
-			Time.timeScale = previousTimeScale;
-			gameState = previousGameState;
-		} else {
-			previousGameState = gameState;
-			previousTimeScale = Time.timeScale;
-			Time.timeScale = 0;
-			gameState = GameState.Paused;
-		}
-	}
-		
-	public void Pause (bool pauseState) {
-		if (pauseState == true) {
-			previousGameState = gameState;
-			previousTimeScale = Time.timeScale;
-			Time.timeScale = 0;
-			gameState = GameState.Paused;
-		} else {
-			Time.timeScale = previousTimeScale;
-			gameState = previousGameState;
-		}
-	}
+		fsm.PerformTransition(GameStates.Playing);
+    }
 
 	public void Quit () {
 		#if UNITY_EDITOR
