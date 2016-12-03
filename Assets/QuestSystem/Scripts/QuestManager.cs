@@ -12,19 +12,19 @@ public class QuestEvent : UnityEvent<Quest> {}
 
 [Serializable]
 public class QuestManager : MonoBehaviour {
-	public List<Quest> Quests;
+    public List<Quest> Quests;
 
-	public AudioSource audioSource;
+    public AudioSource audioSource;
 
-	public QuestEvent OnQuestStart = new QuestEvent();
-	public QuestEvent OnQuestUpdate = new QuestEvent();
-	public QuestEvent OnQuestComplete = new QuestEvent();
-	public QuestEvent OnQuestFail = new QuestEvent();
+    public QuestEvent OnQuestStart = new QuestEvent();
+    public QuestEvent OnQuestUpdate = new QuestEvent();
+    public QuestEvent OnQuestComplete = new QuestEvent();
+    public QuestEvent OnQuestFail = new QuestEvent();
 
-	private static QuestManager instance = null;
+    private static QuestManager instance = null;
 
-	public static QuestManager Instance {
-		get { return instance; }
+    public static QuestManager Instance {
+    	get { return instance; }
 	}
 
 	void Awake () {

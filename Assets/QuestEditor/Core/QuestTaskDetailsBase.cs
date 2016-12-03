@@ -2,6 +2,6 @@
 using System.Collections;
 
 namespace Adnc.Quest {
-	public class QuestTaskDetailsBase<T> : QuestDetailsBase<T> {
-	}
+    public class QuestTaskDetailsBase<T> : QuestDetailsBase<T> {
+    }
 }

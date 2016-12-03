@@ -10,30 +10,30 @@ Written by Roberto Cezar Bianchini, July 2010
 
 
 How to use:
-	1. Place the labels for the transitions and the states of the Finite State System
-	    in the corresponding enums.
+    1. Place the labels for the transitions and the states of the Finite State System
+        in the corresponding enums.
 
-	2. Write new class(es) inheriting from FSMState and fill each one with pairs (transition-state).
-	    These pairs represent the state S2 the FSMSystem should be if while being on state S1, a
-	    transition T is fired and state S1 has a transition from it to S2. Remember this is a Deterministic FSM.
-	    You can't have one transition leading to two different states.
+    2. Write new class(es) inheriting from FSMState and fill each one with pairs (transition-state).
+        These pairs represent the state S2 the FSMSystem should be if while being on state S1, a
+        transition T is fired and state S1 has a transition from it to S2. Remember this is a Deterministic FSM.
+        You can't have one transition leading to two different states.
 
-	   Method Reason is used to determine which transition should be fired.
-	   You can write the code to fire transitions in another place, and leave this method empty if you
-	   feel it's more appropriate to your project.
+       Method Reason is used to determine which transition should be fired.
+       You can write the code to fire transitions in another place, and leave this method empty if you
+       feel it's more appropriate to your project.
 
-	   Method Act has the code to perform the actions the NPC is supposed do if it's on this state.
-	   You can write the code for the actions in another place, and leave this method empty if you
-	   feel it's more appropriate to your project.
+       Method Act has the code to perform the actions the NPC is supposed do if it's on this state.
+       You can write the code for the actions in another place, and leave this method empty if you
+       feel it's more appropriate to your project.
 
-	3. Create an instance of FSMSystem class and add the states to it.
+    3. Create an instance of FSMSystem class and add the states to it.
 
-	4. Call Reason and Act (or whichever methods you have for firing transitions and making the NPCs
-	     behave in your game) from your Update or FixedUpdate methods.
+    4. Call Reason and Act (or whichever methods you have for firing transitions and making the NPCs
+         behave in your game) from your Update or FixedUpdate methods.
 
-	Asynchronous transitions from Unity Engine, like OnTriggerEnter, SendMessage, can also be used,
-	just call the Method PerformTransition from your FSMSystem instance with the correct Transition
-	when the event occurs.
+    Asynchronous transitions from Unity Engine, like OnTriggerEnter, SendMessage, can also be used,
+    just call the Method PerformTransition from your FSMSystem instance with the correct Transition
+    when the event occurs.
 
 
 

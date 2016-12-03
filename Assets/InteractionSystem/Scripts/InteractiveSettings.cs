@@ -2,9 +2,9 @@
 using System.Collections;
 
 public class InteractiveSettings : MonoBehaviour {
-	[SerializeField]
-	public string Name = "";
+    [SerializeField]
+    public string Name = "";
 
-	[SerializeField]
-	public bool OneTime = false;
+    [SerializeField]
+    public bool OneTime = false;
 }

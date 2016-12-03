@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 
 namespace Adnc.Quest {
-	[System.Serializable]
-	public class QuestDatabase : QuestDatabaseBase<QuestEntry> {
-	}
+    [System.Serializable]
+    public class QuestDatabase : QuestDatabaseBase<QuestEntry> {
+    }
 }
