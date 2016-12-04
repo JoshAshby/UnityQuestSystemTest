@@ -9,14 +9,8 @@ public class MenuManager : MonoBehaviour {
     [Inject]
     private IGameManager _gameManager;
 
-    private void Start () {
-    }
-
-    private void Update () {
-    }
-
     private void OnGUI () {
-        PauseMenuCanvas.gameObject.SetActive (_gameManager.fsm.CurrentState == GameStates.Paused);
+        PauseMenuCanvas.gameObject.SetActive (_gameManager.fsm.CurrentState == GameStates.Menu);
     }
 
     public void ResumeGame () {

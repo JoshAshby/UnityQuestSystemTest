@@ -6,12 +6,10 @@ using Zenject;
 
 public enum GameStates {
     Playing,
-    Paused,
-    Cutscene,
     Menu
 }
 
-public class PauseState : FSMBaseState<GameStates> {
+public class MenuState : FSMBaseState<GameStates> {
     private float previousTimeScale = 1.0f;
 
     public override void DoBeforeEntering () {
@@ -28,7 +26,7 @@ public class PauseState : FSMBaseState<GameStates> {
             return GameStates.Playing;
         }
 
-        return GameStates.Paused;
+        return GameStates.Menu;
     }
 
     public override void Act () { }
@@ -37,7 +35,7 @@ public class PauseState : FSMBaseState<GameStates> {
 public class PlayingState : FSMBaseState<GameStates> {
     public override GameStates Reason () {
         if (Input.GetButtonDown ("Cancel")) {
-            return GameStates.Paused;
+            return GameStates.Menu;
         }
 
         return GameStates.Playing;
@@ -70,11 +68,11 @@ public class GameManager : IGameManager, ITickable {
     private void BuildFSM () {
         fsm = new FSMMachine<GameStates> ();
 
-        fsm.AddState (GameStates.Paused, new PauseState ());
+        fsm.AddState (GameStates.Menu, new MenuState ());
         fsm.AddState (GameStates.Playing, new PlayingState ());
 
-        fsm.AddTransition (GameStates.Paused, GameStates.Playing);
-        fsm.AddTransition (GameStates.Playing, GameStates.Paused);
+        fsm.AddTransition (GameStates.Menu, GameStates.Playing);
+        fsm.AddTransition (GameStates.Playing, GameStates.Menu);
 
         fsm.SetEntryState (GameStates.Playing);
     }
