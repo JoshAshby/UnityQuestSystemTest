@@ -16,8 +16,7 @@ public class MenuManager : MonoBehaviour {
     }
 
     private void OnGUI () {
-        bool shouldShowPause = _gameManager.fsm.CurrentStateName == GameStates.Paused;
-        PauseMenuCanvas.gameObject.SetActive (shouldShowPause);
+        PauseMenuCanvas.gameObject.SetActive (_gameManager.fsm.CurrentState == GameStates.Paused);
     }
 
     public void ResumeGame () {

@@ -50,7 +50,7 @@ public class CrosshairSystem : MonoBehaviour {
     }
 
     private void Update () {
-        if (_gameManager.fsm.CurrentStateName == GameStates.Paused) {
+        if (_gameManager.fsm.CurrentState == GameStates.Paused) {
             HudCanvas.gameObject.SetActive (false);
             return;
         }

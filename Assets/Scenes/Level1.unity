@@ -193,7 +193,7 @@ Prefab:
       objectReference: {fileID: 0}
     - target: {fileID: 1000013954917420, guid: 8c685885bf89044f2a4648216d1d1e3c, type: 2}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: 8c685885bf89044f2a4648216d1d1e3c, type: 2}
@@ -905,7 +905,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   ChangeToColor: {r: 0, g: 0, b: 0, a: 0}
-  MaterialColorName: 
+  MaterialColorName: Color
 --- !u!1 &1305559605
 GameObject:
   m_ObjectHideFlags: 0

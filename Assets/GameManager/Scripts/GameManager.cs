@@ -5,7 +5,6 @@ using Zenject;
 #endif
 
 public enum GameStates {
-    NullState,
     Playing,
     Paused,
     Cutscene,
@@ -32,8 +31,7 @@ public class PauseState : FSMBaseState<GameStates> {
         return GameStates.Paused;
     }
 
-    public override void Act () {
-    }
+    public override void Act () { }
 }
 
 public class PlayingState : FSMBaseState<GameStates> {
@@ -41,11 +39,11 @@ public class PlayingState : FSMBaseState<GameStates> {
         if (Input.GetButtonDown ("Cancel")) {
             return GameStates.Paused;
         }
+
         return GameStates.Playing;
     }
 
-    public override void Act () {
-    }
+    public override void Act () { }
 }
 
 public interface IGameManager {
@@ -55,19 +53,17 @@ public interface IGameManager {
     void Quit ();
 }
 
-public class GameManager : IGameManager, IFixedTickable {
+public class GameManager : IGameManager, ITickable {
     public FSMMachine<GameStates> fsm {
         get;
         private set;
     }
 
-    public void SetTransition (GameStates t) { fsm.PerformTransition(t); }
-
     public GameManager () {
         BuildFSM ();
     }
 
-    public void FixedTick () {
+    public void Tick () {
         fsm.Reason ();
     }
 
@@ -89,5 +85,9 @@ public class GameManager : IGameManager, IFixedTickable {
         #else
         Application.Quit ();
         #endif
+    }
+
+    public void SetTransition (GameStates t) {
+        fsm.PerformTransition(t);
     }
 }

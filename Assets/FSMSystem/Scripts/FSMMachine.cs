@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class FSMMachine<T> where T : struct, IConvertible, IComparable, IFormattable {
-    public FSMBaseState<T> CurrentState {
-        get { return _stateMap[CurrentStateName]; }
+    public FSMBaseState<T> CurrentStateObject {
+        get { return _stateMap[CurrentState]; }
     }
 
-    public T CurrentStateName {
+    public T CurrentState {
         get;
         private set;
     }
@@ -15,7 +15,7 @@ public class FSMMachine<T> where T : struct, IConvertible, IComparable, IFormatt
     private Dictionary<T, FSMBaseState<T>> _stateMap;
     private Dictionary<T, Dictionary<T, FSMBaseTransition>> _transitionMap;
 
-    public delegate void OnStateChangeHandler ();
+    public delegate void OnStateChangeHandler (T newState);
     public event OnStateChangeHandler OnStateChange;
 
     public FSMMachine () {
@@ -62,39 +62,42 @@ public class FSMMachine<T> where T : struct, IConvertible, IComparable, IFormatt
             return;
         }
 
-        CurrentStateName = name;
+        CurrentState = name;
     }
 
     public bool PerformTransition (T to_name) {
-        Dictionary<T, FSMBaseTransition> currentTransitionMap = _transitionMap[CurrentStateName];
+        Dictionary<T, FSMBaseTransition> currentTransitionMap = _transitionMap[CurrentState];
         if (!currentTransitionMap.ContainsKey (to_name)) {
-            Debug.LogErrorFormat ("FSM ERROR: No transition exists from state {0} to state {1}!", CurrentStateName.ToString (), to_name.ToString ());
+            Debug.LogErrorFormat ("FSM ERROR: No transition exists from state {0} to state {1}!", CurrentState.ToString (), to_name.ToString ());
             return false;
         }
 
-        CurrentState.DoBeforeLeaving ();
+        CurrentStateObject.DoBeforeLeaving ();
 
         FSMBaseTransition transition = currentTransitionMap[to_name];
         if (transition != null) {
             transition.Act ();
         }
 
-        CurrentStateName = to_name;
+        CurrentState = to_name;
 
-        CurrentState.DoBeforeEntering ();
+        CurrentStateObject.DoBeforeEntering ();
+
+        if (OnStateChange != null)
+            OnStateChange (CurrentState);
 
         return true;
     }
 
     public void Reason () {
-        T nextState = CurrentState.Reason ();
+        T nextState = CurrentStateObject.Reason ();
 
-        if (!nextState.Equals (CurrentStateName)) {
+        if (!nextState.Equals (CurrentState)) {
             if(!PerformTransition (nextState)) {
                 return;
             }
         }
 
-        CurrentState.Act();
+        CurrentStateObject.Act();
     }
 }
