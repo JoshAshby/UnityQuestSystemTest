@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using Zenject;
 
-public class MenuManager : MonoBehaviour {
+public class InGameMenuManager : MonoBehaviour {
     [Header("UI Canvas")]
     [SerializeField]
     public Canvas PauseMenuCanvas = null;
