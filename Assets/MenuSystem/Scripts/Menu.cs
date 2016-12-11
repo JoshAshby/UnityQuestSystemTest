@@ -4,6 +4,9 @@
 [RequireComponent(typeof(CanvasGroup))]
 public class Menu : MonoBehaviour
 {
+    [SerializeField]
+    public GameObject FirstFocus = null;
+
     private Animator _animator;
     private CanvasGroup _canvasGroup;
 

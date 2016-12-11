@@ -15,10 +15,15 @@ public class MenuState : FSMBaseState<GameStates> {
     public override void DoBeforeEntering () {
         previousTimeScale = Time.timeScale;
         Time.timeScale = 0;
+
+        Cursor.lockState = CursorLockMode.None;
     }
 
     public override void DoBeforeLeaving () {
         Time.timeScale = previousTimeScale;
+
+        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible   = false;
     }
 
     public override GameStates Reason () {

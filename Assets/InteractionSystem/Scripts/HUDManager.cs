@@ -4,13 +4,15 @@ using Zenject;
 
 public class HUDManager : MonoBehaviour
 {
+    [Header("UI Canvas")]
+    [SerializeField]
     public CanvasGroup Reticle = null;
+
+    [SerializeField]
     public ReticleInfo ReticleInfo = null;
 
     private CanvasGroup _canvasGroup = null;
-
     private CrosshairSystem _crosshair = null;
-
     private Animator _reticleAnimator = null;
 
     [Inject]

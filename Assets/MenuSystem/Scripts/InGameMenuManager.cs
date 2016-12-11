@@ -1,25 +1,32 @@
 ﻿using UnityEngine;
 using Zenject;
 
+[RequireComponent(typeof(MenuManager))]
 public class InGameMenuManager : MonoBehaviour
 {
     [Header("UI Canvas")]
     [SerializeField]
     public Menu PauseMenu = null;
 
+    private MenuManager _menuManager;
+
     [Inject]
     private IGameManager _gameManager;
-
-    private MenuManager _menuManager;
 
     private void Awake()
     {
         _menuManager = GetComponent<MenuManager>();
+        _gameManager.fsm.OnStateChange += OnStateChange;
     }
 
-    private void Update()
+    private void Destroy()
     {
-        if (_gameManager.fsm.CurrentState == GameStates.Menu)
+        _gameManager.fsm.OnStateChange -= OnStateChange;
+    }
+
+    public void OnStateChange(GameStates state)
+    {
+        if (state == GameStates.Menu)
             _menuManager.ShowMenu(PauseMenu);
         else
             _menuManager.ClearMenu();
