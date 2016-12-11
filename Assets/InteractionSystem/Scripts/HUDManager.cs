@@ -5,14 +5,13 @@ using Zenject;
 public class HUDManager : MonoBehaviour
 {
     public CanvasGroup Reticle = null;
-    public CanvasGroup ReticleInfo = null;
+    public ReticleInfo ReticleInfo = null;
 
     private CanvasGroup _canvasGroup = null;
 
     private CrosshairSystem _crosshair = null;
 
     private Animator _reticleAnimator = null;
-    private Text _infoText = null;
 
     [Inject]
     private IGameManager _gameManager;
@@ -20,19 +19,16 @@ public class HUDManager : MonoBehaviour
     private void Awake()
     {
         _crosshair = GetComponentInParent<CrosshairSystem>();
-        _infoText = ReticleInfo.GetComponentInChildren<Text>();
         _reticleAnimator = Reticle.GetComponent<Animator>();
         _canvasGroup = GetComponent<CanvasGroup>();
 
-        ReticleInfo.alpha = 0f;
-
         _crosshair.OnLookChange += OnLookChange;
-        _crosshair.OnInteract += OnInteract;
+        _crosshair.OnInteract   += OnInteract;
     }
 
     private void Destroy() {
         _crosshair.OnLookChange -= OnLookChange;
-        _crosshair.OnInteract -= OnInteract;
+        _crosshair.OnInteract   -= OnInteract;
     }
 
     private void Update()
@@ -49,29 +45,17 @@ public class HUDManager : MonoBehaviour
     {
         Debug.Log("Encountered object");
         if (obj != null)
-           {
-            _reticleAnimator.SetTrigger("Look");
-            ShowInfo(obj.GetComponent<InteractiveSettings>().Name);
+        {
+            _reticleAnimator.SetBool("Looking", true);
+            ReticleInfo.ShowInfo(obj.GetComponent<InteractiveSettings>().Name);
         }
         else
         {
-            ClearInfo();
+            ReticleInfo.ClearInfo();
         }
     }
 
     public void OnInteract(Transform obj) {
         _reticleAnimator.SetTrigger("Interact");
-    }
-
-    public void ClearInfo()
-    {
-        ReticleInfo.alpha = 0f;
-        _infoText.text = "";
-    }
-
-    public void ShowInfo(string info)
-    {
-        _infoText.text = info;
-        ReticleInfo.alpha = 1f;
     }
 }
