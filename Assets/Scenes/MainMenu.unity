@@ -1181,7 +1181,7 @@ MonoBehaviour:
       m_Calls: []
     m_TypeName: UnityEngine.UI.MaskableGraphic+CullStateChangedEvent, UnityEngine.UI,
       Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
-  m_Sprite: {fileID: 21300000, guid: 53b80a50a82b04351854fbbf50e76b67, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 6ec6d426c5a864d6895622162ccb31d1, type: 3}
   m_Type: 1
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -1695,7 +1695,7 @@ Canvas:
   m_GameObject: {fileID: 1920312477}
   m_Enabled: 1
   serializedVersion: 2
-  m_RenderMode: 1
+  m_RenderMode: 0
   m_Camera: {fileID: 605999322}
   m_PlaneDistance: 50
   m_PixelPerfect: 1
