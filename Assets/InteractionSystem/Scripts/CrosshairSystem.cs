@@ -80,7 +80,7 @@ public class CrosshairSystem : MonoBehaviour
 
         if (Physics.Raycast(ray, out RaycastHitTarget, ActiveDistance, CalculatedLayerMask))
         {
-            CurrentTransform = RaycastHitTarget.transform;
+            CurrentTransform = RaycastHitTarget.transform.parent;
             CurrentBehaviours = CurrentTransform.GetComponentsInChildren<InteractiveBehaviour>();
 
             if (CurrentTransform != PreviousTransform)
