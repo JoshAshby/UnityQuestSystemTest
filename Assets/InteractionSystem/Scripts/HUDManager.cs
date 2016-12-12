@@ -53,6 +53,7 @@ public class HUDManager : MonoBehaviour
         }
         else
         {
+            _reticleAnimator.SetBool("Looking", false);
             ReticleInfo.ClearInfo();
         }
     }

@@ -571,7 +571,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: eec86521f3f034f4abed14cf53dd4156, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  FirstFocus: {fileID: 0}
+  FirstFocus: {fileID: 170605001}
 --- !u!95 &372888085
 Animator:
   serializedVersion: 3
@@ -2516,7 +2516,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   CurrentMenu: {fileID: 0}
   EventSystem: {fileID: 1183913889}
-  EntryButton: {fileID: 148779255}
 --- !u!114 &1931758234
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2836,7 +2835,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 05ec5cf00ca181d45a42ba1870e148c3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_IsWalking: 0
+  m_IsWalking: 1
   m_WalkSpeed: 5
   m_RunSpeed: 10
   m_RunstepLenghten: 0.7
@@ -2851,7 +2850,7 @@ MonoBehaviour:
     MaximumX: 90
     smooth: 0
     smoothTime: 5
-    lockCursor: 1
+    lockCursor: 0
   m_UseFovKick: 1
   m_FovKick:
     Camera: {fileID: 0}
