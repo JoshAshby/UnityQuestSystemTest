@@ -875,7 +875,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Reticle: {fileID: 425754381}
-  ReticleInfo: {fileID: 1554545493}
+  ReticleObj: {fileID: 0}
+  ReticleInfoObj: {fileID: 0}
 --- !u!114 &474551082
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2152,8 +2153,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8589b372fdf15436f85191fa65aa24d1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  ChangeToColor: {r: 0, g: 0, b: 0, a: 0}
-  MaterialColorName: Color
+  ChangeToColor:
+    r: 0
+    g: 0
+    b: 0
+    a: 0
+  MaterialColorName: 436f6c6f72
+  old_color:
+    r: 0
+    g: 0
+    b: 0
+    a: 0
+  material: {fileID: 0}
 --- !u!1 &1305559605
 GameObject:
   m_ObjectHideFlags: 0
@@ -2195,8 +2206,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 24b54943085c743e0b45667f9f6d48d5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Name: Test
-  OneTime: 0
+  HUDName: 'Test #1'
+  DisplayInHud: 1
 --- !u!1 &1413702913
 GameObject:
   m_ObjectHideFlags: 0
