@@ -46,24 +46,26 @@ public class HUDManager : MonoBehaviour
 
     public void ShowHUD()
     {
-        _canvasGroup.alpha = 0f;
+        _canvasGroup.alpha = 1f;
     }
 
     public void HideHUD()
     {
-        _canvasGroup.alpha = 1f;
+        _canvasGroup.alpha = 0f;
     }
 
     public void OnLookChange(Transform obj)
     {
-        Debug.LogFormat("Looking at tranform group {0}", obj.name);
+        if (obj != null)
+            Debug.LogFormat("Looking at tranform group {0}", obj.name);
 
         ReticleObj.LookAt(obj);
         ReticleInfoObj.ShowInfo(obj);
     }
 
     public void OnInteract(Transform obj) {
-        Debug.LogFormat("Interacting with tranform group {0}", obj.name);
+        if (obj != null)
+            Debug.LogFormat("Interacting with tranform group {0}", obj.name);
 
         ReticleObj.InteractWith(obj);
     }
