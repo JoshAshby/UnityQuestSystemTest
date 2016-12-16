@@ -44,4 +44,9 @@ public class MenuManager : MonoBehaviour
         buttonSelected = false;
         EventSystem.SetSelectedGameObject(null);
     }
+
+    public void LoadLevel(string levelName)
+    {
+        LoadingScreenManager.LoadScene(levelName);
+    }
 }

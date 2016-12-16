@@ -1,5 +1,6 @@
 using UnityEngine;
 
+[RequireComponent(typeof(Animator))]
 public class Reticle : MonoBehaviour
 {
     private Animator _reticleAnimator = null;
