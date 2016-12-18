@@ -1,103 +1,51 @@
 ﻿using UnityEngine;
-using UnityEngine.UI;
 using System.Collections;
 using UnityEngine.SceneManagement;
+using Zenject;
 
 public class LoadingScreenManager : MonoBehaviour
 {
-    [Header("Loading Visuals")]
-    public Image fadeOverlay = null;
-
     [Header("Timing Settings")]
     public float waitOnLoadEnd = 0.25f;
-    public float fadeDuration = 0.25f;
 
     [Header("Loading Settings")]
     public LoadSceneMode loadSceneMode = LoadSceneMode.Single;
-    public ThreadPriority loadThreadPriority = ThreadPriority.High;
 
-    [Header("Other")]
-    // If loading additive, link to the cameras audio listener, to avoid multiple active audio listeners
-    public AudioListener audioListener = null;
+    [Inject]
+    private FadeSprite fadeOverlay;
+
+    [Inject(Id = "LoadingSceneName")]
+    private string loadingSceneName;
 
     private AsyncOperation operation = null;
     private Scene currentScene;
 
-    private static string sceneToLoad = "";
-    private static string loadingSceneName = "LoadingScene";
-
-    public static void LoadScene(string levelName)
+    public void LoadScene(string levelName)
     {
-        Application.backgroundLoadingPriority = ThreadPriority.High;
-        sceneToLoad = levelName;
-        SceneManager.LoadScene(loadingSceneName);
-    }
-
-    void Start()
-    {
-        if (sceneToLoad == "")
+        if (levelName == "")
             return;
 
-        fadeOverlay.gameObject.SetActive(true); // Making sure it's on so that we can crossfade Alpha
         currentScene = SceneManager.GetActiveScene();
-        StartCoroutine(LoadAsync(sceneToLoad));
+        StartCoroutine(LoadAsync(levelName));
     }
 
     private IEnumerator LoadAsync(string levelName)
     {
-        yield return null;
+        yield return fadeOverlay.FadeIn();
 
-        FadeIn();
-        StartLoading(levelName);
+		yield return SceneManager.LoadSceneAsync(loadingSceneName);
 
-        float lastProgress = 0f;
+        yield return fadeOverlay.FadeOut();
 
-        while (DoneLoading() == false)
-        {
-            yield return null;
+        if(waitOnLoadEnd != 0)
+            yield return new WaitForSeconds(waitOnLoadEnd);
 
-            if (Mathf.Approximately(operation.progress, lastProgress) == false)
-                lastProgress = operation.progress;
-        }
+        yield return fadeOverlay.FadeIn();
 
-        if (loadSceneMode == LoadSceneMode.Additive)
-            audioListener.enabled = false;
+        yield return SceneManager.LoadSceneAsync(levelName, loadSceneMode);
 
-        yield return new WaitForSeconds(waitOnLoadEnd);
+        yield return SceneManager.UnloadSceneAsync(loadingSceneName);
 
-        FadeOut();
-        yield return new WaitForSeconds(fadeDuration);
-
-        if (loadSceneMode == LoadSceneMode.Additive)
-            SceneManager.UnloadSceneAsync(currentScene.name);
-        else
-            operation.allowSceneActivation = true;
-    }
-
-    private void StartLoading(string levelName)
-    {
-        Application.backgroundLoadingPriority = loadThreadPriority;
-        operation = SceneManager.LoadSceneAsync(levelName, loadSceneMode);
-
-        if (loadSceneMode == LoadSceneMode.Single)
-            operation.allowSceneActivation = false;
-    }
-
-    private bool DoneLoading()
-    {
-        bool check = (loadSceneMode == LoadSceneMode.Additive && operation.isDone);
-        check  = check || (loadSceneMode == LoadSceneMode.Single && operation.progress >= 0.9f);
-
-        return check;
-    }
-
-    void FadeIn()
-    {
-        fadeOverlay.CrossFadeAlpha(0, fadeDuration, true);
-    }
-
-    void FadeOut()
-    {
-        fadeOverlay.CrossFadeAlpha(1, fadeDuration, true);
+        yield return fadeOverlay.FadeOut();
     }
 }

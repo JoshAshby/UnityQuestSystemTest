@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using UnityEngine.EventSystems;
+using Zenject;
 
 public class MenuManager : MonoBehaviour
 {
@@ -10,7 +11,8 @@ public class MenuManager : MonoBehaviour
     [SerializeField]
     public EventSystem EventSystem;
 
-    private bool buttonSelected = false;
+    [Inject]
+    private LoadingScreenManager loadingScreenManager;
 
     private void Start()
     {
@@ -25,10 +27,7 @@ public class MenuManager : MonoBehaviour
         }
 
         if (menu == null)
-        {
-            buttonSelected = false;
             return;
-        }
 
         CurrentMenu = menu;
         CurrentMenu.IsOpen = true;
@@ -41,12 +40,11 @@ public class MenuManager : MonoBehaviour
             CurrentMenu.IsOpen = false;
 
         CurrentMenu = null;
-        buttonSelected = false;
         EventSystem.SetSelectedGameObject(null);
     }
 
     public void LoadLevel(string levelName)
     {
-        LoadingScreenManager.LoadScene(levelName);
+        loadingScreenManager.LoadScene(levelName);
     }
 }

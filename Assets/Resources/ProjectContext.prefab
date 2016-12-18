@@ -67,3 +67,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 705ca78cb68084568afd08a52902dda3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  fadePrefab: {fileID: 1403210337013418, guid: 1ecfece0cda484868879741da87e334f, type: 2}
+  loadingScreenManagerPrefab: {fileID: 1709975590560270, guid: 067a596bc2c064b8aa45f0abcec729ec,
+    type: 2}
+  LoadingSceneName: LoadingScene

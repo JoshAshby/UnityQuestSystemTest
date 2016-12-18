@@ -3,7 +3,8 @@
 --- !u!78 &1
 TagManager:
   serializedVersion: 2
-  tags: []
+  tags:
+  - Interative
   layers:
   - Default
   - TransparentFX
@@ -40,4 +41,13 @@ TagManager:
   m_SortingLayers:
   - name: Default
     uniqueID: 0
+    locked: 0
+  - name: Pause
+    uniqueID: 1582658071
+    locked: 0
+  - name: Loading
+    uniqueID: 1254573137
+    locked: 0
+  - name: Transition
+    uniqueID: 814919293
     locked: 0
