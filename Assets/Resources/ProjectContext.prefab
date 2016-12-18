@@ -16,10 +16,11 @@ GameObject:
   m_ObjectHideFlags: 0
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
-  serializedVersion: 4
+  serializedVersion: 5
   m_Component:
-  - 4: {fileID: 4000012687757704}
-  - 114: {fileID: 114000010432874214}
+  - component: {fileID: 4000012687757704}
+  - component: {fileID: 114000010432874214}
+  - component: {fileID: 114257361699260754}
   m_Layer: 0
   m_Name: ProjectContext
   m_TagString: Untagged
@@ -36,10 +37,10 @@ Transform:
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &114000010432874214
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -51,6 +52,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a4e6589720da476459dc6dd71624b071, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _installers: []
+  _installers:
+  - {fileID: 114257361699260754}
   _installerPrefabs: []
   _scriptableObjectInstallers: []
+--- !u!114 &114257361699260754
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1000013481497022}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 705ca78cb68084568afd08a52902dda3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 

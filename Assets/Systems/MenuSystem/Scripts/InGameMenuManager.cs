@@ -6,7 +6,7 @@ public class InGameMenuManager : MonoBehaviour
 {
     [Header("UI Canvas")]
     [SerializeField]
-    public Menu PauseMenu = null;
+    private Menu PauseMenu = null;
 
     private MenuManager _menuManager;
 

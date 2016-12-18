@@ -263,7 +263,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &1343336862
 RectTransform:
   m_ObjectHideFlags: 0
@@ -348,7 +348,7 @@ MonoBehaviour:
   fadeOverlay: {fileID: 1343336863}
   waitOnLoadEnd: 1
   fadeDuration: 1
-  loadSceneMode: 0
+  loadSceneMode: 1
   loadThreadPriority: 4
   audioListener: {fileID: 455082045}
 --- !u!114 &1489387779

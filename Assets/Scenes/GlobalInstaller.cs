@@ -1,7 +1,7 @@
 using UnityEngine;
 using Zenject;
 
-public class Level1Installer : MonoInstaller<Level1Installer> {
+public class GlobalInstaller : MonoInstaller<GlobalInstaller> {
     public override void InstallBindings () {
         Container.BindAllInterfaces<GameManager>().To<GameManager>().AsSingle();
     }

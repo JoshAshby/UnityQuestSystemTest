@@ -9,10 +9,10 @@ public class HUDManager : MonoBehaviour
 {
     [Header("UI Canvas")]
     [SerializeField]
-    public Reticle ReticleObj         = null;
+    private Reticle ReticleObj         = null;
 
     [SerializeField]
-    public ReticleInfo ReticleInfoObj = null;
+    private ReticleInfo ReticleInfoObj = null;
 
     private CanvasGroup _canvasGroup   = null;
     private CrosshairSystem _crosshair = null;

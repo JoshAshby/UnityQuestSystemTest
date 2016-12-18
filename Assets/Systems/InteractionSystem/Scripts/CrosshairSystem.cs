@@ -3,24 +3,24 @@ using Zenject;
 
 /// <summary>
 /// This script handles raycasting out from the center of the screen to the
-/// distance specificed in `ActiveDistance` and triggers any InteractiveBehaviour
+/// distance specificed in `ActiveDistance` and triggers any IInteractiveBehaviour
 /// Scripts it finds on a collision.
 /// </summary>
 public class CrosshairSystem : MonoBehaviour
 {
     [Header("Input")]
     [SerializeField]
-    public string InteractButton = "Fire1";
+    private string InteractButton = "Fire1";
 
     [Header("Raycast")]
     [SerializeField]
-    public float ActiveDistance = 1.2f;
+    private float ActiveDistance = 1.2f;
 
     [SerializeField]
-    public string[] LayersToHit = { };
+    private string[] LayersToHit = { };
 
     [HideInInspector]
-    public Transform CurrentTransform = null;
+    private Transform CurrentTransform = null;
 
     public delegate void OnLookChangeHandler(Transform obj);
     public event OnLookChangeHandler OnLookChange;
@@ -36,9 +36,9 @@ public class CrosshairSystem : MonoBehaviour
     private RaycastHit RaycastHitTarget;
 
     private Transform PreviousTransform = null;
-    private InteractiveBehaviour[] PreviousBehaviours = { };
+    private IInteractiveBehaviour[] PreviousBehaviours = { };
 
-    private InteractiveBehaviour[] CurrentBehaviours = { };
+    private IInteractiveBehaviour[] CurrentBehaviours = { };
     private InteractiveSettings CurrentSettings = null;
 
     [Inject]
@@ -76,24 +76,24 @@ public class CrosshairSystem : MonoBehaviour
         Ray ray = TargetCamera.ScreenPointToRay(ScreenCenter);
 
         if (PreviousTransform != null)
-            PreviousBehaviours = PreviousTransform.GetComponentsInChildren<InteractiveBehaviour>();
+            PreviousBehaviours = PreviousTransform.GetComponentsInChildren<IInteractiveBehaviour>();
 
         if (Physics.Raycast(ray, out RaycastHitTarget, ActiveDistance, CalculatedLayerMask))
         {
             CurrentTransform = RaycastHitTarget.transform.parent;
-            CurrentBehaviours = CurrentTransform.GetComponentsInChildren<InteractiveBehaviour>();
+            CurrentBehaviours = CurrentTransform.GetComponentsInChildren<IInteractiveBehaviour>();
 
             if (CurrentTransform != PreviousTransform)
             {
                 if (PreviousTransform != null)
                 {
-                    foreach (InteractiveBehaviour Behaviour in PreviousBehaviours)
+                    foreach (IInteractiveBehaviour Behaviour in PreviousBehaviours)
                     {
                         Behaviour.OnLookExit();
                     }
                 }
 
-                foreach (InteractiveBehaviour Behaviour in CurrentBehaviours)
+                foreach (IInteractiveBehaviour Behaviour in CurrentBehaviours)
                 {
                     Behaviour.OnLookEnter();
                 }
@@ -105,7 +105,7 @@ public class CrosshairSystem : MonoBehaviour
             }
             else
             {
-                foreach (InteractiveBehaviour Behaviour in CurrentBehaviours)
+                foreach (IInteractiveBehaviour Behaviour in CurrentBehaviours)
                 {
                     Behaviour.OnLookStay();
                 }
@@ -117,7 +117,7 @@ public class CrosshairSystem : MonoBehaviour
 
             if (PreviousTransform != null)
             {
-                foreach (InteractiveBehaviour Behaviour in PreviousBehaviours)
+                foreach (IInteractiveBehaviour Behaviour in PreviousBehaviours)
                 {
                     Behaviour.OnLookExit();
                 }
@@ -137,7 +137,7 @@ public class CrosshairSystem : MonoBehaviour
 
         if (Input.GetButtonDown(InteractButton))
         {
-            foreach (InteractiveBehaviour Behaviour in CurrentBehaviours)
+            foreach (IInteractiveBehaviour Behaviour in CurrentBehaviours)
             {
                 Behaviour.OnInteract();
             }
