@@ -37,12 +37,12 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0, g: 0, b: 0, a: 1}
+  m_IndirectSpecularColor: {r: 0.37311918, g: 0.38073993, b: 0.35872698, a: 1}
 --- !u!157 &3
 LightmapSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 7
-  m_GIWorkflowMode: 1
+  m_GIWorkflowMode: 0
   m_GISettings:
     serializedVersion: 2
     m_BounceScale: 1
@@ -2164,7 +2164,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _installers: []
-  _installerPrefabs: []
+  _installerPrefabs:
+  - {fileID: 114655741085443866, guid: 2509fe931230a46529db45eeacf170c9, type: 2}
   _scriptableObjectInstallers: []
   _parentNewObjectsUnderRoot: 0
   _contractNames: []

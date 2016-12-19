@@ -9,8 +9,6 @@ public class FadeSprite : MonoBehaviour
     [SerializeField]
     private bool m_fadeOnAwake = false;
     [SerializeField]
-    private bool m_continuous = false;
-    [SerializeField]
     private float m_fadeSpeed = 1.0f;
     [SerializeField]
     private float m_minAlpha = 0;

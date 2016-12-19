@@ -17,7 +17,7 @@ public class LoadingScreenManager : MonoBehaviour
     [Inject(Id = "LoadingSceneName")]
     private string loadingSceneName;
 
-    private AsyncOperation operation = null;
+    private IEnumerator operation = null;
     private Scene currentScene;
 
     public void LoadScene(string levelName)
@@ -26,7 +26,8 @@ public class LoadingScreenManager : MonoBehaviour
             return;
 
         currentScene = SceneManager.GetActiveScene();
-        StartCoroutine(LoadAsync(levelName));
+        operation = LoadAsync(levelName);
+        StartCoroutine(operation);
     }
 
     private IEnumerator LoadAsync(string levelName)

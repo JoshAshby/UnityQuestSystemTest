@@ -110,7 +110,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_startsVisible: 1
   m_fadeOnAwake: 1
-  m_continuous: 0
   m_fadeSpeed: 1
   m_minAlpha: 0
   m_maxAlpha: 1
