@@ -14,7 +14,7 @@ public class LoadingScreenManager : MonoBehaviour
     [Inject]
     private FadeSprite fadeOverlay;
 
-    [Inject(Id = "LoadingSceneName")]
+    [Inject(Id="LoadingSceneName")]
     private string loadingSceneName;
 
     private IEnumerator operation = null;

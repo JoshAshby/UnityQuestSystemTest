@@ -1,12 +1,14 @@
 using System;
 using System.Reflection;
+using System.Linq;
 using UnityEngine;
 using Zenject;
 
 public class StateInstaller : MonoInstaller
 {
     [InstallPrefab(typeof(IRootState))]
-    public RootState rootStatePrefab;
+    [SerializeField]
+    private RootState rootStatePrefab;
 
     [SerializeField]
     private string LoadingSceneName;
@@ -14,7 +16,6 @@ public class StateInstaller : MonoInstaller
     public override void InstallBindings()
     {
         Container.Bind<string>().WithId("LoadingSceneName").FromInstance(LoadingSceneName);
-
         Container.BindAllInterfaces<GameManager>().To<GameManager>().AsSingle();
 
         RecursivelyBind(this);
@@ -22,38 +23,43 @@ public class StateInstaller : MonoInstaller
 
     private void RecursivelyBind(MonoBehaviour root)
     {
-        if (root == null)
-            return;
-
-        foreach (FieldInfo field in GetMonoBehaviorFields(root))
+        foreach (FieldInfo field in GetFields<MonoBehaviour>(root))
         {
-            var installPrefabAsType = GetInstallPrefabType(field);
-            if (installPrefabAsType != null)
-                Container.Bind(installPrefabAsType).FromPrefab(field.GetValue(root) as MonoBehaviour);
+            MonoBehaviour obj = field.GetValue(root) as MonoBehaviour;
+            InstallPrefabAttribute[] attributes = GetAttributes<InstallPrefabAttribute>(field);
 
-            RecursivelyBind(field.GetValue(root) as MonoBehaviour);
+            // If we don't have any InstallPrefabAttributes, assume we're not
+            if (!attributes.Any())
+                break;
+
+            foreach (InstallPrefabAttribute attribute in attributes)
+            {
+                Container.Bind(attribute.type).FromPrefab(obj);
+            }
+
+            RecursivelyBind(obj);
         }
     }
 
-    private FieldInfo[] GetMonoBehaviorFields(MonoBehaviour obj)
+    /// <summary>
+    /// Returns all the fields within `obj` which are also MonoBehaviours
+    /// </summary>
+    private FieldInfo[] GetFields<T>(T obj)
     {
         Type type = obj.GetType();
 
-        FieldInfo[] fields = type.GetFields(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly);
+        FieldInfo[] fields = type.GetFields(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly);
 
-        return fields;
+        return fields.Where(x => typeof(T).IsAssignableFrom(x.FieldType)).ToArray();
     }
 
-    private Type GetInstallPrefabType(FieldInfo field)
+    /// <summary>
+    /// Returns all attributes of type T, returning them as an array
+    /// </summary>
+    private T[] GetAttributes<T>(FieldInfo field)
     {
-        object[] attributes = field.GetCustomAttributes(typeof(InstallPrefabAttribute), false);
+        object[] attributes = field.GetCustomAttributes(typeof(T), false);
 
-        foreach (object attribute in attributes)
-        {
-            if (attribute is InstallPrefabAttribute)
-                return (attribute as InstallPrefabAttribute).type;
-        }
-
-        return null;
+        return attributes.Select(x => (T)x).ToArray();
     }
 }
