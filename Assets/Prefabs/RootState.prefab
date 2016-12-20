@@ -55,4 +55,4 @@ MonoBehaviour:
     type: 2}
   loadingScreenManagerPrefab: {fileID: 114735552093367080, guid: 067a596bc2c064b8aa45f0abcec729ec,
     type: 2}
-  LoadingSceneName: 
+  LoadingSceneName: LoadingScene
