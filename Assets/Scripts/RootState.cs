@@ -2,12 +2,15 @@ using UnityEngine;
 
 public class RootState : MonoBehaviour, IRootState
 {
+    [SerializeField]
     [InstallPrefab(typeof(FadeSprite), Single=true, NonLazy=true)]
-    public FadeSprite fadeSpritePrefab;
+    private FadeSprite fadeSpritePrefab;
 
+    [SerializeField]
     [InstallPrefab(typeof(LoadingScreenManager), Single=true, NonLazy=true)]
-    public LoadingScreenManager loadingScreenManagerPrefab;
+    private LoadingScreenManager loadingScreenManagerPrefab;
 
+    [SerializeField]
     [InstallString("LoadingSceneName")]
-    public string LoadingSceneName;
+    private string LoadingSceneName;
 }

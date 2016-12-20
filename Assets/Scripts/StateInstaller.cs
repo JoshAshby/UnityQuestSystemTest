@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Reflection;
 using System.Linq;
 using UnityEngine;
@@ -6,16 +7,12 @@ using Zenject;
 
 public class StateInstaller : MonoInstaller
 {
+    [SerializeField]
     [InstallPrefab(typeof(IRootState))]
-    [SerializeField]
     private RootState rootStatePrefab;
-
-    [SerializeField]
-    private string LoadingSceneName;
 
     public override void InstallBindings()
     {
-        Container.Bind<string>().WithId("LoadingSceneName").FromInstance(LoadingSceneName);
         Container.BindAllInterfaces<GameManager>().To<GameManager>().AsSingle();
 
         RecursivelyBind(this);
@@ -23,28 +20,51 @@ public class StateInstaller : MonoInstaller
 
     private void RecursivelyBind(MonoBehaviour root)
     {
-        foreach (FieldInfo field in GetFields<MonoBehaviour>(root))
+        HandleInstaller<InstallStringAttribute, string>(root, (attribute, val) =>
         {
-            MonoBehaviour obj = field.GetValue(root) as MonoBehaviour;
-            InstallPrefabAttribute[] attributes = GetAttributes<InstallPrefabAttribute>(field);
+            Container.Bind<string>().WithId(attribute.Id).FromInstance(val);
+        });
 
-            // If we don't have any InstallPrefabAttributes, assume we're not
+        HandleInstaller<InstallPrefabAttribute, MonoBehaviour>(root, (attribute, obj) =>
+        {
+            Container.Bind(attribute.type).FromPrefab(obj).AsSingle();
+        }).ToList().ForEach(x => RecursivelyBind(x));
+    }
+
+    /// <summary>
+    /// Executes handler for every T attribute found, passing in the U type value
+    /// for every field in root
+    /// </summary>
+    private U[] HandleInstaller<T, U>(MonoBehaviour root, Action<T, U> handler)
+    {
+        FieldInfo[] fields = GetFields<U>(root);
+
+        List<U> objects = new List<U>();
+
+        foreach (FieldInfo field in fields)
+        {
+            T[] attributes = GetAttributes<T>(field);
+
             if (!attributes.Any())
                 break;
 
-            foreach (InstallPrefabAttribute attribute in attributes)
+            U val = (U)field.GetValue(root);
+
+            foreach (T attribute in attributes)
             {
-                Container.Bind(attribute.type).FromPrefab(obj);
+                handler(attribute, val);
             }
 
-            RecursivelyBind(obj);
+            objects.Add(val);
         }
+
+        return objects.ToArray();
     }
 
     /// <summary>
     /// Returns all the fields within `obj` which are also MonoBehaviours
     /// </summary>
-    private FieldInfo[] GetFields<T>(T obj)
+    private FieldInfo[] GetFields<T>(object obj)
     {
         Type type = obj.GetType();
 
