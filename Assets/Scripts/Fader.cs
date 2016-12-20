@@ -2,7 +2,7 @@ using UnityEngine;
 using System.Collections;
 using UnityEngine.UI;
 
-public class FadeSprite : MonoBehaviour
+public class Fader : MonoBehaviour, IFader
 {
     [SerializeField]
     private bool m_startsVisible = false;
@@ -17,7 +17,7 @@ public class FadeSprite : MonoBehaviour
 
     private Image fadeOverlay = null;
 
-    void Start()
+    private void Start()
     {
         fadeOverlay = GetComponentInChildren<Image>();
         if (fadeOverlay == null)

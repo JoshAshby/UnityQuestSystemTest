@@ -48,9 +48,8 @@ MonoBehaviour:
   m_GameObject: {fileID: 1041948607172762}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a04565536ae464696b2183b09cdd3bb3, type: 3}
+  m_Script: {fileID: 11500000, guid: 10ad4522c75a64150993001c893fda3c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   rootStatePrefab: {fileID: 114362407203726942, guid: 1e236d5a4cb5c4cbc9f78c4efb964b02,
     type: 2}
-  LoadingSceneName: LoadingScene

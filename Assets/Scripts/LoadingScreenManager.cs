@@ -3,16 +3,18 @@ using System.Collections;
 using UnityEngine.SceneManagement;
 using Zenject;
 
-public class LoadingScreenManager : MonoBehaviour
+public class LoadingScreenManager : MonoBehaviour, ILoadingScreenManager
 {
     [Header("Timing Settings")]
-    public float waitOnLoadEnd = 0.25f;
+    [SerializeField]
+    private float waitOnLoadEnd = 0.25f;
 
     [Header("Loading Settings")]
-    public LoadSceneMode loadSceneMode = LoadSceneMode.Single;
+    [SerializeField]
+    private LoadSceneMode loadSceneMode = LoadSceneMode.Single;
 
     [Inject]
-    private FadeSprite fadeOverlay;
+    private IFader fadeOverlay;
 
     [Inject(Id="LoadingSceneName")]
     private string loadingSceneName;

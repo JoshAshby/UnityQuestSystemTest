@@ -6,13 +6,13 @@ public class MenuManager : MonoBehaviour
 {
     [Header("UI Canvas")]
     [SerializeField]
-    public Menu CurrentMenu;
+    private Menu CurrentMenu;
 
     [SerializeField]
-    public EventSystem EventSystem;
+    private EventSystem EventSystem;
 
     [Inject]
-    private LoadingScreenManager loadingScreenManager;
+    private ILoadingScreenManager loadingScreenManager;
 
     private void Start()
     {

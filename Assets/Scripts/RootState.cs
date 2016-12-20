@@ -3,11 +3,11 @@ using UnityEngine;
 public class RootState : MonoBehaviour, IRootState
 {
     [SerializeField]
-    [InstallPrefab(typeof(FadeSprite), Single=true, NonLazy=true)]
-    private FadeSprite fadeSpritePrefab;
+    [InstallPrefab(typeof(IFader), Single=true, NonLazy=true)]
+    private Fader fadeSpritePrefab;
 
     [SerializeField]
-    [InstallPrefab(typeof(LoadingScreenManager), Single=true, NonLazy=true)]
+    [InstallPrefab(typeof(ILoadingScreenManager), Single=true, NonLazy=true)]
     private LoadingScreenManager loadingScreenManagerPrefab;
 
     [SerializeField]
