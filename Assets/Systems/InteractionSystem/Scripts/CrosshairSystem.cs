@@ -39,7 +39,6 @@ public class CrosshairSystem : MonoBehaviour
     private IInteractiveBehaviour[] PreviousBehaviours = { };
 
     private IInteractiveBehaviour[] CurrentBehaviours = { };
-    private InteractiveSettings CurrentSettings = null;
 
     [Inject]
     private IGameManager _gameManager;

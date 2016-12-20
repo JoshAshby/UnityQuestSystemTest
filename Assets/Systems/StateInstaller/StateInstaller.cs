@@ -8,7 +8,7 @@ using Zenject;
 public class StateInstaller : MonoInstaller
 {
     [SerializeField]
-    [InstallPrefab(typeof(IRootState))]
+    [InstallPrefab(typeof(IRootState), Single=true, NonLazy=true)]
     private RootState rootStatePrefab;
 
     public override void InstallBindings()
@@ -27,7 +27,13 @@ public class StateInstaller : MonoInstaller
 
         HandleInstaller<InstallPrefabAttribute, MonoBehaviour>(root, (attribute, obj) =>
         {
-            Container.Bind(attribute.type).FromPrefab(obj).AsSingle();
+            GameObjectNameGroupNameScopeArgBinder binder = Container.Bind(attribute.type).FromPrefab(obj);
+
+            if(attribute.Single)
+                binder.AsSingle();
+
+            if(attribute.NonLazy)
+                binder.NonLazy();
         }).ToList().ForEach(x => RecursivelyBind(x));
     }
 

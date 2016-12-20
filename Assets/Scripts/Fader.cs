@@ -22,7 +22,7 @@ public class Fader : MonoBehaviour, IFader
         fadeOverlay = GetComponentInChildren<Image>();
         if (fadeOverlay == null)
         {
-            Debug.LogError("FadeSprite: No Image found!");
+            Debug.LogError("Fader: No Image found!");
             return;
         }
 

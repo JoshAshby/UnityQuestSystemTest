@@ -20,14 +20,12 @@ public class LoadingScreenManager : MonoBehaviour, ILoadingScreenManager
     private string loadingSceneName;
 
     private IEnumerator operation = null;
-    private Scene currentScene;
 
     public void LoadScene(string levelName)
     {
         if (levelName == "")
             return;
 
-        currentScene = SceneManager.GetActiveScene();
         operation = LoadAsync(levelName);
         StartCoroutine(operation);
     }
