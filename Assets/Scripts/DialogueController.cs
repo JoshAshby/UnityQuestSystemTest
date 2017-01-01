@@ -44,18 +44,18 @@ namespace Ashogue
         }
 
         public static void StartDialogue(string ID)
-        {}
+        { }
 
         public static void StartDialogue(string ID, DialogueCallback callback)
-        {}
+        { }
 
         public static void ContinueDialogue()
-        {}
+        { }
 
         public static void ContinueDialogue(string choice)
-        {}
+        { }
 
         public static void EndDialogue()
-        {}
+        { }
     }
 }
