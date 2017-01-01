@@ -947,6 +947,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: eec86521f3f034f4abed14cf53dd4156, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  FirstFocus: {fileID: 1895834433}
 --- !u!1 &1246739514
 GameObject:
   m_ObjectHideFlags: 0
@@ -1525,6 +1526,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: eec86521f3f034f4abed14cf53dd4156, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  FirstFocus: {fileID: 249223942}
 --- !u!95 &1935612620
 Animator:
   serializedVersion: 3

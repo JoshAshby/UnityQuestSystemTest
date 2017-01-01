@@ -25,6 +25,11 @@ public class StateInstaller : MonoInstaller
             Container.Bind<string>().WithId(attribute.Id).FromInstance(val);
         });
 
+        HandleInstaller<InstallScriptableAssetAttribute, ScriptableObject>(root, (attribute, obj) =>
+        {
+            Container.BindInstance(obj);
+        });
+
         HandleInstaller<InstallPrefabAttribute, MonoBehaviour>(root, (attribute, obj) =>
         {
             GameObjectNameGroupNameScopeArgBinder binder = Container.Bind(attribute.type).FromPrefab(obj);

@@ -56,3 +56,4 @@ MonoBehaviour:
   loadingScreenManagerPrefab: {fileID: 114735552093367080, guid: 067a596bc2c064b8aa45f0abcec729ec,
     type: 2}
   LoadingSceneName: LoadingScene
+  Quests: {fileID: 11400000, guid: 69fffbbd511564ba3be7d70b7e5093b4, type: 2}

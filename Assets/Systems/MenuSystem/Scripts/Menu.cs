@@ -5,10 +5,7 @@
 public class Menu : MonoBehaviour
 {
     [SerializeField]
-    public GameObject FirstFocus {
-        get;
-        private set;
-    }
+    public GameObject FirstFocus;
 
     private Animator _animator;
     private CanvasGroup _canvasGroup;

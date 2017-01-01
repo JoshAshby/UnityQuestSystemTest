@@ -53,3 +53,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   rootStatePrefab: {fileID: 114362407203726942, guid: 1e236d5a4cb5c4cbc9f78c4efb964b02,
     type: 2}
+  Quests: {fileID: 11400000, guid: 69fffbbd511564ba3be7d70b7e5093b4, type: 2}
