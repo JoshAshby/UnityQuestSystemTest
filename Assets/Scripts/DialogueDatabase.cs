@@ -5,40 +5,62 @@ using System.Xml.Serialization;
 
 namespace Ashogue
 {
-    public class Choice
+    public abstract class IChoice
     {
         [XmlAttribute("id")]
-        public string ID;
+        public string ID = "";
 
-        public string Text;
-        public string NextNodeID;
+        public string Text = "";
+        public string NextNodeID = "";
+    }
+
+    public class Choice : IChoice
+    { }
+
+    public abstract class IMetadata
+    {
+        [XmlAttribute("id")]
+        public string ID = "";
+    }
+
+    public class StringMetadata : IMetadata
+    {
+        public string Value = "";
     }
 
     public abstract class INode
     {
         [XmlAttribute("id")]
-        public string ID;
+        public string ID = "Untitled Node";
 
-        [XmlArray("Choices")]
-        [XmlArrayItem("Choice")]
-        public List<Choice> Choices;
-
-        public XMLDictionary<string, string> Metadata;
+        [XmlArray("Metadata")]
+        [XmlArrayItem("StringMetadata", typeof(StringMetadata))]
+        public List<IMetadata> Metadata = new List<IMetadata>();
     }
 
-    public class TextNode : INode
+    public abstract class IChoiceNode : INode
     {
-        public string Text;
+        [XmlArray("Choices")]
+        [XmlArrayItem("Choice", typeof(Choice))]
+        public List<IChoice> Choices = new List<IChoice>();
     }
+
+    public class TextNode : IChoiceNode
+    {
+        public string Text = "";
+    }
+
+    public class EndNode : INode
+    { }
 
     public class Dialogue
     {
         [XmlAttribute("id")]
-        public string ID;
+        public string ID = "Untitled Dialogue";
 
         [XmlArray("Nodes")]
         [XmlArrayItem("TextNode", typeof(TextNode))]
-        public List<INode> Nodes;
+        public List<INode> Nodes = new List<INode>();
 
         public Dialogue()
         { }
@@ -104,15 +126,15 @@ namespace Ashogue
             if (wasEmpty)
                 return;
 
-            reader.ReadStartElement("item");
+            reader.ReadStartElement("Item");
 
             while (reader.NodeType != System.Xml.XmlNodeType.EndElement)
             {
-                reader.ReadStartElement("key");
+                reader.ReadStartElement("Key");
                 TKey key = (TKey)keySerializer.Deserialize(reader);
                 reader.ReadEndElement();
 
-                reader.ReadStartElement("value");
+                reader.ReadStartElement("Value");
                 TValue value = (TValue)valueSerializer.Deserialize(reader);
                 reader.ReadEndElement();
 
@@ -129,15 +151,15 @@ namespace Ashogue
             XmlSerializer keySerializer = new XmlSerializer(typeof(TKey));
             XmlSerializer valueSerializer = new XmlSerializer(typeof(TValue));
 
-            writer.WriteStartElement("item");
+            writer.WriteStartElement("Item");
 
             foreach (TKey key in this.Keys)
             {
-                writer.WriteStartElement("key");
+                writer.WriteStartElement("Key");
                 keySerializer.Serialize(writer, key);
                 writer.WriteEndElement();
 
-                writer.WriteStartElement("value");
+                writer.WriteStartElement("Value");
                 TValue value = this[key];
                 valueSerializer.Serialize(writer, value);
                 writer.WriteEndElement();

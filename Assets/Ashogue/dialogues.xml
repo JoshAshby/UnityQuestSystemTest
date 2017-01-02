@@ -1,5 +1,38 @@
 <?xml version="1.0" encoding="us-ascii"?>
 <DialogueCollection xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-  <Dialogues>>
+  <Dialogues>
+    <Dialogue id="Test">
+      <Nodes>
+        <TextNode id="First!">
+          <Metadata>
+            <StringMetadata id="Testing">
+              <Value>HALLO!!!</Value>
+            </StringMetadata>
+          </Metadata>
+          <Choices>
+            <Choice id="">
+              <Text>Next!</Text>
+              <NextNodeID>Secondsies</NextNodeID>
+            </Choice>
+          </Choices>
+          <Text />
+        </TextNode>
+        <TextNode id="Secondsies">
+          <Metadata />
+          <Choices>
+            <Choice id="">
+              <Text>(Continue)</Text>
+              <NextNodeID>Thirdly</NextNodeID>
+            </Choice>
+          </Choices>
+          <Text />
+        </TextNode>
+        <TextNode id="Thirdly">
+          <Metadata />
+          <Choices />
+          <Text />
+        </TextNode>
+      </Nodes>
+    </Dialogue>
   </Dialogues>
 </DialogueCollection>
