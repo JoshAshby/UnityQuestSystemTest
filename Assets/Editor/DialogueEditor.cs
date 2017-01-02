@@ -246,7 +246,7 @@ public class DialogueEditor : EditorWindow
 
         GUILayout.BeginHorizontal();
         choiceShow = EditorGUILayout.Foldout(choiceShow, "Choices");
-        if(choiceShow)
+        if (choiceShow)
             if (GUILayout.Button("Add Choice"))
                 (currentNode as IChoiceNode).Choices.Add(new Choice());
         GUILayout.EndHorizontal();
@@ -265,7 +265,7 @@ public class DialogueEditor : EditorWindow
                 GUILayout.Label("Next Node ID");
 
                 int choiceIdx = currentDialogue.Nodes.FindIndex(x => x.ID == choice.NextNodeID);
-                if(choiceIdx == -1)
+                if (choiceIdx == -1)
                     choiceIdx = 0;
                 choiceIdx = EditorGUILayout.Popup(choiceIdx, currentDialogue.Nodes.Select(x => x.ID).ToArray());
                 choice.NextNodeID = currentDialogue.Nodes[choiceIdx].ID;
@@ -292,7 +292,7 @@ public class DialogueEditor : EditorWindow
 
         GUILayout.BeginHorizontal();
         metadataShow = EditorGUILayout.Foldout(metadataShow, "Metadata");
-        if(metadataShow)
+        if (metadataShow)
             if (GUILayout.Button("Add Metadata"))
                 currentNode.Metadata.Add(new StringMetadata());
         GUILayout.EndHorizontal();
@@ -325,6 +325,34 @@ public class DialogueEditor : EditorWindow
         GUILayout.EndVertical();
     }
 
+    private List<string> ignoreFields;
+    private void CustomNodeEditor()
+    {
+        if(ignoreFields == null || !ignoreFields.Any())
+            ignoreFields = typeof(IChoiceNode).GetFields().Select(x => x.Name).ToList();
+
+        List<FieldInfo> fields = currentNode.GetType().GetFields().Where(x => !ignoreFields.Contains(x.Name)).ToList();
+        if(!fields.Any())
+            return;
+
+        GUILayout.BeginVertical();
+        GUILayout.Label("Custom Node Fields");
+        foreach (FieldInfo field in fields)
+        {
+            GUILayout.BeginHorizontal();
+            GUILayout.Label(field.Name);
+            if(field.FieldType == typeof(string))
+            {
+                string val = field.GetValue(currentNode) as string;
+                val = EditorGUILayout.DelayedTextField(val);
+                field.SetValue(currentNode, val);
+            }
+            GUILayout.EndHorizontal();
+        }
+
+        GUILayout.EndVertical();
+    }
+
     private void ShowNode()
     {
         if (currentNode == null)
@@ -346,6 +374,9 @@ public class DialogueEditor : EditorWindow
 
         GUILayout.Space(20);
         MetadataEditor();
+
+        GUILayout.Space(20);
+        CustomNodeEditor();
 
         GUILayout.EndVertical();
     }

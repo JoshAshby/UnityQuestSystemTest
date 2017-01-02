@@ -15,7 +15,7 @@
               <NextNodeID>Secondsies</NextNodeID>
             </Choice>
           </Choices>
-          <Text />
+          <Text>testing</Text>
         </TextNode>
         <TextNode id="Secondsies">
           <Metadata />
