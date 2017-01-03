@@ -1,26 +1,30 @@
 <?xml version="1.0" encoding="us-ascii"?>
 <DialogueCollection xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
   <Dialogues>
-    <Dialogue id="Test">
+    <Dialogue id="Sample">
       <Nodes>
         <TextNode id="First!">
           <Metadata>
-            <StringMetadata id="Testing">
+            <StringMetadata id="hello">
               <Value>HALLO!!!</Value>
             </StringMetadata>
           </Metadata>
           <Choices>
-            <Choice id="">
-              <Text>Next!</Text>
+            <Choice id="Choice 0">
+              <Text>(Next)</Text>
               <NextNodeID>Secondsies</NextNodeID>
             </Choice>
+            <Choice id="Choice 1">
+              <Text>(Continue)</Text>
+              <NextNodeID>Thirdly</NextNodeID>
+            </Choice>
           </Choices>
-          <Text>testing</Text>
+          <Text>This is a sample!</Text>
         </TextNode>
         <TextNode id="Secondsies">
           <Metadata />
           <Choices>
-            <Choice id="">
+            <Choice id="Choice 0">
               <Text>(Continue)</Text>
               <NextNodeID>Thirdly</NextNodeID>
             </Choice>
