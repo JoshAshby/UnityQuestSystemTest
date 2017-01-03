@@ -341,7 +341,7 @@ public class OldDialogueEditor : EditorWindow
         metadataShow = EditorGUILayout.Foldout(metadataShow, "Metadata");
         if (metadataShow) {
             metadataChoiceIdx = EditorGUILayout.Popup(metadataChoiceIdx, metadataTypes.Select(x => x.Name).ToArray());
-            if (GUILayout.Button("Add Choice"))
+            if (GUILayout.Button("Add Metadata"))
                 currentNode.AddMetadata(metadataTypes[metadataChoiceIdx]);
         }
         GUILayout.EndHorizontal();
