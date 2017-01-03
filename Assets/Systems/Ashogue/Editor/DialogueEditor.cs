@@ -3,31 +3,10 @@ using UnityEngine;
 using System.IO;
 using System.Collections.Generic;
 using System;
-using System.Reflection;
 using System.Linq;
 using Ashogue;
+using Ashogue.Data;
 using Ashogue.Extensions;
-
-// AppDomain.CurrentDomain.GetAssemblies()
-//                        .SelectMany(assembly => assembly.GetTypes())
-//                        .Where(type => type.IsClass && !type.IsAbstract && type.IsSubclassOf(typeof(Foo)));
-public static class ReflectiveEnumerator
-{
-    static ReflectiveEnumerator() { }
-
-    public static IEnumerable<T> GetEnumerableOfType<T>(params object[] constructorArgs) where T : class, IComparable<T>
-    {
-        List<T> objects = new List<T>();
-        foreach (Type type in
-            Assembly.GetAssembly(typeof(T)).GetTypes()
-            .Where(myType => myType.IsClass && !myType.IsAbstract && myType.IsSubclassOf(typeof(T))))
-        {
-            objects.Add((T)Activator.CreateInstance(type, constructorArgs));
-        }
-        objects.Sort();
-        return objects;
-    }
-}
 
 public class OldDialogueEditor : EditorWindow
 {
@@ -45,23 +24,18 @@ public class OldDialogueEditor : EditorWindow
         EditorWindow.GetWindow(typeof(OldDialogueEditor));
     }
 
-    List<Type> metadataTypes = AppDomain.CurrentDomain.GetAssemblies()
-        .SelectMany(assembly => assembly.GetTypes())
-        .Where(type => type.IsClass && !type.IsAbstract && type.IsSubclassOf(typeof(IMetadata)))
-        .OrderBy(x => x.Name)
-        .ToList();
+    private static List<Type> AllTypes<T>()
+    {
+        return AppDomain.CurrentDomain.GetAssemblies()
+            .SelectMany(assembly => assembly.GetTypes())
+            .Where(type => type.IsClass && !type.IsAbstract && type.IsSubclassOf(typeof(T)))
+            .OrderBy(x => x.Name)
+            .ToList();
+    }
 
-    List<Type> choiceTypes = AppDomain.CurrentDomain.GetAssemblies()
-        .SelectMany(assembly => assembly.GetTypes())
-        .Where(type => type.IsClass && !type.IsAbstract && type.IsSubclassOf(typeof(IChoice)))
-        .OrderBy(x => x.Name)
-        .ToList();
-
-    List<Type> nodeTypes = AppDomain.CurrentDomain.GetAssemblies()
-        .SelectMany(assembly => assembly.GetTypes())
-        .Where(type => type.IsClass && !type.IsAbstract && type.IsSubclassOf(typeof(INode)))
-        .OrderBy(x => x.Name)
-        .ToList();
+    List<Type> metadataTypes = AllTypes<IMetadata>();
+    List<Type> choiceTypes = AllTypes<IChoice>();
+    List<Type> nodeTypes = AllTypes<INode>();
 
     private void Awake()
     {
@@ -279,7 +253,8 @@ public class OldDialogueEditor : EditorWindow
 
         GUILayout.BeginHorizontal();
         choiceShow = EditorGUILayout.Foldout(choiceShow, "Choices");
-        if (choiceShow) {
+        if (choiceShow)
+        {
             choiceChoiceIdx = EditorGUILayout.Popup(choiceChoiceIdx, choiceTypes.Select(x => x.Name).ToArray());
             if (GUILayout.Button("Add Choice"))
                 node.AddChoice(choiceTypes[choiceChoiceIdx]);
@@ -339,7 +314,8 @@ public class OldDialogueEditor : EditorWindow
 
         GUILayout.BeginHorizontal();
         metadataShow = EditorGUILayout.Foldout(metadataShow, "Metadata");
-        if (metadataShow) {
+        if (metadataShow)
+        {
             metadataChoiceIdx = EditorGUILayout.Popup(metadataChoiceIdx, metadataTypes.Select(x => x.Name).ToArray());
             if (GUILayout.Button("Add Metadata"))
                 currentNode.AddMetadata(metadataTypes[metadataChoiceIdx]);
@@ -376,54 +352,5 @@ public class OldDialogueEditor : EditorWindow
         EditorGUI.indentLevel--;
 
         GUILayout.EndVertical();
-    }
-}
-
-static class FieldEditor
-{
-    private static Dictionary<Type, Action<object, FieldInfo>> typeLookup = new Dictionary<Type, Action<object, FieldInfo>> {
-        { typeof(bool),   BoolField },
-        { typeof(float),  FloatField },
-        { typeof(string), StringField }
-    };
-
-    public static void DeclaredFieldsEditor(object obj)
-    {
-        List<FieldInfo> fields = obj.GetType().GetFields(BindingFlags.DeclaredOnly | BindingFlags.Instance | BindingFlags.Public).ToList();
-        if (!fields.Any())
-            return;
-
-        GUILayout.BeginVertical();
-        foreach (FieldInfo field in fields)
-        {
-            GUILayout.BeginHorizontal();
-            typeLookup[field.FieldType](obj, field);
-            GUILayout.EndHorizontal();
-        }
-
-        GUILayout.EndVertical();
-    }
-
-    private static void BoolField(object obj, FieldInfo field)
-    {
-        bool val = (bool)field.GetValue(obj);
-        val = GUILayout.Toggle(val, field.Name);
-        field.SetValue(obj, val);
-    }
-
-    private static void FloatField(object obj, FieldInfo field)
-    {
-        GUILayout.Label(field.Name);
-        float val = (float)field.GetValue(obj);
-        val = EditorGUILayout.DelayedFloatField(val);
-        field.SetValue(obj, val);
-    }
-
-    private static void StringField(object obj, FieldInfo field)
-    {
-        GUILayout.Label(field.Name);
-        string val = (string)field.GetValue(obj);
-        val = EditorGUILayout.DelayedTextField(val);
-        field.SetValue(obj, val);
     }
 }

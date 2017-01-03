@@ -8,12 +8,13 @@ using Zenject;
 public class StateInstaller : MonoInstaller
 {
     [SerializeField]
-    [InstallPrefab(typeof(IRootState), Single=true, NonLazy=true)]
+    [InstallPrefab(typeof(IRootState), Single = true, NonLazy = true)]
     private RootState rootStatePrefab;
 
     public override void InstallBindings()
     {
-        Container.BindAllInterfaces<GameManager>().To<GameManager>().AsSingle();
+        Container.BindAllInterfacesAndSelf<GameManager>().AsSingle();
+        Container.BindAllInterfacesAndSelf<Ashogue.DialogueController>().AsSingle();
 
         RecursivelyBind(this);
     }
@@ -34,10 +35,10 @@ public class StateInstaller : MonoInstaller
         {
             GameObjectNameGroupNameScopeArgBinder binder = Container.Bind(attribute.type).FromPrefab(obj);
 
-            if(attribute.Single)
+            if (attribute.Single)
                 binder.AsSingle();
 
-            if(attribute.NonLazy)
+            if (attribute.NonLazy)
                 binder.NonLazy();
         }).ToList().ForEach(x => RecursivelyBind(x));
     }

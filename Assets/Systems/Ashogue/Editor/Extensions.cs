@@ -1,4 +1,5 @@
 using System;
+using Ashogue.Data;
 
 namespace Ashogue
 {
