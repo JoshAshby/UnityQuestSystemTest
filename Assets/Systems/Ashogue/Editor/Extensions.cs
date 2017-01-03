@@ -1,7 +1,9 @@
 using System;
 
-namespace Ashogue {
-    namespace Extensions {
+namespace Ashogue
+{
+    namespace Extensions
+    {
         static class MetadataWrapper
         {
             public static void AddMetadata<TMetadata>(this INode node) where TMetadata : IMetadata, new()
@@ -17,6 +19,23 @@ namespace Ashogue {
                 TMetadata metadata = new TMetadata { ID = ID };
 
                 node.Metadata.Add(metadata.ID, metadata);
+            }
+
+            public static void AddMetadata(this INode node, Type TMetadata)
+            {
+                string ID = String.Format("Untitled Metadata {0}", node.Metadata.Count);
+                IMetadata metadata = Activator.CreateInstance(TMetadata) as IMetadata;
+                metadata.ID = ID;
+
+                node.Metadata.Add(ID, metadata);
+            }
+
+            public static void AddMetadata(this INode node, Type TMetadata, string ID)
+            {
+                IMetadata metadata = Activator.CreateInstance(TMetadata) as IMetadata;
+                metadata.ID = ID;
+
+                node.Metadata.Add(ID, metadata);
             }
 
             public static void AddMetadata(this INode node, IMetadata metadata)
@@ -55,6 +74,24 @@ namespace Ashogue {
                 TChoice choice = new TChoice { ID = ID };
 
                 node.Choices.Add(choice.ID, choice);
+            }
+
+            public static void AddChoice(this IChoiceNode node, Type TChoice)
+            {
+                string ID = String.Format("Untitled Choice {0}", node.Choices.Count);
+                IChoice choice = Activator.CreateInstance(TChoice) as IChoice;
+                choice.ID = ID;
+
+                node.Choices.Add(ID, choice);
+            }
+
+            public static void AddChoice(this IChoiceNode node, Type TChoice, string ID)
+            {
+                IChoice choice = Activator.CreateInstance(TChoice) as IChoice;
+
+                choice.ID = ID;
+
+                node.Choices.Add(ID, choice);
             }
 
             public static void Addchoice(this IChoiceNode node, IChoice choice)
@@ -97,7 +134,7 @@ namespace Ashogue {
             public static void AddNode(this Dialogue dialogue, Type TNode)
             {
                 string ID = String.Format("Untitled Node {0}", dialogue.Nodes.Count);
-                INode node = (INode)Activator.CreateInstance(TNode);
+                INode node = Activator.CreateInstance(TNode) as INode;
 
                 node.ID = ID;
 
@@ -106,7 +143,7 @@ namespace Ashogue {
 
             public static void AddNode(this Dialogue dialogue, Type TNode, string ID)
             {
-                INode node = (INode)Activator.CreateInstance(TNode);
+                INode node = Activator.CreateInstance(TNode) as INode;
 
                 node.ID = ID;
 

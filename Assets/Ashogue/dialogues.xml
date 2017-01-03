@@ -11,6 +11,12 @@
             <StringMetadata id="Testing">
               <Value>watwat</Value>
             </StringMetadata>
+            <BoolMetadata id="True">
+              <Value>true</Value>
+            </BoolMetadata>
+            <FloatMetadata id="Float">
+              <Value>5.4</Value>
+            </FloatMetadata>
           </Metadata>
           <Choices>
             <Choice id="Choice 0">
@@ -36,9 +42,17 @@
         </TextNode>
         <TextNode id="Thirdly">
           <Metadata />
-          <Choices />
+          <Choices>
+            <Choice id="Untitled Choice 0">
+              <Text>(Finish)</Text>
+              <NextNodeID>End!</NextNodeID>
+            </Choice>
+          </Choices>
           <Text />
         </TextNode>
+        <EndNode id="End!">
+          <Metadata />
+        </EndNode>
       </Nodes>
     </Dialogue>
   </Dialogues>

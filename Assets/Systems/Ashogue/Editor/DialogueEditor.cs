@@ -45,6 +45,24 @@ public class OldDialogueEditor : EditorWindow
         EditorWindow.GetWindow(typeof(OldDialogueEditor));
     }
 
+    List<Type> metadataTypes = AppDomain.CurrentDomain.GetAssemblies()
+        .SelectMany(assembly => assembly.GetTypes())
+        .Where(type => type.IsClass && !type.IsAbstract && type.IsSubclassOf(typeof(IMetadata)))
+        .OrderBy(x => x.Name)
+        .ToList();
+
+    List<Type> choiceTypes = AppDomain.CurrentDomain.GetAssemblies()
+        .SelectMany(assembly => assembly.GetTypes())
+        .Where(type => type.IsClass && !type.IsAbstract && type.IsSubclassOf(typeof(IChoice)))
+        .OrderBy(x => x.Name)
+        .ToList();
+
+    List<Type> nodeTypes = AppDomain.CurrentDomain.GetAssemblies()
+        .SelectMany(assembly => assembly.GetTypes())
+        .Where(type => type.IsClass && !type.IsAbstract && type.IsSubclassOf(typeof(INode)))
+        .OrderBy(x => x.Name)
+        .ToList();
+
     private void Awake()
     {
         EnsureDatabase();
@@ -162,6 +180,7 @@ public class OldDialogueEditor : EditorWindow
         GUILayout.EndScrollView();
     }
 
+    private int nodeChoiceIdx = 0;
     private void ShowDialogue()
     {
         if (currentDialogue == null)
@@ -183,8 +202,9 @@ public class OldDialogueEditor : EditorWindow
         GUILayout.EndHorizontal();
 
         GUILayout.BeginHorizontal();
+        nodeChoiceIdx = EditorGUILayout.Popup(nodeChoiceIdx, nodeTypes.Select(x => x.Name).ToArray());
         if (GUILayout.Button("Add Node"))
-            currentDialogue.AddNode<TextNode>();
+            currentDialogue.AddNode(nodeTypes[nodeChoiceIdx]);
         GUILayout.EndHorizontal();
 
         GUILayout.BeginHorizontal();
@@ -247,6 +267,7 @@ public class OldDialogueEditor : EditorWindow
     }
 
     private bool choiceShow = false;
+    private int choiceChoiceIdx = 0;
     private void ChoiceEditor()
     {
         if (!(currentNode is IChoiceNode))
@@ -258,9 +279,11 @@ public class OldDialogueEditor : EditorWindow
 
         GUILayout.BeginHorizontal();
         choiceShow = EditorGUILayout.Foldout(choiceShow, "Choices");
-        if (choiceShow)
+        if (choiceShow) {
+            choiceChoiceIdx = EditorGUILayout.Popup(choiceChoiceIdx, choiceTypes.Select(x => x.Name).ToArray());
             if (GUILayout.Button("Add Choice"))
-                node.AddChoice<Choice>();
+                node.AddChoice(choiceTypes[choiceChoiceIdx]);
+        }
         GUILayout.EndHorizontal();
 
         if (!choiceShow)
@@ -272,7 +295,9 @@ public class OldDialogueEditor : EditorWindow
         EditorGUI.indentLevel++;
 
         IChoice removalChoice = null;
-        List<INode> nodeList = new List<INode>(currentDialogue.Nodes.Values);
+        List<INode> nodeList = new List<INode>(currentDialogue.Nodes.Values)
+            .OrderBy(x => x.ID)
+            .ToList();
 
         foreach (IChoice choice in node.Choices.Values)
         {
@@ -307,15 +332,18 @@ public class OldDialogueEditor : EditorWindow
     }
 
     private bool metadataShow = false;
+    private int metadataChoiceIdx = 0;
     private void MetadataEditor()
     {
         GUILayout.BeginVertical();
 
         GUILayout.BeginHorizontal();
         metadataShow = EditorGUILayout.Foldout(metadataShow, "Metadata");
-        if (metadataShow)
-            if (GUILayout.Button("Add Metadata"))
-                currentNode.AddMetadata<StringMetadata>();
+        if (metadataShow) {
+            metadataChoiceIdx = EditorGUILayout.Popup(metadataChoiceIdx, metadataTypes.Select(x => x.Name).ToArray());
+            if (GUILayout.Button("Add Choice"))
+                currentNode.AddMetadata(metadataTypes[metadataChoiceIdx]);
+        }
         GUILayout.EndHorizontal();
 
         if (!metadataShow)
