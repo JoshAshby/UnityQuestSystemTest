@@ -8,6 +8,9 @@
             <StringMetadata id="hello">
               <Value>HALLO!!!</Value>
             </StringMetadata>
+            <StringMetadata id="Testing">
+              <Value>watwat</Value>
+            </StringMetadata>
           </Metadata>
           <Choices>
             <Choice id="Choice 0">

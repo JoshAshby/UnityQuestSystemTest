@@ -4,8 +4,6 @@ using System.Linq;
 using System.Xml;
 using System.Xml.Serialization;
 
-using UnityEngine;
-
 namespace Ashogue
 {
     public abstract class IChoice
