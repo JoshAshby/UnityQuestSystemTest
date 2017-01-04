@@ -41,7 +41,7 @@ namespace Ashogue
 
         public static void Initialize()
         {
-            dialogues = DialogueContainer.Load(Path.Combine(Application.dataPath, DatabaseLocation));
+            dialogues = XmlContainer<DialogueContainer>.Load(Path.Combine(Application.dataPath, DatabaseLocation));
         }
 
         public static void StartDialogue(string ID)
