@@ -7,7 +7,7 @@ namespace Ashogue
 {
     namespace Data
     {
-        public abstract class INode
+        public abstract class ANode
         {
             [XmlAttribute("id")]
             public string ID = "Untitled Node";
@@ -26,35 +26,56 @@ namespace Ashogue
             }
         }
 
-        public abstract class IChoiceNode : INode
+        public abstract class AChainedNode : ANode
+        {
+            public string NextNodeID = "";
+        }
+
+        public abstract class ABranchedNode : ANode
         {
             [XmlIgnore]
-            public Dictionary<string, IChoice> Choices = new Dictionary<string, IChoice>();
+            public Dictionary<string, IBranch> Branches = new Dictionary<string, IBranch>();
 
-            [XmlArray("Choices")]
-            [XmlArrayItem("Choice", typeof(Choice))]
-            public IChoice[] XmlChoices
+            [XmlArray("Branches")]
+            [XmlArrayItem("SimpleBranch", typeof(SimpleBranch))]
+            public IBranch[] XmlBranches
             {
-                get { return Choices.Values.ToArray(); }
-                set { Choices = value.ToDictionary(i => i.ID, i => i); }
+                get { return Branches.Values.ToArray(); }
+                set { Branches = value.ToDictionary(i => i.ID, i => i); }
             }
         }
 
-        public class TextNode : IChoiceNode
+        public interface IDisplayNode
         {
-            public string Text = "";
+            string DisplayText();
+            string[] DisplayBranches();
         }
 
-        public class WaitNode : IChoiceNode
+        public class TextNode : ABranchedNode, IDisplayNode
+        {
+            public string Text = "";
+
+            public string DisplayText()
+            {
+                return Text;
+            }
+
+            public string[] DisplayBranches()
+            {
+                return Branches.Keys.ToArray();
+            }
+        }
+
+        public class WaitNode : AChainedNode
         {
             public float Seconds = 0f;
         }
 
-        public class EventNode : IChoiceNode
+        public class EventNode : AChainedNode
         {
             public string Message = "";
         }
 
-        public class EndNode : INode { }
+        public class EndNode : ANode { }
     }
 }

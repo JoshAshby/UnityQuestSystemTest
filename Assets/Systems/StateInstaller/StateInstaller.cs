@@ -13,8 +13,7 @@ public class StateInstaller : MonoInstaller
 
     public override void InstallBindings()
     {
-        Container.BindAllInterfacesAndSelf<GameManager>().AsSingle();
-        Container.BindAllInterfacesAndSelf<Ashogue.DialogueController>().AsSingle();
+        Container.Bind<GameManager>().AsSingle();
 
         RecursivelyBind(this);
     }

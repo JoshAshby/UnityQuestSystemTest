@@ -14,7 +14,7 @@ public class OldDialogueEditor : EditorWindow
     private string path;
 
     private Dialogue currentDialogue;
-    private INode currentNode;
+    private ANode currentNode;
 
     private GUIStyle selectedStyle;
 
@@ -34,8 +34,8 @@ public class OldDialogueEditor : EditorWindow
     }
 
     List<Type> metadataTypes = AllTypes<IMetadata>();
-    List<Type> choiceTypes = AllTypes<IChoice>();
-    List<Type> nodeTypes = AllTypes<INode>();
+    List<Type> branchTypes   = AllTypes<IBranch>();
+    List<Type> nodeTypes     = AllTypes<ANode>();
 
     private void Awake()
     {
@@ -95,7 +95,7 @@ public class OldDialogueEditor : EditorWindow
         }
     }
 
-    private void SelectNode(INode node)
+    private void SelectNode(ANode node)
     {
         currentNode = node;
     }
@@ -197,7 +197,7 @@ public class OldDialogueEditor : EditorWindow
 
         nodeScrollPosition = GUILayout.BeginScrollView(nodeScrollPosition, GUILayout.Width(200), GUILayout.ExpandHeight(true));
 
-        foreach (INode node in currentDialogue.Nodes.Values)
+        foreach (ANode node in currentDialogue.Nodes.Values)
         {
             GUIStyle style = node == currentNode ? selectedStyle : new GUIStyle(GUI.skin.button);
             if (GUILayout.Button(node.ID, style))
@@ -228,40 +228,58 @@ public class OldDialogueEditor : EditorWindow
         GUILayout.EndHorizontal();
 
         GUILayout.Space(20);
-        ChoiceEditor();
+        GUILayout.Label("Custom Node Fields");
+        FieldEditor.DeclaredFieldsEditor(currentNode);
+
+        GUILayout.Space(20);
+        List<ANode> nodeList = currentDialogue.Nodes.Values.OrderBy(x => x.ID).ToList();
+        BranchesEditor(nodeList);
+        ChainEditor(nodeList);
 
         GUILayout.Space(20);
         MetadataEditor();
 
-        GUILayout.Space(20);
-        GUILayout.Label("Custom Node Fields");
-        FieldEditor.DeclaredFieldsEditor(currentNode);
-
         GUILayout.EndVertical();
     }
 
-    private bool choiceShow = false;
-    private int choiceChoiceIdx = 0;
-    private void ChoiceEditor()
+    private void ChainEditor(List<ANode> options)
     {
-        if (!(currentNode is IChoiceNode))
+        if(!(currentNode is AChainedNode))
+            return;
+        
+        AChainedNode node = (currentNode as AChainedNode);
+
+        GUILayout.Label("Next Node ID");
+
+        int choiceIdx = currentDialogue.XmlNodes.ToList().FindIndex(x => x.ID == node.NextNodeID);
+        if (choiceIdx == -1)
+            choiceIdx = 0;
+        choiceIdx = EditorGUILayout.Popup(choiceIdx, currentDialogue.Nodes.Keys.ToArray());
+        node.NextNodeID = options[choiceIdx].ID;
+    }
+
+    private bool branchShow = false;
+    private int branchChoiceIdx = 0;
+    private void BranchesEditor(List<ANode> options)
+    {
+        if (!(currentNode is ABranchedNode))
             return;
 
-        IChoiceNode node = (currentNode as IChoiceNode);
+        ABranchedNode node = (currentNode as ABranchedNode);
 
         GUILayout.BeginVertical();
 
         GUILayout.BeginHorizontal();
-        choiceShow = EditorGUILayout.Foldout(choiceShow, "Choices");
-        if (choiceShow)
+        branchShow = EditorGUILayout.Foldout(branchShow, "Branches");
+        if (branchShow)
         {
-            choiceChoiceIdx = EditorGUILayout.Popup(choiceChoiceIdx, choiceTypes.Select(x => x.Name).ToArray());
-            if (GUILayout.Button("Add Choice"))
-                node.AddChoice(choiceTypes[choiceChoiceIdx]);
+            branchChoiceIdx = EditorGUILayout.Popup(branchChoiceIdx, branchTypes.Select(x => x.Name).ToArray());
+            if (GUILayout.Button("Add Branch"))
+                node.AddBranch(branchTypes[branchChoiceIdx]);
         }
         GUILayout.EndHorizontal();
 
-        if (!choiceShow)
+        if (!branchShow)
         {
             GUILayout.EndVertical();
             return;
@@ -269,37 +287,34 @@ public class OldDialogueEditor : EditorWindow
 
         EditorGUI.indentLevel++;
 
-        IChoice removalChoice = null;
-        List<INode> nodeList = new List<INode>(currentDialogue.Nodes.Values)
-            .OrderBy(x => x.ID)
-            .ToList();
+        IBranch removalBranch = null;
 
-        foreach (IChoice choice in node.Choices.Values)
+        foreach (IBranch branch in node.Branches.Values)
         {
             EditorGUILayout.BeginVertical();
             EditorGUILayout.BeginHorizontal();
             GUILayout.Label("Displayed Text");
-            choice.Text = EditorGUILayout.DelayedTextField(choice.Text);
+            branch.Text = EditorGUILayout.DelayedTextField(branch.Text);
             GUILayout.Label("Next Node ID");
 
-            int choiceIdx = nodeList.FindIndex(x => x.ID == choice.NextNodeID);
+            int choiceIdx = currentDialogue.XmlNodes.ToList().FindIndex(x => x.ID == branch.NextNodeID);
             if (choiceIdx == -1)
                 choiceIdx = 0;
-            choiceIdx = EditorGUILayout.Popup(choiceIdx, new List<string>(currentDialogue.Nodes.Keys).ToArray());
-            choice.NextNodeID = nodeList[choiceIdx].ID;
+            choiceIdx = EditorGUILayout.Popup(choiceIdx, currentDialogue.Nodes.Keys.ToArray());
+            branch.NextNodeID = options[choiceIdx].ID;
 
             if (GUILayout.Button("X"))
-                if (EditorUtility.DisplayDialog("Are you sure?", "Are you sure you want to remove this choice?", "Yup", "NO!"))
-                    removalChoice = choice;
+                if (EditorUtility.DisplayDialog("Are you sure?", "Are you sure you want to remove this branch?", "Yup", "NO!"))
+                    removalBranch = branch;
             EditorGUILayout.EndHorizontal();
 
-            FieldEditor.DeclaredFieldsEditor(choice);
+            FieldEditor.DeclaredFieldsEditor(branch);
 
             EditorGUILayout.EndVertical();
         }
 
-        if (removalChoice != null)
-            node.RemoveChoice(removalChoice.ID);
+        if (removalBranch != null)
+            node.RemoveBranch(removalBranch.ID);
 
         EditorGUI.indentLevel--;
 

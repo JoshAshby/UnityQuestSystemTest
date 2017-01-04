@@ -5,7 +5,7 @@ namespace Ashogue
 {
     namespace Data
     {
-        public abstract class IChoice
+        public abstract class IBranch
         {
             [XmlAttribute("id")]
             public string ID = "";
@@ -14,6 +14,6 @@ namespace Ashogue
             public string NextNodeID = "";
         }
 
-        public class Choice : IChoice { }
+        public class SimpleBranch : IBranch { }
     }
 }

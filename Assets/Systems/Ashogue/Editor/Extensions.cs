@@ -7,7 +7,7 @@ namespace Ashogue
     {
         static class MetadataWrapper
         {
-            public static void AddMetadata<TMetadata>(this INode node) where TMetadata : IMetadata, new()
+            public static void AddMetadata<TMetadata>(this ANode node) where TMetadata : IMetadata, new()
             {
                 string ID = String.Format("Untitled Metadata {0}", node.Metadata.Count);
                 TMetadata metadata = new TMetadata { ID = ID };
@@ -15,14 +15,14 @@ namespace Ashogue
                 node.Metadata.Add(metadata.ID, metadata);
             }
 
-            public static void AddMetadata<TMetadata>(this INode node, string ID) where TMetadata : IMetadata, new()
+            public static void AddMetadata<TMetadata>(this ANode node, string ID) where TMetadata : IMetadata, new()
             {
                 TMetadata metadata = new TMetadata { ID = ID };
 
                 node.Metadata.Add(metadata.ID, metadata);
             }
 
-            public static void AddMetadata(this INode node, Type TMetadata)
+            public static void AddMetadata(this ANode node, Type TMetadata)
             {
                 string ID = String.Format("Untitled Metadata {0}", node.Metadata.Count);
                 IMetadata metadata = Activator.CreateInstance(TMetadata) as IMetadata;
@@ -31,7 +31,7 @@ namespace Ashogue
                 node.Metadata.Add(ID, metadata);
             }
 
-            public static void AddMetadata(this INode node, Type TMetadata, string ID)
+            public static void AddMetadata(this ANode node, Type TMetadata, string ID)
             {
                 IMetadata metadata = Activator.CreateInstance(TMetadata) as IMetadata;
                 metadata.ID = ID;
@@ -39,13 +39,13 @@ namespace Ashogue
                 node.Metadata.Add(ID, metadata);
             }
 
-            public static void AddMetadata(this INode node, IMetadata metadata)
+            public static void AddMetadata(this ANode node, IMetadata metadata)
             {
 
                 node.Metadata.Add(metadata.ID, metadata);
             }
 
-            public static void RenameMetadata(this INode node, string fromID, string toID)
+            public static void RenameMetadata(this ANode node, string fromID, string toID)
             {
                 IMetadata metadata = node.Metadata[fromID];
 
@@ -54,70 +54,70 @@ namespace Ashogue
                 node.Metadata.Add(toID, metadata);
             }
 
-            public static void RemoveMetadata(this INode node, string ID)
+            public static void RemoveMetadata(this ANode node, string ID)
             {
                 node.Metadata.Remove(ID);
             }
         }
 
-        static class ChoiceWrapper
+        static class BranchWrapper
         {
-            public static void AddChoice<TChoice>(this IChoiceNode node) where TChoice : IChoice, new()
+            public static void AddBranch<TBranch>(this ABranchedNode node) where TBranch : IBranch, new()
             {
-                string ID = String.Format("Untitled Choice {0}", node.Choices.Count);
-                TChoice choice = new TChoice { ID = ID };
+                string ID = String.Format("Untitled Branch {0}", node.Branches.Count);
+                TBranch branch = new TBranch { ID = ID };
 
-                node.Choices.Add(choice.ID, choice);
+                node.Branches.Add(branch.ID, branch);
             }
 
-            public static void AddChoice<TChoice>(this IChoiceNode node, string ID) where TChoice : IChoice, new()
+            public static void AddBranch<TBranch>(this ABranchedNode node, string ID) where TBranch : IBranch, new()
             {
-                TChoice choice = new TChoice { ID = ID };
+                TBranch Branch = new TBranch { ID = ID };
 
-                node.Choices.Add(choice.ID, choice);
+                node.Branches.Add(Branch.ID, Branch);
             }
 
-            public static void AddChoice(this IChoiceNode node, Type TChoice)
+            public static void AddBranch(this ABranchedNode node, Type TBranch)
             {
-                string ID = String.Format("Untitled Choice {0}", node.Choices.Count);
-                IChoice choice = Activator.CreateInstance(TChoice) as IChoice;
-                choice.ID = ID;
+                string ID = String.Format("Untitled Branch {0}", node.Branches.Count);
+                IBranch Branch = Activator.CreateInstance(TBranch) as IBranch;
+                Branch.ID = ID;
 
-                node.Choices.Add(ID, choice);
+                node.Branches.Add(ID, Branch);
             }
 
-            public static void AddChoice(this IChoiceNode node, Type TChoice, string ID)
+            public static void AddBranch(this ABranchedNode node, Type TBranch, string ID)
             {
-                IChoice choice = Activator.CreateInstance(TChoice) as IChoice;
+                IBranch Branch = Activator.CreateInstance(TBranch) as IBranch;
 
-                choice.ID = ID;
+                Branch.ID = ID;
 
-                node.Choices.Add(ID, choice);
+                node.Branches.Add(ID, Branch);
             }
 
-            public static void Addchoice(this IChoiceNode node, IChoice choice)
+            public static void AddBranch(this ABranchedNode node, IBranch Branch)
             {
-                node.Choices.Add(choice.ID, choice);
+                node.Branches.Add(Branch.ID, Branch);
             }
 
-            public static void RenameChoice(this IChoiceNode node, string fromID, string toID)
+            public static void RenameBranch(this ABranchedNode node, string fromID, string toID)
             {
-                IChoice choice = node.Choices[fromID];
+                IBranch Branch = node.Branches[fromID];
 
-                node.Choices.Remove(fromID);
-                choice.ID = toID;
-                node.Choices.Add(toID, choice);
+                node.Branches.Remove(fromID);
+                Branch.ID = toID;
+                node.Branches.Add(toID, Branch);
             }
 
-            public static void RemoveChoice(this IChoiceNode node, string ID)
+            public static void RemoveBranch(this ABranchedNode node, string ID)
             {
-                node.Choices.Remove(ID);
+                node.Branches.Remove(ID);
             }
         }
 
         static class NodeWrapper
         {
-            public static void AddNode<TNode>(this Dialogue dialogue) where TNode : INode, new()
+            public static void AddNode<TNode>(this Dialogue dialogue) where TNode : ANode, new()
             {
                 string ID = String.Format("Untitled Node {0}", dialogue.Nodes.Count);
                 TNode node = new TNode { ID = ID };
@@ -125,7 +125,7 @@ namespace Ashogue
                 dialogue.Nodes.Add(ID, node);
             }
 
-            public static void AddNode<TNode>(this Dialogue dialogue, string ID) where TNode : INode, new()
+            public static void AddNode<TNode>(this Dialogue dialogue, string ID) where TNode : ANode, new()
             {
                 TNode node = new TNode { ID = ID };
 
@@ -135,7 +135,7 @@ namespace Ashogue
             public static void AddNode(this Dialogue dialogue, Type TNode)
             {
                 string ID = String.Format("Untitled Node {0}", dialogue.Nodes.Count);
-                INode node = Activator.CreateInstance(TNode) as INode;
+                ANode node = Activator.CreateInstance(TNode) as ANode;
 
                 node.ID = ID;
 
@@ -144,21 +144,21 @@ namespace Ashogue
 
             public static void AddNode(this Dialogue dialogue, Type TNode, string ID)
             {
-                INode node = Activator.CreateInstance(TNode) as INode;
+                ANode node = Activator.CreateInstance(TNode) as ANode;
 
                 node.ID = ID;
 
                 dialogue.Nodes.Add(ID, node);
             }
 
-            public static void AddNode(this Dialogue dialogue, INode node)
+            public static void AddNode(this Dialogue dialogue, ANode node)
             {
                 dialogue.Nodes.Add(node.ID, node);
             }
 
             public static void RenameNode(this Dialogue dialogue, string fromID, string toID)
             {
-                INode node = dialogue.Nodes[fromID];
+                ANode node = dialogue.Nodes[fromID];
 
                 dialogue.Nodes.Remove(fromID);
                 node.ID = toID;
