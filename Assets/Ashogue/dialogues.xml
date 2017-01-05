@@ -1,4 +1,52 @@
 <?xml version="1.0" encoding="us-ascii"?>
 <DialogueCollection xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
-  <Dialogues />
+  <Dialogues>
+    <Dialogue id="test">
+      <FirstNodeID>first!</FirstNodeID>
+      <Nodes>
+        <TextNode id="first!">
+          <Metadata />
+          <Branches>
+            <SimpleBranch id="Untitled Branch 0">
+              <Text>one</Text>
+              <NextNodeID>Secondsies</NextNodeID>
+            </SimpleBranch>
+            <SimpleBranch id="Untitled Branch 1">
+              <Text>three</Text>
+              <NextNodeID>Untitled Node 4</NextNodeID>
+            </SimpleBranch>
+          </Branches>
+          <Text>Hey there look at me I'm a first node!</Text>
+        </TextNode>
+        <TextNode id="Secondsies">
+          <Metadata />
+          <Branches>
+            <SimpleBranch id="Untitled Branch 0">
+              <Text>two</Text>
+              <NextNodeID>event node</NextNodeID>
+            </SimpleBranch>
+          </Branches>
+          <Text>and now a second node!</Text>
+        </TextNode>
+        <EventNode id="event node">
+          <Metadata />
+          <NextNodeID>fin</NextNodeID>
+          <Message>testing</Message>
+        </EventNode>
+        <EndNode id="fin">
+          <Metadata />
+        </EndNode>
+        <TextNode id="Untitled Node 4">
+          <Metadata />
+          <Branches>
+            <SimpleBranch id="Untitled Branch 0">
+              <Text />
+              <NextNodeID>Secondsies</NextNodeID>
+            </SimpleBranch>
+          </Branches>
+          <Text>wat wat</Text>
+        </TextNode>
+      </Nodes>
+    </Dialogue>
+  </Dialogues>
 </DialogueCollection>

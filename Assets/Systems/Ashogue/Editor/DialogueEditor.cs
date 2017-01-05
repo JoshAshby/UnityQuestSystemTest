@@ -34,8 +34,8 @@ public class OldDialogueEditor : EditorWindow
     }
 
     List<Type> metadataTypes = AllTypes<IMetadata>();
-    List<Type> branchTypes   = AllTypes<IBranch>();
-    List<Type> nodeTypes     = AllTypes<ANode>();
+    List<Type> branchTypes = AllTypes<IBranch>();
+    List<Type> nodeTypes = AllTypes<ANode>();
 
     private void Awake()
     {
@@ -160,6 +160,8 @@ public class OldDialogueEditor : EditorWindow
         if (currentDialogue == null)
             return;
 
+        List<ANode> nodeList = currentDialogue.Nodes.Values.OrderBy(x => x.ID).ToList();
+
         GUILayout.BeginVertical();
 
         GUILayout.BeginHorizontal();
@@ -179,23 +181,42 @@ public class OldDialogueEditor : EditorWindow
         nodeChoiceIdx = EditorGUILayout.Popup(nodeChoiceIdx, nodeTypes.Select(x => x.Name).ToArray());
         if (GUILayout.Button("Add Node"))
             currentDialogue.AddNode(nodeTypes[nodeChoiceIdx]);
+
+        GUILayout.FlexibleSpace();
         GUILayout.EndHorizontal();
 
         GUILayout.BeginHorizontal();
-        ListNodes();
-        ShowNode();
+        GUILayout.FlexibleSpace();
+        GUILayout.EndHorizontal();
+
+        GUILayout.BeginHorizontal();
+        ListNodes(nodeList);
+        ShowNode(nodeList);
         GUILayout.EndHorizontal();
 
         GUILayout.EndVertical();
     }
 
+    private void FirstNode(List<ANode> options)
+    {
+        GUILayout.Label("First Node ID");
+
+        int choiceIdx = currentDialogue.XmlNodes.ToList().FindIndex(x => x.ID == currentDialogue.FirstNodeID);
+        if (choiceIdx == -1)
+            choiceIdx = 0;
+        choiceIdx = EditorGUILayout.Popup(choiceIdx, currentDialogue.Nodes.Keys.ToArray());
+        currentDialogue.FirstNodeID = options[choiceIdx].ID;
+    }
+
     private Vector2 nodeScrollPosition;
-    private void ListNodes()
+    private void ListNodes(List<ANode> options)
     {
         if (currentDialogue == null || currentDialogue.Nodes == null)
             return;
 
         nodeScrollPosition = GUILayout.BeginScrollView(nodeScrollPosition, GUILayout.Width(200), GUILayout.ExpandHeight(true));
+
+        FirstNode(options);
 
         foreach (ANode node in currentDialogue.Nodes.Values)
         {
@@ -207,7 +228,7 @@ public class OldDialogueEditor : EditorWindow
         GUILayout.EndScrollView();
     }
 
-    private void ShowNode()
+    private void ShowNode(List<ANode> options)
     {
         if (currentNode == null)
             return;
@@ -232,9 +253,8 @@ public class OldDialogueEditor : EditorWindow
         FieldEditor.DeclaredFieldsEditor(currentNode);
 
         GUILayout.Space(20);
-        List<ANode> nodeList = currentDialogue.Nodes.Values.OrderBy(x => x.ID).ToList();
-        BranchesEditor(nodeList);
-        ChainEditor(nodeList);
+        BranchesEditor(options);
+        ChainEditor(options);
 
         GUILayout.Space(20);
         MetadataEditor();
@@ -244,10 +264,10 @@ public class OldDialogueEditor : EditorWindow
 
     private void ChainEditor(List<ANode> options)
     {
-        if(!(currentNode is AChainedNode))
+        if (!(currentNode is AChainedNode))
             return;
-        
-        AChainedNode node = (currentNode as AChainedNode);
+
+        AChainedNode node = (AChainedNode)currentNode;
 
         GUILayout.Label("Next Node ID");
 
@@ -265,7 +285,7 @@ public class OldDialogueEditor : EditorWindow
         if (!(currentNode is ABranchedNode))
             return;
 
-        ABranchedNode node = (currentNode as ABranchedNode);
+        ABranchedNode node = (ABranchedNode)currentNode;
 
         GUILayout.BeginVertical();
 

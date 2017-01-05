@@ -26,7 +26,7 @@ namespace Ashogue
                 var serializer = new XmlSerializer(typeof(T));
                 using (var stream = new FileStream(path, FileMode.Open))
                 {
-                    return (T) serializer.Deserialize(stream);
+                    return (T)serializer.Deserialize(stream);
                 }
             }
 
@@ -34,7 +34,7 @@ namespace Ashogue
             public static T LoadFromText(string text)
             {
                 var serializer = new XmlSerializer(typeof(T));
-                return (T) serializer.Deserialize(new StringReader(text));
+                return (T)serializer.Deserialize(new StringReader(text));
             }
         }
 

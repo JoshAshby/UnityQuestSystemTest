@@ -12,7 +12,7 @@ namespace Ashogue
             [XmlAttribute("id")]
             public string ID = "Untitled Dialogue";
 
-            public string StartNode = "";
+            public string FirstNodeID = "";
 
             [XmlIgnore]
             public Dictionary<string, ANode> Nodes = new Dictionary<string, ANode>();

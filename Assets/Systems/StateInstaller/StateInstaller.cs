@@ -13,7 +13,7 @@ public class StateInstaller : MonoInstaller
 
     public override void InstallBindings()
     {
-        Container.Bind<GameManager>().AsSingle();
+        Container.Bind<IGameManager>().To<GameManager>().AsSingle();
 
         RecursivelyBind(this);
     }

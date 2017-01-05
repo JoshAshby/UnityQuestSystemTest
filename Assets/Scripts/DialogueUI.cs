@@ -1,7 +1,6 @@
 using System;
 using UnityEngine;
 using Ashogue;
-using UnityEngine.UI;
 
 public class DialogueUI : MonoBehaviour
 {
@@ -14,19 +13,28 @@ public class DialogueUI : MonoBehaviour
         DialogueController.Events.Started += DialogueUI_Started;
         DialogueController.Events.Node += DialogueUI_Node;
         DialogueController.Events.Ended += DialogueUI_Ended;
+        DialogueController.Events.Message += DialogueUI_Message;
     }
 
-    private void Update()
+    private void Destroy()
     {
-        if(!_visible)
+        DialogueController.Events.Started -= DialogueUI_Started;
+        DialogueController.Events.Node -= DialogueUI_Node;
+        DialogueController.Events.Ended -= DialogueUI_Ended;
+        DialogueController.Events.Message -= DialogueUI_Message;
+    }
+
+    private void OnGUI()
+    {
+        if (!_visible)
             return;
 
         GUI.Box(new Rect(10, 10, 200, 150), _displayText);
 
-        for(int i = 0; i < _displayBranches.Length; i++)
+        for (int i = 0; i < _displayBranches.Length; i++)
         {
             string text = _displayBranches[i];
-            if(GUI.Button(new Rect(10, 220+(40*i), 200, 30), text))
+            if (GUI.Button(new Rect(10, 220 + (40 * i), 200, 30), text))
                 DialogueController.ContinueDialogue(text);
         }
     }
@@ -42,8 +50,13 @@ public class DialogueUI : MonoBehaviour
         _displayBranches = e.text.Branches;
     }
 
-    private void DialogueUI_Ended(object sender, EventArgs e)
+    private void DialogueUI_Ended(object sender, EndedEventArgs e)
     {
         _visible = false;
+    }
+
+    private void DialogueUI_Message(object sender, MessageEventArgs e)
+    {
+        Debug.Log(e.message);
     }
 }
