@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using UnityEngine;
 using Ashogue.Data;
+using System.Linq;
 
 namespace Ashogue
 {
@@ -91,17 +92,17 @@ namespace Ashogue
 
         private static void Progress()
         {
-            while (!(currentNode is IDisplayNode))
+            while (!(currentNode is TextNode))
             {
 
             }
 
-            IDisplayNode node = currentNode as IDisplayNode;
+            TextNode node = (TextNode)currentNode;
 
             DialogueText text = new DialogueText
             {
-                Text = node.DisplayText(),
-                Branches = node.DisplayBranches()
+                Text = node.Text,
+                Branches = node.Branches.Keys.ToArray()
             };
 
             Events.OnNode(text);

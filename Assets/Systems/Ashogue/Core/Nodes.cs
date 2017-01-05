@@ -45,25 +45,9 @@ namespace Ashogue
             }
         }
 
-        public interface IDisplayNode
-        {
-            string DisplayText();
-            string[] DisplayBranches();
-        }
-
-        public class TextNode : ABranchedNode, IDisplayNode
+        public class TextNode : ABranchedNode
         {
             public string Text = "";
-
-            public string DisplayText()
-            {
-                return Text;
-            }
-
-            public string[] DisplayBranches()
-            {
-                return Branches.Keys.ToArray();
-            }
         }
 
         public class WaitNode : AChainedNode
