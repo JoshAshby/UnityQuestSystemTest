@@ -6,52 +6,54 @@ using System.Linq;
 using UnityEditor;
 using UnityEngine;
 
+using Ashogue.Data;
+
 static class FieldEditor
 {
-    private static Dictionary<Type, Action<object, FieldInfo>> typeLookup = new Dictionary<Type, Action<object, FieldInfo>> {
-        { typeof(bool),   BoolField },
-        { typeof(float),  FloatField },
-        { typeof(string), StringField }
+    private static Dictionary<Type, Action<object, PropertyInfo>> propertyLookup = new Dictionary<Type, Action<object, PropertyInfo>> {
+        { typeof(bool),   BoolProperty },
+        { typeof(float),  FloatProperty },
+        { typeof(string), StringProperty }
     };
 
     public static void DeclaredFieldsEditor(object obj)
     {
-        List<FieldInfo> fields = obj.GetType().GetFields(BindingFlags.DeclaredOnly | BindingFlags.Instance | BindingFlags.Public).ToList();
-        if (!fields.Any())
-            return;
+        List<PropertyInfo> properties = obj.GetType()
+            .GetProperties(BindingFlags.Public)
+            .Where(x => x.GetCustomAttributes(typeof(CustomDataAttribute), true).Any())
+            .ToList();
 
         GUILayout.BeginVertical();
-        foreach (FieldInfo field in fields)
+        foreach (PropertyInfo property in properties)
         {
             GUILayout.BeginHorizontal();
-            typeLookup[field.FieldType](obj, field);
+            propertyLookup[property.PropertyType](obj, property);
             GUILayout.FlexibleSpace();
             GUILayout.EndHorizontal();
         }
-
         GUILayout.EndVertical();
     }
 
-    private static void BoolField(object obj, FieldInfo field)
+    private static void BoolProperty(object obj, PropertyInfo property)
     {
-        bool val = (bool)field.GetValue(obj);
-        val = GUILayout.Toggle(val, field.Name);
-        field.SetValue(obj, val);
+        bool val = (bool)property.GetValue(obj, null);
+        val = GUILayout.Toggle(val, property.Name);
+        property.SetValue(obj, val, null);
     }
 
-    private static void FloatField(object obj, FieldInfo field)
+    private static void FloatProperty(object obj, PropertyInfo property)
     {
-        GUILayout.Label(field.Name);
-        float val = (float)field.GetValue(obj);
+        GUILayout.Label(property.Name);
+        float val = (float)property.GetValue(obj, null);
         val = EditorGUILayout.DelayedFloatField(val);
-        field.SetValue(obj, val);
+        property.SetValue(obj, val, null);
     }
 
-    private static void StringField(object obj, FieldInfo field)
+    private static void StringProperty(object obj, PropertyInfo property)
     {
-        GUILayout.Label(field.Name);
-        string val = (string)field.GetValue(obj);
+        GUILayout.Label(property.Name);
+        string val = (string)property.GetValue(obj, null);
         val = EditorGUILayout.DelayedTextField(val);
-        field.SetValue(obj, val);
+        property.SetValue(obj, val, null);
     }
 }

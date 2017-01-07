@@ -42,11 +42,11 @@ namespace Ashogue
         public class DialogueContainer : XmlContainer<DialogueContainer>
         {
             [XmlIgnore]
-            public Dictionary<string, Dialogue> Dialogues = new Dictionary<string, Dialogue>();
+            public Dictionary<string, IDialogue> Dialogues = new Dictionary<string, IDialogue>();
 
             [XmlArray("Dialogues")]
             [XmlArrayItem("Dialogue", typeof(Dialogue))]
-            public Dialogue[] XmlDialogues
+            public IDialogue[] XmlDialogues
             {
                 get { return Dialogues.Values.ToArray(); }
                 set { Dialogues = value.ToDictionary(i => i.ID, i => i); }

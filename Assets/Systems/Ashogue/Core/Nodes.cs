@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Xml;
@@ -7,13 +8,39 @@ namespace Ashogue
 {
     namespace Data
     {
-        public abstract class ANode
+        public interface INode
         {
-            [XmlAttribute("id")]
-            public string ID = "Untitled Node";
+            string ID { get; set; }
+            Dictionary<string, IMetadata> Metadata { get; set; }
+        }
 
+        public interface IBranchedNode
+        {
+            Dictionary<string, IBranch> Branches { get; set; }
+        }
+
+        public interface INextNode
+        {
+            string NextNodeID { get; set; }
+        }
+
+        public abstract class ANode : INode
+        {
+            private string _id = Guid.NewGuid().ToString();
+            [XmlAttribute("id")]
+            public string ID
+            {
+                get { return _id; }
+                set { _id = value; }
+            }
+
+            private Dictionary<string, IMetadata> _metadata = new Dictionary<string, IMetadata>();
             [XmlIgnore]
-            public Dictionary<string, IMetadata> Metadata = new Dictionary<string, IMetadata>();
+            public Dictionary<string, IMetadata> Metadata
+            {
+                get { return _metadata; }
+                set { _metadata = value; }
+            }
 
             [XmlArray("Metadata")]
             [XmlArrayItem("BoolMetadata", typeof(BoolMetadata))]
@@ -26,15 +53,21 @@ namespace Ashogue
             }
         }
 
-        public abstract class AChainedNode : ANode
-        {
-            public string NextNodeID = "";
-        }
+        [AttributeUsage(AttributeTargets.Property)]
+        public class CustomDataAttribute : Attribute { }
 
-        public abstract class ABranchedNode : ANode
+        public class TextNode : ANode, IBranchedNode
         {
+            [CustomData]
+            public string Text { get; set; }
+
+            private Dictionary<string, IBranch> _branches = new Dictionary<string, IBranch>();
             [XmlIgnore]
-            public Dictionary<string, IBranch> Branches = new Dictionary<string, IBranch>();
+            public Dictionary<string, IBranch> Branches
+            {
+                get { return _branches; }
+                set { _branches = value; }
+            }
 
             [XmlArray("Branches")]
             [XmlArrayItem("SimpleBranch", typeof(SimpleBranch))]
@@ -45,19 +78,20 @@ namespace Ashogue
             }
         }
 
-        public class TextNode : ABranchedNode
+        public class WaitNode : ANode, INextNode
         {
-            public string Text = "";
+            [CustomData]
+            public float Seconds { get; set; }
+
+            public string NextNodeID { get; set; }
         }
 
-        public class WaitNode : AChainedNode
+        public class EventNode : ANode, INextNode
         {
-            public float Seconds = 0f;
-        }
+            [CustomData]
+            public string Message { get; set; }
 
-        public class EventNode : AChainedNode
-        {
-            public string Message = "";
+            public string NextNodeID { get; set; }
         }
 
         public class EndNode : ANode { }

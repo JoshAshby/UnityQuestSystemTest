@@ -13,8 +13,8 @@ public class OldDialogueEditor : EditorWindow
     private DialogueContainer database;
     private string path;
 
-    private Dialogue currentDialogue;
-    private ANode currentNode;
+    private IDialogue currentDialogue;
+    private INode currentNode;
 
     private GUIStyle selectedStyle;
 
@@ -24,7 +24,7 @@ public class OldDialogueEditor : EditorWindow
         EditorWindow.GetWindow(typeof(OldDialogueEditor));
     }
 
-    private static List<Type> AllTypes<T>()
+    private static List<Type> AllSubTypes<T>()
     {
         return AppDomain.CurrentDomain.GetAssemblies()
             .SelectMany(assembly => assembly.GetTypes())
@@ -33,9 +33,18 @@ public class OldDialogueEditor : EditorWindow
             .ToList();
     }
 
-    List<Type> metadataTypes = AllTypes<IMetadata>();
-    List<Type> branchTypes = AllTypes<IBranch>();
-    List<Type> nodeTypes = AllTypes<ANode>();
+    private static List<Type> AllImplementTypes<T>()
+    {
+        return AppDomain.CurrentDomain.GetAssemblies()
+            .SelectMany(assembly => assembly.GetTypes())
+            .Where(type => type.IsClass && !type.IsAbstract && type.GetInterfaces().Contains(typeof(T)))
+            .OrderBy(x => x.Name)
+            .ToList();
+    }
+
+    List<Type> metadataTypes = AllImplementTypes<IMetadata>();
+    List<Type> branchTypes = AllImplementTypes<IBranch>();
+    List<Type> nodeTypes = AllImplementTypes<INode>();
 
     private void Awake()
     {
@@ -79,7 +88,7 @@ public class OldDialogueEditor : EditorWindow
         }
     }
 
-    private void SelectDialogue(Dialogue dialogue)
+    private void SelectDialogue(IDialogue dialogue)
     {
         currentDialogue = dialogue;
         currentNode = null;
@@ -95,7 +104,7 @@ public class OldDialogueEditor : EditorWindow
         }
     }
 
-    private void SelectNode(ANode node)
+    private void SelectNode(INode node)
     {
         currentNode = node;
     }
@@ -143,7 +152,7 @@ public class OldDialogueEditor : EditorWindow
     {
         dialogueScrollPosition = GUILayout.BeginScrollView(dialogueScrollPosition, GUILayout.Width(200), GUILayout.ExpandHeight(true));
 
-        foreach (Dialogue dialogue in database.Dialogues.Values)
+        foreach (IDialogue dialogue in database.Dialogues.Values)
         {
             GUIStyle style = dialogue == currentDialogue ? selectedStyle : new GUIStyle(GUI.skin.button);
 
@@ -160,7 +169,7 @@ public class OldDialogueEditor : EditorWindow
         if (currentDialogue == null)
             return;
 
-        List<ANode> nodeList = currentDialogue.Nodes.Values.OrderBy(x => x.ID).ToList();
+        List<INode> nodeList = currentDialogue.Nodes.Values.OrderBy(x => x.ID).ToList();
 
         GUILayout.BeginVertical();
 
@@ -197,11 +206,11 @@ public class OldDialogueEditor : EditorWindow
         GUILayout.EndVertical();
     }
 
-    private void FirstNode(List<ANode> options)
+    private void FirstNode(List<INode> options)
     {
         GUILayout.Label("First Node ID");
 
-        int choiceIdx = currentDialogue.XmlNodes.ToList().FindIndex(x => x.ID == currentDialogue.FirstNodeID);
+        int choiceIdx = currentDialogue.Nodes.Values.ToList().FindIndex(x => x.ID == currentDialogue.FirstNodeID);
         if (choiceIdx == -1)
             choiceIdx = 0;
         choiceIdx = EditorGUILayout.Popup(choiceIdx, currentDialogue.Nodes.Keys.ToArray());
@@ -209,7 +218,7 @@ public class OldDialogueEditor : EditorWindow
     }
 
     private Vector2 nodeScrollPosition;
-    private void ListNodes(List<ANode> options)
+    private void ListNodes(List<INode> options)
     {
         if (currentDialogue == null || currentDialogue.Nodes == null)
             return;
@@ -218,9 +227,10 @@ public class OldDialogueEditor : EditorWindow
 
         FirstNode(options);
 
-        foreach (ANode node in currentDialogue.Nodes.Values)
+        foreach (INode node in currentDialogue.Nodes.Values)
         {
             GUIStyle style = node == currentNode ? selectedStyle : new GUIStyle(GUI.skin.button);
+
             if (GUILayout.Button(node.ID, style))
                 SelectNode(node);
         }
@@ -228,7 +238,7 @@ public class OldDialogueEditor : EditorWindow
         GUILayout.EndScrollView();
     }
 
-    private void ShowNode(List<ANode> options)
+    private void ShowNode(List<INode> options)
     {
         if (currentNode == null)
             return;
@@ -262,16 +272,16 @@ public class OldDialogueEditor : EditorWindow
         GUILayout.EndVertical();
     }
 
-    private void ChainEditor(List<ANode> options)
+    private void ChainEditor(List<INode> options)
     {
-        if (!(currentNode is AChainedNode))
+        if (!(currentNode is INextNode))
             return;
 
-        AChainedNode node = (AChainedNode)currentNode;
+        INextNode node = (INextNode)currentNode;
 
         GUILayout.Label("Next Node ID");
 
-        int choiceIdx = currentDialogue.XmlNodes.ToList().FindIndex(x => x.ID == node.NextNodeID);
+        int choiceIdx = currentDialogue.Nodes.Values.ToList().FindIndex(x => x.ID == node.NextNodeID);
         if (choiceIdx == -1)
             choiceIdx = 0;
         choiceIdx = EditorGUILayout.Popup(choiceIdx, currentDialogue.Nodes.Keys.ToArray());
@@ -280,12 +290,12 @@ public class OldDialogueEditor : EditorWindow
 
     private bool branchShow = false;
     private int branchChoiceIdx = 0;
-    private void BranchesEditor(List<ANode> options)
+    private void BranchesEditor(List<INode> options)
     {
-        if (!(currentNode is ABranchedNode))
+        if (!(currentNode is IBranchedNode))
             return;
 
-        ABranchedNode node = (ABranchedNode)currentNode;
+        IBranchedNode node = (IBranchedNode)currentNode;
 
         GUILayout.BeginVertical();
 
@@ -317,7 +327,7 @@ public class OldDialogueEditor : EditorWindow
             branch.Text = EditorGUILayout.DelayedTextField(branch.Text);
             GUILayout.Label("Next Node ID");
 
-            int choiceIdx = currentDialogue.XmlNodes.ToList().FindIndex(x => x.ID == branch.NextNodeID);
+            int choiceIdx = currentDialogue.Nodes.Values.ToList().FindIndex(x => x.ID == branch.NextNodeID);
             if (choiceIdx == -1)
                 choiceIdx = 0;
             choiceIdx = EditorGUILayout.Popup(choiceIdx, currentDialogue.Nodes.Keys.ToArray());
@@ -373,7 +383,21 @@ public class OldDialogueEditor : EditorWindow
             GUILayout.Label("Key");
             metadata.ID = EditorGUILayout.DelayedTextField(metadata.ID);
 
-            FieldEditor.DeclaredFieldsEditor(metadata);
+            if (metadata.Type == typeof(bool))
+            {
+                IMetadata<bool> handle = metadata.OfType<bool>();
+                handle.Value = GUILayout.Toggle(handle.Value, "");
+            } else if (metadata.Type == typeof(float))
+            {
+                IMetadata<float> handle = metadata.OfType<float>();
+                handle.Value = EditorGUILayout.DelayedFloatField(handle.Value);
+            } else if (metadata.Type == typeof(string))
+            {
+                IMetadata<string> handle = metadata.OfType<string>();
+                handle.Value = EditorGUILayout.DelayedTextField(handle.Value);
+            }
+
+            GUILayout.FlexibleSpace();
 
             if (GUILayout.Button("X"))
                 if (EditorUtility.DisplayDialog("Are you sure?", "Are you sure you want to remove this metadata?", "Yup", "NO!"))

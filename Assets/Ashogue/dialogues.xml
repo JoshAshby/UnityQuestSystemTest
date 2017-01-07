@@ -5,7 +5,18 @@
       <FirstNodeID>first!</FirstNodeID>
       <Nodes>
         <TextNode id="first!">
-          <Metadata />
+          <Metadata>
+            <StringMetadata id="93d1863c-1c33-4a73-b9fa-9cffc6dfbbea">
+              <Value xsi:type="xsd:string">tesatasdfadsf</Value>
+            </StringMetadata>
+            <BoolMetadata id="d99d3e60-dd8b-4d57-a282-e9397ef0264e">
+              <Value xsi:type="xsd:boolean">true</Value>
+            </BoolMetadata>
+            <FloatMetadata id="dc9b2176-c3fc-4509-9aef-f8b2549f29ed">
+              <Value xsi:type="xsd:float">5.8756</Value>
+            </FloatMetadata>
+          </Metadata>
+          <Text>Hey there look at me I'm a first node!</Text>
           <Branches>
             <SimpleBranch id="Untitled Branch 0">
               <Text>one</Text>
@@ -16,35 +27,34 @@
               <NextNodeID>Untitled Node 4</NextNodeID>
             </SimpleBranch>
           </Branches>
-          <Text>Hey there look at me I'm a first node!</Text>
         </TextNode>
         <TextNode id="Secondsies">
           <Metadata />
+          <Text>and now a second node!</Text>
           <Branches>
             <SimpleBranch id="Untitled Branch 0">
               <Text>two</Text>
               <NextNodeID>event node</NextNodeID>
             </SimpleBranch>
           </Branches>
-          <Text>and now a second node!</Text>
         </TextNode>
         <EventNode id="event node">
           <Metadata />
-          <NextNodeID>fin</NextNodeID>
           <Message>testing</Message>
+          <NextNodeID>fin</NextNodeID>
         </EventNode>
         <EndNode id="fin">
           <Metadata />
         </EndNode>
         <TextNode id="Untitled Node 4">
           <Metadata />
+          <Text>wat wat</Text>
           <Branches>
             <SimpleBranch id="Untitled Branch 0">
               <Text />
               <NextNodeID>Secondsies</NextNodeID>
             </SimpleBranch>
           </Branches>
-          <Text>wat wat</Text>
         </TextNode>
       </Nodes>
     </Dialogue>

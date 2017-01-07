@@ -24,8 +24,8 @@ namespace Ashogue
 
         public static DialogueContainer dialogues = null;
 
-        private static Dialogue currentDialogue;
-        private static ANode currentNode;
+        private static IDialogue currentDialogue;
+        private static INode currentNode;
 
         private static Action currentCallback = null;
 
@@ -86,31 +86,31 @@ namespace Ashogue
 
         public static void ContinueDialogue()
         {
-            string nId = ((ABranchedNode)currentNode).Branches.First().Value.NextNodeID;
+            string nId = ((IBranchedNode)currentNode).Branches.First().Value.NextNodeID;
             currentNode = currentDialogue.Nodes[nId];
             Progress();
         }
 
         public static void ContinueDialogue(string choice)
         {
-            string nId = ((ABranchedNode)currentNode).Branches[choice].NextNodeID;
+            string nId = ((IBranchedNode)currentNode).Branches[choice].NextNodeID;
             currentNode = currentDialogue.Nodes[nId];
             Progress();
         }
 
-        public static void EndDialogue()
+        public static void EndDialogue(bool suddenly = false)
         {
             currentDialogue = null;
             currentNode = null;
 
-            Events.OnEnded();
+            Events.OnEnded(suddenly);
         }
 
         private static void Progress()
         {
-            ANode interNode = currentNode;
+            INode interNode = currentNode;
 
-            while (!(interNode is TextNode))
+            while (!(interNode is IBranchedNode))
             {
                 if (interNode is EventNode)
                 {
@@ -121,12 +121,15 @@ namespace Ashogue
                 {
                     WaitNode n = (WaitNode)interNode;
                 }
-                else if (interNode is EndNode)
+                else if ((interNode is EndNode) || !(interNode is INextNode))
                 {
-                    EndDialogue();
+                    bool suddenly = !(interNode is EndNode) && (interNode is INextNode);
+
+                    EndDialogue(suddenly);
                     return;
                 }
-                interNode = currentDialogue.Nodes[((AChainedNode)interNode).NextNodeID];
+
+                interNode = currentDialogue.Nodes[((INextNode)interNode).NextNodeID];
             }
 
             TextNode node = (TextNode)interNode;
