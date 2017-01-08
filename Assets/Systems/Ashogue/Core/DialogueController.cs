@@ -7,19 +7,122 @@ using System.Collections.Generic;
 
 namespace Ashogue
 {
-    // Used during runtime
-    public class DialogueText
+    public class StartedEventArgs : EventArgs
     {
-        public string Text;
-        public string[] Branches;
+        public string DialogueID { get; internal set; }
     }
 
-    public class NodeEventArgs : EventArgs { public DialogueText text { get; set; } }
-    public class EndedEventArgs : EventArgs { public bool suddenly { get; set; } }
-    public class MessageEventArgs : EventArgs { public string message { get; set; } }
+    public class NodeEventArgs : EventArgs
+    {
+        public string DialogueID { get; internal set; }
+        public string NodeID { get; internal set; }
+
+        public Dictionary<string, IMetadata> Metadata { get; internal set; }
+    }
+
+    public class DialogueEventArgs : EventArgs
+    {
+        public string DialogueID { get; internal set; }
+        public string NodeID { get; internal set; }
+
+        public string Text { get; internal set; }
+        public List<string> Branches { get; internal set; }
+
+        public Dictionary<string, IMetadata> Metadata { get; internal set; }
+    }
+
+    public class MessageEventArgs : EventArgs
+    {
+        public string DialogueID { get; internal set; }
+        public string NodeID { get; internal set; }
+
+        public string Message { get; internal set; }
+
+        public Dictionary<string, IMetadata> Metadata { get; internal set; }
+    }
+
+    public class EndedEventArgs : EventArgs
+    {
+        public string DialogueID { get; internal set; }
+        public string NodeID { get; internal set; }
+
+        public bool Suddenly { get; internal set; }
+
+        public Dictionary<string, IMetadata> Metadata { get; internal set; }
+    }
 
     public static class DialogueController
     {
+        public static class Events
+        {
+            public static event EventHandler<StartedEventArgs> Started;
+            internal static void OnStarted(IDialogue dialogue)
+            {
+                var n = Started;
+                if (n != null)
+                    n(null, new StartedEventArgs
+                    {
+                        DialogueID = dialogue.ID
+                    });
+            }
+
+            public static event EventHandler<NodeEventArgs> Node;
+            internal static void OnNode(IDialogue dialogue, INode node)
+            {
+                var n = Node;
+                if (n != null)
+                    n(null, new NodeEventArgs
+                    {
+                        DialogueID = dialogue.ID,
+                        NodeID = node.ID,
+                        Metadata = node.Metadata
+                    });
+            }
+
+            public static event EventHandler<DialogueEventArgs> Dialogue;
+            internal static void OnDialogue(IDialogue dialogue, TextNode node)
+            {
+                var n = Dialogue;
+                if (n != null)
+                    n(null, new DialogueEventArgs
+                    {
+                        DialogueID = dialogue.ID,
+                        NodeID = node.ID,
+                        Text = node.Text,
+                        Branches = node.Branches.Keys.OrderBy(x => x).ToList(),
+                        Metadata = node.Metadata
+                    });
+            }
+
+            public static event EventHandler<MessageEventArgs> Message;
+            internal static void OnMessage(IDialogue dialogue, EventNode node)
+            {
+                var n = Message;
+                if (n != null)
+                    n(null, new MessageEventArgs
+                    {
+                        DialogueID = dialogue.ID,
+                        NodeID = node.ID,
+                        Message = node.Message,
+                        Metadata = node.Metadata
+                    });
+            }
+
+            public static event EventHandler<EndedEventArgs> Ended;
+            internal static void OnEnded(IDialogue dialogue, INode node, bool suddenly = false)
+            {
+                var n = Ended;
+                if (n != null)
+                    n(null, new EndedEventArgs
+                    {
+                        DialogueID = dialogue.ID,
+                        NodeID = node.ID,
+                        Suddenly = suddenly,
+                        Metadata = node.Metadata
+                    });
+            }
+        }
+
         public static string DatabaseLocation = "Ashogue/dialogues.xml";
 
         public static DialogueContainer dialogues = null;
@@ -28,41 +131,6 @@ namespace Ashogue
         private static INode currentNode;
 
         private static Action currentCallback = null;
-
-        public static class Events
-        {
-            public static event EventHandler Started;
-            internal static void OnStarted()
-            {
-                var n = Started;
-                if (n != null)
-                    n(null, null);
-            }
-
-            public static event EventHandler<NodeEventArgs> Node;
-            internal static void OnNode(DialogueText text)
-            {
-                var n = Node;
-                if (n != null)
-                    n(null, new NodeEventArgs { text = text });
-            }
-
-            public static event EventHandler<EndedEventArgs> Ended;
-            internal static void OnEnded(bool suddenly = false)
-            {
-                var n = Ended;
-                if (n != null)
-                    n(null, new EndedEventArgs { suddenly = suddenly });
-            }
-
-            public static event EventHandler<MessageEventArgs> Message;
-            internal static void OnMessage(string message)
-            {
-                var n = Message;
-                if (n != null)
-                    n(null, new MessageEventArgs { message = message });
-            }
-        }
 
         public static void Initialize()
         {
@@ -74,7 +142,7 @@ namespace Ashogue
             currentDialogue = dialogues.Dialogues[ID];
             currentNode = currentDialogue.Nodes[currentDialogue.FirstNodeID];
 
-            Events.OnStarted();
+            Events.OnStarted(currentDialogue);
             Progress();
         }
 
@@ -88,6 +156,7 @@ namespace Ashogue
         {
             string nId = ((IBranchedNode)currentNode).Branches.First().Value.NextNodeID;
             currentNode = currentDialogue.Nodes[nId];
+
             Progress();
         }
 
@@ -95,15 +164,18 @@ namespace Ashogue
         {
             string nId = ((IBranchedNode)currentNode).Branches[choice].NextNodeID;
             currentNode = currentDialogue.Nodes[nId];
+
             Progress();
         }
 
-        public static void EndDialogue(bool suddenly = false)
+        public static void EndDialogue(INode node, bool suddenly = false)
         {
             currentDialogue = null;
             currentNode = null;
 
-            Events.OnEnded(suddenly);
+            currentCallback.Invoke();
+            Events.OnEnded(currentDialogue, node, suddenly);
+            currentCallback = null;
         }
 
         private static void Progress()
@@ -112,20 +184,19 @@ namespace Ashogue
 
             while (!(interNode is IBranchedNode))
             {
+                Events.OnNode(currentDialogue, interNode);
+
                 if (interNode is EventNode)
-                {
-                    EventNode n = (EventNode)interNode;
-                    Events.OnMessage(n.Message);
-                }
+                    HandleEventNode((EventNode)interNode);
+
                 else if (interNode is WaitNode)
-                {
-                    WaitNode n = (WaitNode)interNode;
-                }
+                    HandleWaitNode((WaitNode)interNode);
+
                 else if ((interNode is EndNode) || !(interNode is INextNode))
                 {
                     bool suddenly = !(interNode is EndNode) && (interNode is INextNode);
 
-                    EndDialogue(suddenly);
+                    EndDialogue(interNode, suddenly);
                     return;
                 }
 
@@ -134,14 +205,18 @@ namespace Ashogue
 
             TextNode node = (TextNode)interNode;
 
-            DialogueText text = new DialogueText
-            {
-                Text = node.Text,
-                Branches = node.Branches.Keys.ToArray()
-            };
-
+            Events.OnNode(currentDialogue, interNode);
             currentNode = interNode;
-            Events.OnNode(text);
+        }
+
+        private static void HandleEventNode(EventNode node)
+        {
+            Events.OnMessage(currentDialogue, node);
+        }
+
+        private static void HandleWaitNode(WaitNode node)
+        {
+
         }
     }
 }

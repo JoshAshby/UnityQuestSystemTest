@@ -54,11 +54,15 @@ namespace Ashogue
         }
 
         [AttributeUsage(AttributeTargets.Property)]
-        public class CustomDataAttribute : Attribute { }
+        public class CustomDataAttribute : Attribute
+        {
+            public string Name { get; set; }
+            public string Tip { get; set; }
+        }
 
         public class TextNode : ANode, IBranchedNode
         {
-            [CustomData]
+            [CustomData(Name = "Displayed Text", Tip = "Text that will be passed along during a Dialogue event")]
             public string Text { get; set; }
 
             private Dictionary<string, IBranch> _branches = new Dictionary<string, IBranch>();
@@ -80,7 +84,7 @@ namespace Ashogue
 
         public class WaitNode : ANode, INextNode
         {
-            [CustomData]
+            [CustomData(Name = "Seconds to wait")]
             public float Seconds { get; set; }
 
             public string NextNodeID { get; set; }
@@ -88,7 +92,7 @@ namespace Ashogue
 
         public class EventNode : ANode, INextNode
         {
-            [CustomData]
+            [CustomData(Name = "Event Message", Tip = "Message to pass along to the Message event")]
             public string Message { get; set; }
 
             public string NextNodeID { get; set; }

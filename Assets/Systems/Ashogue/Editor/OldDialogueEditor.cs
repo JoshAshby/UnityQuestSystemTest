@@ -387,11 +387,13 @@ public class OldDialogueEditor : EditorWindow
             {
                 IMetadata<bool> handle = metadata.OfType<bool>();
                 handle.Value = GUILayout.Toggle(handle.Value, "");
-            } else if (metadata.Type == typeof(float))
+            }
+            else if (metadata.Type == typeof(float))
             {
                 IMetadata<float> handle = metadata.OfType<float>();
                 handle.Value = EditorGUILayout.DelayedFloatField(handle.Value);
-            } else if (metadata.Type == typeof(string))
+            }
+            else if (metadata.Type == typeof(string))
             {
                 IMetadata<string> handle = metadata.OfType<string>();
                 handle.Value = EditorGUILayout.DelayedTextField(handle.Value);
