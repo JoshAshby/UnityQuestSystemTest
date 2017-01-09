@@ -6,13 +6,13 @@
       <Nodes>
         <TextNode id="first!">
           <Metadata>
-            <StringMetadata id="93d1863c-1c33-4a73-b9fa-9cffc6dfbbea">
+            <StringMetadata id="text">
               <Value xsi:type="xsd:string">tesatasdfadsf</Value>
             </StringMetadata>
-            <BoolMetadata id="d99d3e60-dd8b-4d57-a282-e9397ef0264e">
+            <BoolMetadata id="bool">
               <Value xsi:type="xsd:boolean">true</Value>
             </BoolMetadata>
-            <FloatMetadata id="dc9b2176-c3fc-4509-9aef-f8b2549f29ed">
+            <FloatMetadata id="float">
               <Value xsi:type="xsd:float">5.8756</Value>
             </FloatMetadata>
           </Metadata>
@@ -52,10 +52,14 @@
           <Branches>
             <SimpleBranch id="Untitled Branch 0">
               <Text />
-              <NextNodeID>Secondsies</NextNodeID>
+              <NextNodeID>thing</NextNodeID>
             </SimpleBranch>
           </Branches>
         </TextNode>
+        <EventNode id="thing">
+          <Metadata />
+          <NextNodeID>Secondsies</NextNodeID>
+        </EventNode>
       </Nodes>
     </Dialogue>
   </Dialogues>

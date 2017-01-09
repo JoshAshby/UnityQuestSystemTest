@@ -18,10 +18,18 @@ public class OldDialogueEditor : EditorWindow
 
     private GUIStyle selectedStyle;
 
+    private static OldDialogueEditor _editor;
+    public static OldDialogueEditor editor { get { AssureEditor(); return _editor; } }
+    public static void AssureEditor() { if (_editor == null) OpenEditor(); }
+
     [MenuItem("Window/Old Dialogue Editor")]
-    public static void ShowWindow()
+    public static OldDialogueEditor OpenEditor()
     {
-        EditorWindow.GetWindow(typeof(OldDialogueEditor));
+        _editor = EditorWindow.GetWindow<OldDialogueEditor>();
+
+        _editor.titleContent = new GUIContent("Dialogue Editor");
+
+        return _editor;
     }
 
     private static List<Type> AllSubTypes<T>()
@@ -118,6 +126,56 @@ public class OldDialogueEditor : EditorWindow
         }
     }
 
+    private string RenameField(string val, Action<string> callback)
+    {
+        EditorGUI.BeginChangeCheck();
+        string newVal = EditorGUILayout.DelayedTextField(val);
+        if (EditorGUI.EndChangeCheck())
+            callback(newVal);
+
+        return newVal;
+    }
+
+    private string ChoiceSelector(string[] options, string selected, Action<string> callback)
+    {
+        int choiceIndex = Array.IndexOf(options, selected);
+        if (choiceIndex == -1)
+            choiceIndex = 0;
+
+        EditorGUI.BeginChangeCheck();
+        choiceIndex = EditorGUILayout.Popup(choiceIndex, options, EditorStyles.toolbarPopup);
+        if (EditorGUI.EndChangeCheck())
+        {
+            string newSelection = options[choiceIndex];
+            callback(newSelection);
+            return newSelection;
+        }
+
+        return selected;
+    }
+
+    private Dictionary<string, string> nodeTypeChoice = new Dictionary<string, string>();
+    private string TypeField(List<Type> options, string buttonText, Action<string> callback)
+    {
+        if(!options.Any())
+            return null;
+
+        string[] optionNames = options.Select(x => x.Name).OrderBy(x => x).ToArray();
+        if(!nodeTypeChoice.ContainsKey(buttonText))
+            nodeTypeChoice.Add(buttonText, optionNames.First());
+
+        ChoiceSelector(
+            optionNames,
+            nodeTypeChoice[buttonText],
+            (newTypeName) => { nodeTypeChoice[buttonText] = newTypeName; }
+        );
+
+        if (GUILayout.Button(buttonText, EditorStyles.toolbarButton))
+            callback(nodeTypeChoice[buttonText]);
+
+        return nodeTypeChoice[buttonText];
+    }
+
     private void OnGUI()
     {
         EnsureDatabase();
@@ -126,16 +184,16 @@ public class OldDialogueEditor : EditorWindow
 
         GUILayout.BeginVertical();
 
-        GUILayout.BeginHorizontal();
-        if (GUILayout.Button("Add Dialogue"))
+        GUILayout.BeginHorizontal(EditorStyles.toolbar);
+        if (GUILayout.Button("Add Dialogue", EditorStyles.toolbarButton))
             database.AddDialogue();
 
-        if (GUILayout.Button("Save Database"))
+        if (GUILayout.Button("Save Database", EditorStyles.toolbarButton))
             database.Save(path);
 
         GUILayout.FlexibleSpace();
 
-        if (GUILayout.Button("Reload Database"))
+        if (GUILayout.Button("Reload Database", EditorStyles.toolbarButton))
             ReloadDatabase();
         GUILayout.EndHorizontal();
 
@@ -152,7 +210,8 @@ public class OldDialogueEditor : EditorWindow
     {
         dialogueScrollPosition = GUILayout.BeginScrollView(dialogueScrollPosition, GUILayout.Width(200), GUILayout.ExpandHeight(true));
 
-        foreach (IDialogue dialogue in database.Dialogues.Values)
+        List<IDialogue> dialogues = database.Dialogues.Values.OrderBy(x => x.ID).ToList();
+        foreach (IDialogue dialogue in dialogues)
         {
             GUIStyle style = dialogue == currentDialogue ? selectedStyle : new GUIStyle(GUI.skin.button);
 
@@ -163,22 +222,22 @@ public class OldDialogueEditor : EditorWindow
         GUILayout.EndScrollView();
     }
 
-    private int nodeChoiceIdx = 0;
+    private string[] currentNodeIDs;
     private void ShowDialogue()
     {
         if (currentDialogue == null)
             return;
 
-        List<INode> nodeList = currentDialogue.Nodes.Values.OrderBy(x => x.ID).ToList();
+        currentNodeIDs = currentDialogue.Nodes.Keys.OrderBy(x => x).ToArray();
 
         GUILayout.BeginVertical();
 
         GUILayout.BeginHorizontal();
 
-        EditorGUI.BeginChangeCheck();
-        string newID = EditorGUILayout.DelayedTextField(currentDialogue.ID);
-        if (EditorGUI.EndChangeCheck())
-            database.RenameDialogue(currentDialogue.ID, newID);
+        RenameField(
+            currentDialogue.ID,
+            (newID) => { database.RenameDialogue(currentDialogue.ID, newID); }
+        );
 
         GUILayout.FlexibleSpace();
 
@@ -186,10 +245,13 @@ public class OldDialogueEditor : EditorWindow
             DeleteDialogue();
         GUILayout.EndHorizontal();
 
-        GUILayout.BeginHorizontal();
-        nodeChoiceIdx = EditorGUILayout.Popup(nodeChoiceIdx, nodeTypes.Select(x => x.Name).ToArray());
-        if (GUILayout.Button("Add Node"))
-            currentDialogue.AddNode(nodeTypes[nodeChoiceIdx]);
+        GUILayout.BeginHorizontal(EditorStyles.toolbar);
+
+        TypeField(
+            nodeTypes,
+            "Add Node",
+            (newTypeName) => { currentDialogue.AddNode(nodeTypes.Find(type => type.Name == newTypeName)); }
+        );
 
         GUILayout.FlexibleSpace();
         GUILayout.EndHorizontal();
@@ -199,33 +261,33 @@ public class OldDialogueEditor : EditorWindow
         GUILayout.EndHorizontal();
 
         GUILayout.BeginHorizontal();
-        ListNodes(nodeList);
-        ShowNode(nodeList);
+        ListNodes();
+        ShowNode();
         GUILayout.EndHorizontal();
 
         GUILayout.EndVertical();
     }
 
-    private void FirstNode(List<INode> options)
+    private void FirstNode()
     {
         GUILayout.Label("First Node ID");
 
-        int choiceIdx = currentDialogue.Nodes.Values.ToList().FindIndex(x => x.ID == currentDialogue.FirstNodeID);
-        if (choiceIdx == -1)
-            choiceIdx = 0;
-        choiceIdx = EditorGUILayout.Popup(choiceIdx, currentDialogue.Nodes.Keys.ToArray());
-        currentDialogue.FirstNodeID = options[choiceIdx].ID;
+        ChoiceSelector(
+            currentNodeIDs,
+            currentDialogue.FirstNodeID,
+            (newID) => { currentDialogue.FirstNodeID = newID; }
+        );
     }
 
     private Vector2 nodeScrollPosition;
-    private void ListNodes(List<INode> options)
+    private void ListNodes()
     {
         if (currentDialogue == null || currentDialogue.Nodes == null)
             return;
 
         nodeScrollPosition = GUILayout.BeginScrollView(nodeScrollPosition, GUILayout.Width(200), GUILayout.ExpandHeight(true));
 
-        FirstNode(options);
+        FirstNode();
 
         foreach (INode node in currentDialogue.Nodes.Values)
         {
@@ -238,7 +300,7 @@ public class OldDialogueEditor : EditorWindow
         GUILayout.EndScrollView();
     }
 
-    private void ShowNode(List<INode> options)
+    private void ShowNode()
     {
         if (currentNode == null)
             return;
@@ -247,10 +309,10 @@ public class OldDialogueEditor : EditorWindow
 
         GUILayout.BeginHorizontal();
 
-        EditorGUI.BeginChangeCheck();
-        string newID = EditorGUILayout.DelayedTextField(currentNode.ID);
-        if (EditorGUI.EndChangeCheck())
-            currentDialogue.RenameNode(currentNode.ID, newID);
+        RenameField(
+            currentNode.ID,
+            (newID) => { currentDialogue.RenameNode(currentNode.ID, newID); }
+        );
 
         GUILayout.FlexibleSpace();
 
@@ -263,8 +325,8 @@ public class OldDialogueEditor : EditorWindow
         FieldEditor.DeclaredFieldsEditor(currentNode);
 
         GUILayout.Space(20);
-        BranchesEditor(options);
-        ChainEditor(options);
+        BranchesEditor();
+        ChainEditor();
 
         GUILayout.Space(20);
         MetadataEditor();
@@ -272,25 +334,27 @@ public class OldDialogueEditor : EditorWindow
         GUILayout.EndVertical();
     }
 
-    private void ChainEditor(List<INode> options)
+    private void ChainEditor()
     {
         if (!(currentNode is INextNode))
             return;
 
         INextNode node = (INextNode)currentNode;
 
-        GUILayout.Label("Next Node ID");
+        GUILayout.BeginHorizontal();
 
-        int choiceIdx = currentDialogue.Nodes.Values.ToList().FindIndex(x => x.ID == node.NextNodeID);
-        if (choiceIdx == -1)
-            choiceIdx = 0;
-        choiceIdx = EditorGUILayout.Popup(choiceIdx, currentDialogue.Nodes.Keys.ToArray());
-        node.NextNodeID = options[choiceIdx].ID;
+        GUILayout.Label("Next Node ID");
+        ChoiceSelector(
+            currentNodeIDs,
+            node.NextNodeID,
+            (newID) => { node.NextNodeID = newID; }
+        );
+
+        GUILayout.EndHorizontal();
     }
 
     private bool branchShow = false;
-    private int branchChoiceIdx = 0;
-    private void BranchesEditor(List<INode> options)
+    private void BranchesEditor()
     {
         if (!(currentNode is IBranchedNode))
             return;
@@ -303,9 +367,11 @@ public class OldDialogueEditor : EditorWindow
         branchShow = EditorGUILayout.Foldout(branchShow, "Branches");
         if (branchShow)
         {
-            branchChoiceIdx = EditorGUILayout.Popup(branchChoiceIdx, branchTypes.Select(x => x.Name).ToArray());
-            if (GUILayout.Button("Add Branch"))
-                node.AddBranch(branchTypes[branchChoiceIdx]);
+            TypeField(
+                branchTypes,
+                "Add Branch",
+                (newTypeName) => { node.AddBranch(branchTypes.Find(type => type.Name == newTypeName)); }
+            );
         }
         GUILayout.EndHorizontal();
 
@@ -327,11 +393,11 @@ public class OldDialogueEditor : EditorWindow
             branch.Text = EditorGUILayout.DelayedTextField(branch.Text);
             GUILayout.Label("Next Node ID");
 
-            int choiceIdx = currentDialogue.Nodes.Values.ToList().FindIndex(x => x.ID == branch.NextNodeID);
-            if (choiceIdx == -1)
-                choiceIdx = 0;
-            choiceIdx = EditorGUILayout.Popup(choiceIdx, currentDialogue.Nodes.Keys.ToArray());
-            branch.NextNodeID = options[choiceIdx].ID;
+            ChoiceSelector(
+                currentNodeIDs,
+                branch.NextNodeID,
+                (newID) => { branch.NextNodeID = newID; }
+            );
 
             if (GUILayout.Button("X"))
                 if (EditorUtility.DisplayDialog("Are you sure?", "Are you sure you want to remove this branch?", "Yup", "NO!"))
@@ -352,7 +418,6 @@ public class OldDialogueEditor : EditorWindow
     }
 
     private bool metadataShow = false;
-    private int metadataChoiceIdx = 0;
     private void MetadataEditor()
     {
         GUILayout.BeginVertical();
@@ -361,9 +426,11 @@ public class OldDialogueEditor : EditorWindow
         metadataShow = EditorGUILayout.Foldout(metadataShow, "Metadata");
         if (metadataShow)
         {
-            metadataChoiceIdx = EditorGUILayout.Popup(metadataChoiceIdx, metadataTypes.Select(x => x.Name).ToArray());
-            if (GUILayout.Button("Add Metadata"))
-                currentNode.AddMetadata(metadataTypes[metadataChoiceIdx]);
+            TypeField(
+                metadataTypes,
+                "Add Metadata",
+                (newTypeName) => { currentNode.AddMetadata(metadataTypes.Find(type => type.Name == newTypeName)); }
+            );
         }
         GUILayout.EndHorizontal();
 

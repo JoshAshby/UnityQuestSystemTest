@@ -41,8 +41,12 @@ namespace Ashogue
         [XmlRoot("DialogueCollection")]
         public class DialogueContainer : XmlContainer<DialogueContainer>
         {
+            private Dictionary<string, IDialogue> _dialogues = new Dictionary<string, IDialogue>();
             [XmlIgnore]
-            public Dictionary<string, IDialogue> Dialogues = new Dictionary<string, IDialogue>();
+            public Dictionary<string, IDialogue> Dialogues {
+                get { return _dialogues; }
+                set { _dialogues = value; }
+            }
 
             [XmlArray("Dialogues")]
             [XmlArrayItem("Dialogue", typeof(Dialogue))]
