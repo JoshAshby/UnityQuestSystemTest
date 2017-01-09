@@ -363,7 +363,7 @@ public class OldDialogueEditor : EditorWindow
 
         GUILayout.BeginVertical();
 
-        GUILayout.BeginHorizontal();
+        GUILayout.BeginHorizontal(EditorStyles.toolbar);
         branchShow = EditorGUILayout.Foldout(branchShow, "Branches");
         if (branchShow)
         {
@@ -422,7 +422,7 @@ public class OldDialogueEditor : EditorWindow
     {
         GUILayout.BeginVertical();
 
-        GUILayout.BeginHorizontal();
+        GUILayout.BeginHorizontal(EditorStyles.toolbar);
         metadataShow = EditorGUILayout.Foldout(metadataShow, "Metadata");
         if (metadataShow)
         {

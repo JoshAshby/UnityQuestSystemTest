@@ -113,7 +113,7 @@ namespace Ashode
         }
     }
 
-    [Ashode.Node("Text Node")]
+    [Node("Text Node")]
     class TextNode : Ashode.Node<Ashogue.Data.TextNode>
     {
         public override void OnGUI()
@@ -130,7 +130,7 @@ namespace Ashode
         }
     }
 
-    [NodeAttribute("End Node")]
+    [Node("End Node")]
     class EndNode : Node<Ashogue.Data.EndNode>
     {
         public override void OnGUI()
