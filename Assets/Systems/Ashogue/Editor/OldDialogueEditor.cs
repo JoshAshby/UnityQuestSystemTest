@@ -27,7 +27,7 @@ public class OldDialogueEditor : EditorWindow
     {
         _editor = EditorWindow.GetWindow<OldDialogueEditor>();
 
-        _editor.titleContent = new GUIContent("Dialogue Editor");
+        _editor.titleContent = new GUIContent("Old Dialogue Editor");
 
         return _editor;
     }
