@@ -1,54 +1,52 @@
 using UnityEditor;
 using UnityEngine;
 using System.Collections.Generic;
+using Ashode;
 
-namespace Ashode
+public class AshodeEditor : EditorWindow
 {
-    public class AshodeEditor : EditorWindow
+    private static AshodeEditor _editor;
+    public static AshodeEditor editor { get { AssureEditor(); return _editor; } }
+    public static void AssureEditor() { if (_editor == null) OpenEditor(); }
+
+    private Ashode.Canvas Canvas;
+
+    [MenuItem("Window/Ashode/Example Editor")]
+    public static AshodeEditor OpenEditor()
     {
-        private static AshodeEditor _editor;
-        public static AshodeEditor editor { get { AssureEditor(); return _editor; } }
-        public static void AssureEditor() { if (_editor == null) OpenEditor(); }
+        _editor = EditorWindow.GetWindow<AshodeEditor>();
+        _editor.titleContent = new GUIContent("Example Editor");
 
-        private Texture2D _resizeHandle;
+        return _editor;
+    }
 
-        private Canvas Canvas;
-
-        [MenuItem("Window/Ashode/Example Editor")]
-        public static AshodeEditor OpenEditor()
+    private void Setup()
+    {
+        State state = new State
         {
-            _editor = EditorWindow.GetWindow<AshodeEditor>();
-            _editor.titleContent = new GUIContent("Example Editor");
+            Nodes = new List<Node> {
+                new SimpleNode(),
+                new SimpleNode { Rect = new Rect(230, 30, 200, 100) }
+            }
+        };
 
-            return _editor;
-        }
+        InputSystem IS = new InputSystem(typeof(InputControls));
 
-        private void Setup()
-        {
-            _resizeHandle = AssetDatabase.LoadAssetAtPath("Assets/ResizeHandle.png", typeof(Texture2D)) as Texture2D;
+        Canvas = new Ashode.Canvas { InputSystem = IS, State = state };
 
-            State state = new State
-            {
-                Nodes = new List<Node> {
-                    new SimpleNode(),
-                    new SimpleNode { Rect = new Rect(230, 30, 200, 100) }
-                }
-            };
+        Canvas.Repaint += Repaint;
+    }
 
-            state.Repaints -= Repaint;
-            state.Repaints += Repaint;
+    private void OnDestroy()
+    {
+        Canvas.Repaint -= Repaint;
+    }
 
-            InputSystem IS = new InputSystem(typeof(InputControls));
+    private void OnGUI()
+    {
+        if (Canvas == null)
+            Setup();
 
-            Canvas = new Canvas { InputSystem = IS, State = state };
-        }
-
-        private void OnGUI()
-        {
-            if (Canvas == null)
-                Setup();
-
-            Canvas.Draw(GUILayoutUtility.GetRect (600, 600));
-        }
+        Canvas.Draw(GUILayoutUtility.GetRect (600, 600));
     }
 }

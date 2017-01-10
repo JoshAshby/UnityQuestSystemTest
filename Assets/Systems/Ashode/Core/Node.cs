@@ -12,7 +12,7 @@ namespace Ashode
         string Title { get; set; }
 
         void OnGUI();
-        void DrawNodeWindow(State State);
+        void DrawNodeWindow(Canvas Canvas);
     }
 
     public abstract class Node : INode
@@ -39,16 +39,16 @@ namespace Ashode
         }
 
         private Vector2 contentOffset;
-
-        public virtual void DrawNodeWindow(State State)
+        public virtual void DrawNodeWindow(Canvas Canvas)
         {
             Rect nodeRect = Rect;
 
-            nodeRect.position += State.PanOffset;
+            nodeRect.position += Canvas.State.PanOffset;
             contentOffset = new Vector2(0, 20);
 
             Rect headerRect = new Rect(nodeRect.x, nodeRect.y, nodeRect.width, contentOffset.y);
-            GUI.Label(headerRect, Title, State.SelectedNode == this ? EditorStyles.boldLabel : EditorStyles.label);
+            GUI.Box(headerRect, "", GUI.skin.box);
+            GUI.Label(headerRect, Title, Canvas.State.SelectedNode == this ? EditorStyles.boldLabel : EditorStyles.label);
 
             Rect bodyRect = new Rect(nodeRect.x, nodeRect.y + contentOffset.y, nodeRect.width, nodeRect.height - contentOffset.y);
             GUI.BeginGroup(bodyRect, GUI.skin.box);

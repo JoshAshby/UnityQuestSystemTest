@@ -1,3 +1,5 @@
+using System;
+using System.Linq;
 using UnityEngine;
 
 namespace Ashode
@@ -6,19 +8,22 @@ namespace Ashode
     {
         public State State;
         public InputSystem InputSystem;
+        
+        public Action Repaint;
+        public void OnRepaint() { if (Repaint != null) Repaint(); }
 
         public virtual void OnGUI() { }
 
         public void Draw(Rect canvasRect)
         {
-            InputSystem.HandleEvents(State, false);
+            InputSystem.HandleEvents(this, false);
 
             DrawConnections();
             DrawNodes();
 
             OnGUI();
 
-            InputSystem.HandleEvents(State, true);
+            InputSystem.HandleEvents(this, true);
         }
 
         private void DrawConnections() { }
@@ -27,8 +32,19 @@ namespace Ashode
         {
             for (int i = 0; i < State.Nodes.Count; i++)
             {
-                State.Nodes[i].DrawNodeWindow(State);
+                State.Nodes[i].DrawNodeWindow(this);
             }
+        }
+
+        // Helpers
+        public Node FindNodeAt(Vector2 loc)
+        {
+            return State.Nodes.FirstOrDefault(x => x.Rect.Contains(loc));
+        }
+
+        public Vector2 ScreenToCanvasSpace(Vector2 screenPos)
+        {
+            return (screenPos - State.PanOffset);
         }
     }
 }

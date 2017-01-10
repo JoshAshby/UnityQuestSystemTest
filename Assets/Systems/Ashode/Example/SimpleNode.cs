@@ -3,7 +3,7 @@ using UnityEngine;
 using System;
 using Ashode;
 
-public class SimpleNode : Ashode.Node
+public class SimpleNode : Node
 {
     public override void OnGUI()
     {
