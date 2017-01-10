@@ -32,8 +32,7 @@ public class NodeEditorWindow : EditorWindow
         window1 = new Rect(30, 30, _winMinX, _winMinY);
         window2 = new Rect(210, 210, _winMinX, _winMinY);
 
-        _resizeHandle = AssetDatabase.LoadAssetAtPath("Assets/NodeEditor/Icons/ResizeHandle.png", typeof(Texture2D)) as Texture2D;
-        _aaLine = AssetDatabase.LoadAssetAtPath("Assets/NodeEditor/Icons/AA1x5.png", typeof(Texture2D)) as Texture2D;
+        _resizeHandle = AssetDatabase.LoadAssetAtPath("Assets/ResizeHandle.png", typeof(Texture2D)) as Texture2D;
         _icon = new GUIContent(_resizeHandle);
         _mainwindowID = GUIUtility.GetControlID(FocusType.Native); //grab primary editor window controlID
     }
