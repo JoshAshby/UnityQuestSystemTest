@@ -5,7 +5,7 @@ namespace Ashode
 {
     public class State
     {
-        public List<Node> Nodes;
+        public List<Node> Nodes = new List<Node>();
         // public List<Connections> Connections;
 
         public Node SelectedNode = null;
@@ -20,5 +20,6 @@ namespace Ashode
 
         public Vector2 DragOffset = Vector2.zero;
         public Vector2 PanOffset = Vector2.zero;
+        public Rect CanvasSize;
     }
 }

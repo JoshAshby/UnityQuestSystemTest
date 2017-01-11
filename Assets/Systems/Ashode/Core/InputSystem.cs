@@ -11,7 +11,7 @@ namespace Ashode
         public Event Event;
 
         public Canvas Canvas;
-        public State State  { get { return Canvas.State; } }
+        public State State { get { return Canvas.State; } }
     }
 
     abstract class AttributeInfo
@@ -50,14 +50,16 @@ namespace Ashode
 
     public class InputSystem
     {
-        private List<EventAttributeInfo> EventAttributeInfos;
-        private List<HotkeyAttributeInfo> HotkeyAttributeInfos;
+        private List<EventAttributeInfo> EventAttributeInfos = new List<EventAttributeInfo>();
+        private List<HotkeyAttributeInfo> HotkeyAttributeInfos = new List<HotkeyAttributeInfo>();
 
         public InputSystem(Type controlContainer)
         {
-            EventAttributeInfos = new List<EventAttributeInfo>();
-            HotkeyAttributeInfos = new List<HotkeyAttributeInfo>();
+            AddHandlersFrom(controlContainer);
+        }
 
+        public void AddHandlersFrom(Type controlContainer)
+        {
             MethodInfo[] methods = controlContainer.GetMethods(BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.FlattenHierarchy);
             foreach (var method in methods)
             {

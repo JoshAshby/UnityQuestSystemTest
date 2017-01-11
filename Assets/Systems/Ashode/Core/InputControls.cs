@@ -15,7 +15,7 @@ namespace Ashode
             Vector2 canvasSpace = inputEvent.Canvas.ScreenToCanvasSpace(inputEvent.Event.mousePosition);
             inputEvent.State.FocusedNode = inputEvent.Canvas.FindNodeAt(canvasSpace);
 
-            if(Event.current.type == EventType.Repaint && updateFocus)
+            if (Event.current.type == EventType.Repaint && updateFocus)
             {
                 updateFocus = false;
                 GUIUtility.hotControl = 0;
@@ -144,27 +144,27 @@ namespace Ashode
         [HotkeyHandler(KeyCode.D, EventType.KeyDown)]
         public static void HandleKeyboardNav(InputEvent inputEvent)
         {
-            if(inputEvent.State.SelectedNode != null)
+            if (inputEvent.State.SelectedNode != null)
                 return;
 
             int shiftAmount = inputEvent.Event.shift ? 100 : 25;
-            switch(inputEvent.Event.keyCode)
+            switch (inputEvent.Event.keyCode)
             {
                 case KeyCode.W:
-                  inputEvent.State.PanOffset += new Vector2(0, -shiftAmount);
-                  break;
+                    inputEvent.State.PanOffset += new Vector2(0, -shiftAmount);
+                    break;
 
                 case KeyCode.S:
-                  inputEvent.State.PanOffset += new Vector2(0, shiftAmount);
-                  break;
+                    inputEvent.State.PanOffset += new Vector2(0, shiftAmount);
+                    break;
 
                 case KeyCode.A:
-                  inputEvent.State.PanOffset += new Vector2(shiftAmount, 0);
-                  break;
+                    inputEvent.State.PanOffset += new Vector2(-shiftAmount, 0);
+                    break;
 
                 case KeyCode.D:
-                  inputEvent.State.PanOffset += new Vector2(-shiftAmount, 0);
-                  break;
+                    inputEvent.State.PanOffset += new Vector2(shiftAmount, 0);
+                    break;
             }
 
             inputEvent.Canvas.OnRepaint();

@@ -1,7 +1,6 @@
 using UnityEditor;
 using UnityEngine;
 using System.Collections.Generic;
-using Ashode;
 
 public class AshodeEditor : EditorWindow
 {
@@ -22,17 +21,14 @@ public class AshodeEditor : EditorWindow
 
     private void Setup()
     {
-        State state = new State
-        {
-            Nodes = new List<Node> {
-                new SimpleNode(),
-                new SimpleNode { Rect = new Rect(230, 30, 200, 100) }
-            }
-        };
+        Ashode.State state = new Ashode.State();
 
-        InputSystem IS = new InputSystem(typeof(InputControls));
+        state.Nodes.AddRange(new List<Ashode.Node> {
+            new SimpleNode(),
+            new SimpleNode { Rect = new Rect(230, 30, 200, 100) }
+        });
 
-        Canvas = new Ashode.Canvas { InputSystem = IS, State = state };
+        Canvas = new Ashode.Canvas(state);
 
         Canvas.Repaint += Repaint;
     }
@@ -47,6 +43,6 @@ public class AshodeEditor : EditorWindow
         if (Canvas == null)
             Setup();
 
-        Canvas.Draw(GUILayoutUtility.GetRect (600, 600));
+        Canvas.Draw(GUILayoutUtility.GetRect(600, 600));
     }
 }

@@ -4,6 +4,14 @@ using System;
 
 namespace Ashode
 {
+    public enum NodeSide
+    {
+        Top,
+        Bottom,
+        Left,
+        Right
+    }
+
     public interface INode
     {
         string ID { get; set; }
@@ -11,8 +19,10 @@ namespace Ashode
 
         string Title { get; set; }
 
-        void OnGUI();
         void DrawNodeWindow(Canvas Canvas);
+        void DrawKnobs();
+
+        void OnGUI();
     }
 
     public abstract class Node : INode
@@ -55,6 +65,8 @@ namespace Ashode
             bodyRect.position = Vector2.zero;
             GUILayout.BeginArea(bodyRect, GUI.skin.box);
 
+            DrawKnobs();
+
             GUI.changed = false;
             OnGUI();
 
@@ -63,5 +75,10 @@ namespace Ashode
         }
 
         public virtual void OnGUI() { }
+
+        public virtual void DrawKnobs()
+        {
+
+        }
     }
 }
