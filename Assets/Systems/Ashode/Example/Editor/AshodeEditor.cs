@@ -24,8 +24,8 @@ public class AshodeEditor : EditorWindow
         Ashode.State state = new Ashode.State();
 
         state.Nodes.AddRange(new List<Ashode.Node> {
-            new SimpleNode(),
-            new SimpleNode { Rect = new Rect(230, 30, 200, 100) }
+            new SimpleNode{ Rect = new Rect(0,0, 200, 100) },
+            // new SimpleNode { Rect = new Rect(230, 30, 200, 100) }
         });
 
         Canvas = new Ashode.Canvas(state);

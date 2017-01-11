@@ -138,10 +138,10 @@ namespace Ashode
         }
 
         // Keyboard panning
-        [HotkeyHandler(KeyCode.W, EventType.KeyDown)]
-        [HotkeyHandler(KeyCode.S, EventType.KeyDown)]
-        [HotkeyHandler(KeyCode.A, EventType.KeyDown)]
-        [HotkeyHandler(KeyCode.D, EventType.KeyDown)]
+        [HotkeyHandler(KeyCode.UpArrow, EventType.KeyDown)]
+        [HotkeyHandler(KeyCode.DownArrow, EventType.KeyDown)]
+        [HotkeyHandler(KeyCode.LeftArrow, EventType.KeyDown)]
+        [HotkeyHandler(KeyCode.RightArrow, EventType.KeyDown)]
         public static void HandleKeyboardNav(InputEvent inputEvent)
         {
             if (inputEvent.State.SelectedNode != null)
@@ -150,19 +150,19 @@ namespace Ashode
             int shiftAmount = inputEvent.Event.shift ? 100 : 25;
             switch (inputEvent.Event.keyCode)
             {
-                case KeyCode.W:
+                case KeyCode.UpArrow:
                     inputEvent.State.PanOffset += new Vector2(0, -shiftAmount);
                     break;
 
-                case KeyCode.S:
+                case KeyCode.DownArrow:
                     inputEvent.State.PanOffset += new Vector2(0, shiftAmount);
                     break;
 
-                case KeyCode.A:
+                case KeyCode.LeftArrow:
                     inputEvent.State.PanOffset += new Vector2(-shiftAmount, 0);
                     break;
 
-                case KeyCode.D:
+                case KeyCode.RightArrow:
                     inputEvent.State.PanOffset += new Vector2(shiftAmount, 0);
                     break;
             }

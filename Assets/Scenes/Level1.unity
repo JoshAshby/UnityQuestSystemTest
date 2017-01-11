@@ -1776,6 +1776,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 777b3c4c522a243c98a7a124772b1ec9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  QuestID: test
 --- !u!4 &1361788956
 Transform:
   m_ObjectHideFlags: 0

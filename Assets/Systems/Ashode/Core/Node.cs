@@ -1,6 +1,7 @@
 using UnityEditor;
 using UnityEngine;
 using System;
+using System.Collections.Generic;
 
 namespace Ashode
 {
@@ -20,9 +21,19 @@ namespace Ashode
         string Title { get; set; }
 
         void DrawNodeWindow(Canvas Canvas);
-        void DrawKnobs();
 
         void OnGUI();
+    }
+
+    public class Knob
+    {
+        public NodeSide Side = NodeSide.Right;
+
+        private Rect _rect = new Rect(0, 0, 50, 50);
+        public Rect Rect {
+            get { return _rect; }
+            set { _rect = value; }
+        }
     }
 
     public abstract class Node : INode
@@ -48,12 +59,16 @@ namespace Ashode
             set { _title = value; }
         }
 
+        public Dictionary<string, Knob> Knobs = new Dictionary<string, Knob>();
+
+        private Vector2 panOffset;
         private Vector2 contentOffset;
         public virtual void DrawNodeWindow(Canvas Canvas)
         {
             Rect nodeRect = Rect;
 
             nodeRect.position += Canvas.State.PanOffset;
+            panOffset = Canvas.State.PanOffset;
             contentOffset = new Vector2(0, 20);
 
             Rect headerRect = new Rect(nodeRect.x, nodeRect.y, nodeRect.width, contentOffset.y);
@@ -65,20 +80,36 @@ namespace Ashode
             bodyRect.position = Vector2.zero;
             GUILayout.BeginArea(bodyRect, GUI.skin.box);
 
-            DrawKnobs();
-
             GUI.changed = false;
             OnGUI();
 
             GUILayout.EndArea();
             GUI.EndGroup();
+
+            DrawKnobs();
         }
 
         public virtual void OnGUI() { }
 
-        public virtual void DrawKnobs()
+        void DrawKnobs()
         {
+            foreach(var knob in Knobs)
+            {
+                GUI.Button(knob.Value.Rect, knob.Key);
+            }
+        }
 
+        public virtual void DrawKnob(string id)
+        {
+            Vector2 nodePos = Rect.position + panOffset;
+            Vector2 position = GUILayoutUtility.GetLastRect().center + contentOffset;
+            Knob knob = Knobs[id];
+
+            Rect knobRect = knob.Rect;
+            knobRect.position = new Vector2(nodePos.x + Rect.width, nodePos.y + position.y - (knobRect.height/2));
+
+            knob.Rect = knobRect;
+            Debug.Log(knobRect.ToString());
         }
     }
 }
