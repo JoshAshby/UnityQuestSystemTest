@@ -1,6 +1,6 @@
+using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
-using System.Collections.Generic;
 
 public class AshodeEditor : EditorWindow
 {
@@ -24,7 +24,7 @@ public class AshodeEditor : EditorWindow
         Ashode.State state = new Ashode.State();
 
         state.Nodes.AddRange(new List<Ashode.Node> {
-            new SimpleNode{ Rect = new Rect(0,0, 200, 100) },
+            new SimpleNode(),
             // new SimpleNode { Rect = new Rect(230, 30, 200, 100) }
         });
 

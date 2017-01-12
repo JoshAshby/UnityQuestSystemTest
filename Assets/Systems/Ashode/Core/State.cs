@@ -1,5 +1,5 @@
-using UnityEngine;
 using System.Collections.Generic;
+using UnityEngine;
 
 namespace Ashode
 {
@@ -10,6 +10,9 @@ namespace Ashode
 
         public Node SelectedNode = null;
         public Node FocusedNode = null;
+
+        public Knob SelectedKnob = null;
+        public Knob FocusedKnob = null;
 
         // Draggin, Panning and Zoom
         public bool Panning = false;

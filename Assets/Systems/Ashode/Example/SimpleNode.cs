@@ -1,35 +1,38 @@
-using UnityEditor;
-using UnityEngine;
-using System;
-using Ashode;
 using System.Collections.Generic;
 using System.Linq;
+using UnityEditor;
+using UnityEngine;
+using Ashode;
 
 public class SimpleNode : Node
 {
+    private string id = "";
     public override void OnGUI()
     {
-        if(!Knobs.Values.Any()) {
-            Knobs = new Dictionary<string, Knob> {
-                { "o", new Knob() }
-            };
-        }
-
         GUILayout.BeginHorizontal(EditorStyles.toolbar);
-        GUILayout.Button("Info", EditorStyles.toolbarButton);
-        GUILayout.Button("Metadata", EditorStyles.toolbarButton);
+            if(GUILayout.Button("Left", EditorStyles.toolbarButton))
+                AddKnob(id, NodeSide.Left);
+            if(GUILayout.Button("Right", EditorStyles.toolbarButton))
+                AddKnob(id, NodeSide.Right);
         GUILayout.EndHorizontal();
 
         GUILayout.BeginVertical();
+            GUILayout.Label("Simple Node!");
+            id = GUILayout.TextField(id);
 
-        GUILayout.Label("Simple Node!");
-        Title = GUILayout.TextField(Title);
+            string removeKnob = null;
+            foreach(var knob in Knobs)
+            {
+                GUILayout.BeginHorizontal();
+                    GUILayout.Label(knob.Key);
+                    DrawKnob(knob.Key);
+                    if(GUILayout.Button("X"))
+                        removeKnob = knob.Key;
+                GUILayout.EndHorizontal();
+            }
 
-        GUILayout.BeginHorizontal();
-        GUILayout.Label("output");
-        DrawKnob("o");
-        GUILayout.EndHorizontal();
-
+            if(!string.IsNullOrEmpty(removeKnob))
+                RemoveKnob(removeKnob);
         GUILayout.EndVertical();
     }
 }

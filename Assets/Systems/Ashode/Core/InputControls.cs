@@ -1,5 +1,5 @@
-using UnityEngine;
 using System;
+using UnityEngine;
 
 namespace Ashode
 {
@@ -13,7 +13,14 @@ namespace Ashode
         public static void HandleNodeFocus(InputEvent inputEvent)
         {
             Vector2 canvasSpace = inputEvent.Canvas.ScreenToCanvasSpace(inputEvent.Event.mousePosition);
-            inputEvent.State.FocusedNode = inputEvent.Canvas.FindNodeAt(canvasSpace);
+
+            Node node;
+            Knob knob;
+
+            inputEvent.Canvas.FindNodeOrKnobAt(canvasSpace, out node, out knob);
+
+            inputEvent.State.FocusedNode = node;
+            inputEvent.State.FocusedKnob = knob;
 
             if (Event.current.type == EventType.Repaint && updateFocus)
             {
@@ -168,6 +175,7 @@ namespace Ashode
             }
 
             inputEvent.Canvas.OnRepaint();
+            inputEvent.Event.Use();
         }
     }
 }
