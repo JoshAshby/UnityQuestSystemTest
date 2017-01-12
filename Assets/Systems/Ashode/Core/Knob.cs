@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace Ashode
@@ -21,9 +22,11 @@ namespace Ashode
     public interface IKnob
     {
         string ID { get; set; }
-        Rect Rect { get; set; }
 
+        Rect Rect { get; set; }
+        float Offset { get; set; }
         NodeSide Side { get; set; }
+
         Direction Direction { get; set; }
         bool AllowMultiple { get; set; }
 
@@ -32,7 +35,7 @@ namespace Ashode
         // Type Type { get; set; }
         // object Value { get; set; }
 
-        TResult GetValue<TResult>();
+        // List<TResult> GetValues<TResult>();
     }
 
     public class Knob : IKnob
@@ -49,6 +52,13 @@ namespace Ashode
         {
             get { return _rect; }
             set { _rect = value; }
+        }
+
+        private float _offset = 2;
+        public float Offset
+        {
+            get { return _offset; }
+            set { _offset = value; }
         }
 
         private NodeSide _side = NodeSide.Right;
@@ -74,15 +84,45 @@ namespace Ashode
 
         public virtual void DrawKnobWindow(Canvas Canvas)
         {
-            GUI.Box(Rect, "", GUI.skin.box);
-        }
+            string text = "";
 
-        public Type Type { get; }
-        public object Value { get; internal set; }
+            switch(Direction)
+            {
+                case Direction.Input:
+                    text = "I";
+                    break;
 
-        public TResult GetValue<TResult>()
-        {
-            return (TResult)Value;
+                case Direction.Output:
+                    text = "O";
+                    break;
+
+                case Direction.Both:
+                    text = "B";
+                    break;
+            }
+
+            Rect knobRect = Rect;
+
+            switch(Side)
+            {
+                case NodeSide.Left:
+                    knobRect.position = new Vector2(knobRect.position.x - Offset, knobRect.position.y);
+                    break;
+
+                case NodeSide.Right:
+                    knobRect.position = new Vector2(knobRect.position.x + Offset, knobRect.position.y);
+                    break;
+                
+                case NodeSide.Top:
+                    knobRect.position = new Vector2(knobRect.position.x, knobRect.position.y - Offset);
+                    break;
+
+                case NodeSide.Bottom:
+                    knobRect.position = new Vector2(knobRect.position.x, knobRect.position.y + Offset);
+                    break;
+            }
+
+            GUI.Box(knobRect, text, GUI.skin.box);
         }
     }
 }

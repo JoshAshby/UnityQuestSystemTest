@@ -103,8 +103,12 @@ namespace Ashode
 
         public virtual void DrawKnob(string id)
         {
-            Vector2 nodePos = Rect.position + panOffset;
+            Rect nodeRect = Rect;
+            nodeRect.position += panOffset;
+
+            Vector2 nodePos = nodeRect.position;
             Vector2 position = GUILayoutUtility.GetLastRect().center + contentOffset;
+
             Knob knob = Knobs[id];
 
             Rect knobRect = knob.Rect;
@@ -113,8 +117,34 @@ namespace Ashode
                 case NodeSide.Right:
                     knobRect.position = new Vector2(nodePos.x + Rect.width, nodePos.y + position.y - (knobRect.height / 2));
                     break;
+
                 case NodeSide.Left:
                     knobRect.position = new Vector2(nodePos.x - knobRect.width, nodePos.y + position.y - (knobRect.height / 2));
+                    break;
+            }
+
+            knob.Rect = knobRect;
+        }
+
+        public virtual void DrawKnob(string id, float position)
+        {
+            Rect nodeRect = Rect;
+            nodeRect.position += panOffset;
+
+            Vector2 nodePos;
+
+            Knob knob = Knobs[id];
+
+            Rect knobRect = knob.Rect;
+            switch (knob.Side)
+            {
+                case NodeSide.Top:
+                    nodePos = nodeRect.position;
+                    knobRect.position = new Vector2(nodePos.x + position, nodePos.y - knobRect.height);
+                    break;
+
+                case NodeSide.Bottom:
+                    knobRect.position = new Vector2(nodeRect.position.x + position, nodeRect.yMax);
                     break;
             }
 
