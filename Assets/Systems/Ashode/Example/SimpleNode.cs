@@ -66,7 +66,5 @@ public class SimpleNode : Node
             if(!string.IsNullOrEmpty(removeKnob))
                 RemoveKnob(removeKnob);
         GUILayout.EndVertical();
-
-        GUI.Box(new Rect(50, 100, 50, 50), "", GUI.skin.box);
     }
 }

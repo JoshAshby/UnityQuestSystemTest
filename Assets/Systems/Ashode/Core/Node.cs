@@ -71,33 +71,6 @@ namespace Ashode
             OnGUI();
             lastPosition = GUILayoutUtility.GetLastRect().max + contentOffset;
 
-            Type internalType =
-                AppDomain.CurrentDomain
-                    .GetAssemblies()
-                    .Where(x => x.GetTypes().Select(y => y.Name).Contains("GUILayoutUtility"))
-                    .First()
-                    .GetTypes()
-                    .First(x => x.Name == "GUILayoutUtility");
-
-            object current = internalType
-                    .GetField("current", BindingFlags.Static | BindingFlags.NonPublic)
-                    .GetValue(internalType);
-
-            object topLevel = current
-                .GetType()
-                .GetField("topLevel", BindingFlags.NonPublic | BindingFlags.Instance)
-                .GetValue(current);
-
-            topLevel.GetType()
-                .GetMethod("CalcHeight", BindingFlags.Public | BindingFlags.Instance)
-                .Invoke(topLevel, null);
-
-            float maxHeight = (float)topLevel
-                .GetType()
-                .GetField("maxHeight", BindingFlags.Public | BindingFlags.Instance)
-                .GetValue(topLevel);
-            Debug.LogFormat("Calc'd Height: {0}", maxHeight + contentOffset.y);
-
             GUILayout.EndArea();
             GUI.EndGroup();
 
@@ -107,9 +80,18 @@ namespace Ashode
                 return;
 
             Vector2 maxSize = lastPosition + contentOffset;
-            maxSize.x = nodeRect.width; // If I want to add custom width adjustment in the future, it should replace this
 
-            Debug.LogFormat("Set Height: {0}", maxSize.y);
+            // TODO: Think about handling manual resizes too
+            if(Knobs.Values.Where(x => x.Side == NodeSide.Bottom || x.Side == NodeSide.Top).Any())
+            {
+                float topSize = Knobs.Max(x => x.Value.Side == NodeSide.Top ? x.Value.Rect.xMax : 0);
+                float bottomSize = Knobs.Max(x => x.Value.Side == NodeSide.Bottom ? x.Value.Rect.xMax : 0);
+                float minWidth = nodeRect.width; // TODO: Set a min size property for this
+
+                maxSize.x = new List<float>{ topSize, bottomSize, minWidth }.Max();
+            } else {
+                maxSize.x = nodeRect.width;
+            }
 
             if (maxSize != nodeRect.size)
                 nodeRect.size = maxSize;
