@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using UnityEditor;
 using UnityEngine;
 
@@ -70,6 +71,33 @@ namespace Ashode
             OnGUI();
             lastPosition = GUILayoutUtility.GetLastRect().max + contentOffset;
 
+            Type internalType =
+                AppDomain.CurrentDomain
+                    .GetAssemblies()
+                    .Where(x => x.GetTypes().Select(y => y.Name).Contains("GUILayoutUtility"))
+                    .First()
+                    .GetTypes()
+                    .First(x => x.Name == "GUILayoutUtility");
+
+            object current = internalType
+                    .GetField("current", BindingFlags.Static | BindingFlags.NonPublic)
+                    .GetValue(internalType);
+
+            object topLevel = current
+                .GetType()
+                .GetField("topLevel", BindingFlags.NonPublic | BindingFlags.Instance)
+                .GetValue(current);
+
+            topLevel.GetType()
+                .GetMethod("CalcHeight", BindingFlags.Public | BindingFlags.Instance)
+                .Invoke(topLevel, null);
+
+            float maxHeight = (float)topLevel
+                .GetType()
+                .GetField("maxHeight", BindingFlags.Public | BindingFlags.Instance)
+                .GetValue(topLevel);
+            Debug.LogFormat("Calc'd Height: {0}", maxHeight + contentOffset.y);
+
             GUILayout.EndArea();
             GUI.EndGroup();
 
@@ -80,6 +108,8 @@ namespace Ashode
 
             Vector2 maxSize = lastPosition + contentOffset;
             maxSize.x = nodeRect.width; // If I want to add custom width adjustment in the future, it should replace this
+
+            Debug.LogFormat("Set Height: {0}", maxSize.y);
 
             if (maxSize != nodeRect.size)
                 nodeRect.size = maxSize;

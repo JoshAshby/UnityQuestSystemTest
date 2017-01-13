@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
 using UnityEngine;
@@ -22,9 +21,6 @@ public class SimpleNode : Node
             if(GUILayout.Button("Bottom", EditorStyles.toolbarButton))
                 AddKnob(id, NodeSide.Bottom);
         GUILayout.EndHorizontal();
-
-        int topNumber = Knobs.Values.Where(x => x.Side == NodeSide.Top).Count();
-        int bottomNumber = Knobs.Values.Where(x => x.Side == NodeSide.Bottom).Count();
 
         string removeKnob = null;
         GUILayout.BeginVertical();
@@ -70,5 +66,7 @@ public class SimpleNode : Node
             if(!string.IsNullOrEmpty(removeKnob))
                 RemoveKnob(removeKnob);
         GUILayout.EndVertical();
+
+        GUI.Box(new Rect(50, 100, 50, 50), "", GUI.skin.box);
     }
 }
