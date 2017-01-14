@@ -10,18 +10,34 @@ namespace Ashode
     public interface INode
     {
         string ID { get; set; }
+        Vector2 MinSize { get; set; }
         Rect Rect { get; set; }
 
         string Title { get; set; }
 
         void DrawNodeWindow(Canvas Canvas);
+        void ResizeWindow(Canvas Canvas);
 
         void OnGUI();
+
+        void DrawKnobWindows(Canvas Canvas);
+        void DrawKnob(string id);
+        void DrawKnob(string id, float position);
+
+        Knob AddKnob(string id, NodeSide side);
+        void RemoveKnob(string id);
     }
 
     public abstract class Node : INode
     {
-        public Rect _rect = new Rect(30, 30, 200, 100);
+        private Vector2 _minSize = new Vector2(200, 100);
+        public Vector2 MinSize
+        {
+            get { return _minSize; }
+            set { _minSize = value; }
+        }
+
+        private Rect _rect = new Rect(30, 30, 200, 100);
         public Rect Rect
         {
             get { return _rect; }
@@ -75,6 +91,12 @@ namespace Ashode
             GUI.EndGroup();
 
             DrawKnobWindows(Canvas);
+            ResizeWindow(Canvas);
+        }
+        
+        public virtual void ResizeWindow(Canvas Canvas)
+        {
+            Rect nodeRect = Rect;
 
             if (Event.current.type != EventType.Repaint)
                 return;
@@ -86,7 +108,7 @@ namespace Ashode
             {
                 float topSize = Knobs.Max(x => x.Value.Side == NodeSide.Top ? x.Value.Rect.xMax : 0);
                 float bottomSize = Knobs.Max(x => x.Value.Side == NodeSide.Bottom ? x.Value.Rect.xMax : 0);
-                float minWidth = nodeRect.width; // TODO: Set a min size property for this
+                float minWidth = MinSize.x;
 
                 maxSize.x = new List<float>{ topSize, bottomSize, minWidth }.Max();
             } else {
@@ -133,6 +155,14 @@ namespace Ashode
                 case NodeSide.Left:
                     knobRect.position = new Vector2(nodePos.x - knobRect.width, nodePos.y + position.y - (knobRect.height / 2));
                     break;
+
+                case NodeSide.Top:
+                    knobRect.position = new Vector2(nodePos.x - knobRect.width, nodePos.y + position.y - (knobRect.height / 2));
+                    break;
+
+                case NodeSide.Bottom:
+                    knobRect.position = new Vector2(nodePos.x - knobRect.width, nodePos.y + position.y - (knobRect.height / 2));
+                    break;
             }
 
             knob.Rect = knobRect;
@@ -143,7 +173,7 @@ namespace Ashode
             Rect nodeRect = Rect;
             nodeRect.position += panOffset;
 
-            Vector2 nodePos;
+            Vector2 nodePos = nodeRect.position;
 
             Knob knob = Knobs[id];
 
@@ -151,12 +181,11 @@ namespace Ashode
             switch (knob.Side)
             {
                 case NodeSide.Top:
-                    nodePos = nodeRect.position;
                     knobRect.position = new Vector2(nodePos.x + position, nodePos.y - knobRect.height);
                     break;
 
                 case NodeSide.Bottom:
-                    knobRect.position = new Vector2(nodeRect.position.x + position, nodeRect.yMax);
+                    knobRect.position = new Vector2(nodePos.x + position, nodeRect.yMax);
                     break;
             }
 
