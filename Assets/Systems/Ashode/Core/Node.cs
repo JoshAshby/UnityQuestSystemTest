@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using UnityEditor;
 using UnityEngine;
 
@@ -10,8 +9,9 @@ namespace Ashode
     public interface INode
     {
         string ID { get; set; }
-        Vector2 MinSize { get; set; }
         Rect Rect { get; set; }
+        Vector2 MinSize { get; set; }
+        bool CanResize { get; set; }
 
         string Title { get; set; }
 
@@ -37,6 +37,13 @@ namespace Ashode
             set { _minSize = value; }
         }
 
+        private bool _canResize = true;
+        public bool CanResize
+        {
+            get { return _canResize; }
+            set { _canResize = value; }
+        }
+
         private Rect _rect = new Rect(30, 30, 200, 100);
         public Rect Rect
         {
@@ -58,7 +65,12 @@ namespace Ashode
             set { _title = value; }
         }
 
-        public Dictionary<string, Knob> Knobs = new Dictionary<string, Knob>();
+        private Dictionary<string, Knob> _knobs = new Dictionary<string, Knob>();
+        public Dictionary<string, Knob> Knobs
+        {
+            get { return _knobs; }
+            set { _knobs = value; }
+        }
 
         private Vector2 lastPosition;
         private Vector2 panOffset;
@@ -93,24 +105,28 @@ namespace Ashode
             DrawKnobWindows(Canvas);
             ResizeWindow(Canvas);
         }
-        
+
         public virtual void ResizeWindow(Canvas Canvas)
         {
-            Rect nodeRect = Rect;
-
             if (Event.current.type != EventType.Repaint)
                 return;
+
+            if (!CanResize)
+                return;
+
+            Rect nodeRect = Rect;
+            nodeRect.position += panOffset;
 
             Vector2 maxSize = lastPosition + contentOffset;
 
             // TODO: Think about handling manual resizes too
-            if(Knobs.Values.Where(x => x.Side == NodeSide.Bottom || x.Side == NodeSide.Top).Any())
+            List<Knob> topBottomKnobs = Knobs.Values.Where(x => x.Side == NodeSide.Bottom || x.Side == NodeSide.Top).ToList();
+            if(topBottomKnobs.Any())
             {
-                float topSize = Knobs.Max(x => x.Value.Side == NodeSide.Top ? x.Value.Rect.xMax : 0);
-                float bottomSize = Knobs.Max(x => x.Value.Side == NodeSide.Bottom ? x.Value.Rect.xMax : 0);
+                float knobSize = topBottomKnobs.Max(x => x.Rect.xMax - nodeRect.xMin);
                 float minWidth = MinSize.x;
 
-                maxSize.x = new List<float>{ topSize, bottomSize, minWidth }.Max();
+                maxSize.x = new List<float>{ knobSize, minWidth }.Max() - panOffset.x;
             } else {
                 maxSize.x = nodeRect.width;
             }
@@ -137,31 +153,31 @@ namespace Ashode
 
         public virtual void DrawKnob(string id)
         {
-            Rect nodeRect = Rect;
-            nodeRect.position += panOffset;
-
-            Vector2 nodePos = nodeRect.position;
             Vector2 position = GUILayoutUtility.GetLastRect().center + contentOffset;
 
-            Knob knob = Knobs[id];
+            Rect nodeRect = Rect;
+            Vector2 nodePos = nodeRect.position;
+            nodePos += panOffset;
 
+            Knob knob = Knobs[id];
             Rect knobRect = knob.Rect;
+
             switch (knob.Side)
             {
-                case NodeSide.Right:
-                    knobRect.position = new Vector2(nodePos.x + Rect.width, nodePos.y + position.y - (knobRect.height / 2));
-                    break;
-
                 case NodeSide.Left:
                     knobRect.position = new Vector2(nodePos.x - knobRect.width, nodePos.y + position.y - (knobRect.height / 2));
                     break;
 
+                case NodeSide.Right:
+                    knobRect.position = new Vector2(nodePos.x + nodeRect.width, nodePos.y + position.y - (knobRect.height / 2));
+                    break;
+
                 case NodeSide.Top:
-                    knobRect.position = new Vector2(nodePos.x - knobRect.width, nodePos.y + position.y - (knobRect.height / 2));
+                    knobRect.position = new Vector2(nodePos.x + position.x, nodePos.y - knobRect.height);
                     break;
 
                 case NodeSide.Bottom:
-                    knobRect.position = new Vector2(nodePos.x - knobRect.width, nodePos.y + position.y - (knobRect.height / 2));
+                    knobRect.position = new Vector2(nodePos.x + position.x, nodeRect.yMax);
                     break;
             }
 
@@ -171,15 +187,22 @@ namespace Ashode
         public virtual void DrawKnob(string id, float position)
         {
             Rect nodeRect = Rect;
-            nodeRect.position += panOffset;
-
             Vector2 nodePos = nodeRect.position;
+            nodePos += panOffset;
 
             Knob knob = Knobs[id];
-
             Rect knobRect = knob.Rect;
+
             switch (knob.Side)
             {
+                case NodeSide.Left:
+                    knobRect.position = new Vector2(nodePos.x - Rect.width, nodePos.y + position - (knobRect.height / 2));
+                    break;
+
+                case NodeSide.Right:
+                    knobRect.position = new Vector2(nodePos.x + Rect.width, nodePos.y + position - (knobRect.height / 2));
+                    break;
+
                 case NodeSide.Top:
                     knobRect.position = new Vector2(nodePos.x + position, nodePos.y - knobRect.height);
                     break;
