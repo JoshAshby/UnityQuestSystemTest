@@ -4,28 +4,6 @@ using UnityEngine;
 
 namespace Ashode
 {
-    public static class EventExtensions
-    {
-        public static void SafeInvoke<TEventArgs>(this EventHandler<TEventArgs> handler, object sender, TEventArgs args) where TEventArgs : EventArgs
-        {
-            var e = handler;
-            if (e != null)
-                e(sender, args);
-        }
-
-        public static void SafeInvoke(this Action handler)
-        {
-            var e = handler;
-            if (e != null)
-                e();
-        }
-    }
-
-    public class NodeEventArgs : EventArgs
-    {
-        public INode Node { get; internal set; }
-    }
-
     public class Canvas
     {
         public State State;
@@ -35,15 +13,6 @@ namespace Ashode
         // makes it quick to subscribe the EditorWindow.Repaint action
         public event Action Repaint;
         internal void OnRepaint() { Repaint.SafeInvoke(); }
-
-        public event EventHandler<NodeEventArgs> AddNodeToCanvas;
-        internal void OnAddNode(INode node) { AddNodeToCanvas.SafeInvoke(this, new NodeEventArgs { Node = node }); }
-
-        public event EventHandler<NodeEventArgs> MoveNodeOnCanvas;
-        internal void OnMoveNode(INode node) { MoveNodeOnCanvas.SafeInvoke(this, new NodeEventArgs { Node = node }); }
-
-        public event EventHandler<NodeEventArgs> RemoveNodeFromCanvas;
-        internal void OnRemoveNode(INode node) { RemoveNodeFromCanvas.SafeInvoke(this, new NodeEventArgs { Node = node }); }
 
         public Canvas(State state) { this.State = state; }
 

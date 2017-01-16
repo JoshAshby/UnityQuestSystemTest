@@ -29,9 +29,9 @@ public class AshodeEditor : EditorWindow
         });
 
         state.Nodes[0].AddKnob<string>("out1", Ashode.NodeSide.Top);
-        state.Nodes[0].AddKnob<string>("out2", Ashode.NodeSide.Right);
+        state.Nodes[0].AddKnob<int>("out2", Ashode.NodeSide.Right);
         state.Nodes[1].AddKnob<string>("in1", Ashode.NodeSide.Bottom);
-        state.Nodes[1].AddKnob<string>("in2", Ashode.NodeSide.Left);
+        state.Nodes[1].AddKnob<int>("in2", Ashode.NodeSide.Left);
 
         state.Connections.AddRange(new List<Ashode.IConnection> {
             new Ashode.Connection<string>
@@ -39,7 +39,7 @@ public class AshodeEditor : EditorWindow
                 FromKnob = state.Nodes[0].Knobs["out1"],
                 ToKnob = state.Nodes[1].Knobs["in1"]
             },
-            new Ashode.Connection<string>
+            new Ashode.Connection<int>
             {
                 FromKnob = state.Nodes[0].Knobs["out2"],
                 ToKnob = state.Nodes[1].Knobs["in2"]

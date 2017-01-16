@@ -33,6 +33,7 @@ namespace Ashode
 
         public void DrawConnectionWindow(Canvas Canvas)
         {
+            Texture2D _aaLine = AssetDatabase.LoadAssetAtPath("Assets/Systems/Ashode/Resources/Textures/AA Line@2X.png", typeof(Texture2D)) as Texture2D;
             Vector3 PanOffset = new Vector3(Canvas.State.PanOffset.x, Canvas.State.PanOffset.y, 0);
             Vector3 startPosition = new Vector3(FromKnob.Rect.center.x, FromKnob.Rect.center.y, 0) + PanOffset;
             Vector3 startTangent = startPosition + FromKnob.DirectionVector * 50;
@@ -40,23 +41,15 @@ namespace Ashode
             Vector3 endPosition = new Vector3(ToKnob.Rect.center.x, ToKnob.Rect.center.y, 0) + PanOffset;
             Vector3 endTangent = endPosition + ToKnob.DirectionVector * 50;
 
-            Color shadowColor = Color;
-            shadowColor.a = 0.10f;
-
-            // Debug.LogFormat("[{0}] - connection: [{1}, {2}] | event: {3} | start: {4} | end: {5}", DateTime.UtcNow.Ticks, FromKnob.ID, ToKnob.ID, Event.current.type.ToString(), startPosition.ToString(), endPosition.ToString());
-
-            for (int i = 0; i < 3; i++)
-                Handles.DrawBezier(startPosition, endPosition, startTangent, endTangent, shadowColor, null, (i + 1) * 5);
-
-            Handles.DrawBezier(startPosition, endPosition, startTangent, endTangent, Color, null, 1);
+            Handles.DrawBezier(startPosition, endPosition, startTangent, endTangent, Color, _aaLine, 3);
         }
 
         private Color GetColor()
         {
             int hash = Type.Name.GetHashCode();
-            int r = (hash & 0xFF0000) >> 16;
-            int g = (hash & 0x00FF00) >> 8;
-            int b = hash & 0x0000FF;
+            float r = ((hash & 0xFF0000) >> 16) / 100f;
+            float g = ((hash & 0x00FF00) >> 8) / 100f;
+            float b = (hash & 0x0000FF) / 100f;
 
             return new Color(r, g, b);
         }
