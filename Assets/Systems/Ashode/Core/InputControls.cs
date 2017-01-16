@@ -14,8 +14,8 @@ namespace Ashode
         {
             Vector2 canvasSpace = inputEvent.Canvas.ScreenToCanvasSpace(inputEvent.Event.mousePosition);
 
-            Node node;
-            Knob knob;
+            INode node;
+            IKnob knob;
 
             inputEvent.Canvas.FindNodeOrKnobAt(canvasSpace, out node, out knob);
 

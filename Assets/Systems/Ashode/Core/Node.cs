@@ -20,11 +20,13 @@ namespace Ashode
 
         void OnGUI();
 
+        Dictionary<string, IKnob> Knobs { get; set; }
+
         void DrawKnobWindows(Canvas Canvas);
         void DrawKnob(string id);
         void DrawKnob(string id, float position);
 
-        Knob AddKnob(string id, NodeSide side);
+        IKnob AddKnob<TAccept>(string id, NodeSide side);
         void RemoveKnob(string id);
     }
 
@@ -65,16 +67,15 @@ namespace Ashode
             set { _title = value; }
         }
 
-        private Dictionary<string, Knob> _knobs = new Dictionary<string, Knob>();
-        public Dictionary<string, Knob> Knobs
+        private Dictionary<string, IKnob> _knobs = new Dictionary<string, IKnob>();
+        public Dictionary<string, IKnob> Knobs
         {
             get { return _knobs; }
             set { _knobs = value; }
         }
 
         private Vector2 lastPosition;
-        private Vector2 panOffset;
-        private Vector2 contentOffset;
+        private Vector2 contentOffset = new Vector2(0, 20);
         public virtual void DrawNodeWindow(Canvas Canvas)
         {
             if (lastPosition == null)
@@ -83,8 +84,6 @@ namespace Ashode
             Rect nodeRect = Rect;
 
             nodeRect.position += Canvas.State.PanOffset;
-            panOffset = Canvas.State.PanOffset;
-            contentOffset = new Vector2(0, 20);
 
             Rect headerRect = new Rect(nodeRect.x, nodeRect.y, nodeRect.width, contentOffset.y);
             GUI.Box(headerRect, "", GUI.skin.box);
@@ -97,7 +96,9 @@ namespace Ashode
 
             GUI.changed = false;
             OnGUI();
-            lastPosition = GUILayoutUtility.GetLastRect().max + contentOffset;
+
+            if(Event.current.type != EventType.Layout)
+                lastPosition = GUILayoutUtility.GetLastRect().max + contentOffset;
 
             GUILayout.EndArea();
             GUI.EndGroup();
@@ -108,25 +109,24 @@ namespace Ashode
 
         public virtual void ResizeWindow(Canvas Canvas)
         {
-            if (Event.current.type != EventType.Repaint)
+            if(Event.current.type == EventType.Layout)
                 return;
 
             if (!CanResize)
                 return;
 
             Rect nodeRect = Rect;
-            nodeRect.position += panOffset;
 
             Vector2 maxSize = lastPosition + contentOffset;
 
             // TODO: Think about handling manual resizes too
-            List<Knob> topBottomKnobs = Knobs.Values.Where(x => x.Side == NodeSide.Bottom || x.Side == NodeSide.Top).ToList();
+            List<IKnob> topBottomKnobs = Knobs.Values.Where(x => x.Side == NodeSide.Bottom || x.Side == NodeSide.Top).ToList();
             if(topBottomKnobs.Any())
             {
                 float knobSize = topBottomKnobs.Max(x => x.Rect.xMax - nodeRect.xMin);
                 float minWidth = MinSize.x;
 
-                maxSize.x = new List<float>{ knobSize, minWidth }.Max() - panOffset.x;
+                maxSize.x = new List<float>{ knobSize, minWidth }.Max();
             } else {
                 maxSize.x = nodeRect.width;
             }
@@ -153,71 +153,50 @@ namespace Ashode
 
         public virtual void DrawKnob(string id)
         {
+            // During layout we don't know the last rects position, so skip drawing knobs with weird and wrong info
+            if (Event.current.type == EventType.Layout)
+                return;
+
             Vector2 position = GUILayoutUtility.GetLastRect().center + contentOffset;
 
-            Rect nodeRect = Rect;
-            Vector2 nodePos = nodeRect.position;
-            nodePos += panOffset;
+            IKnob knob = Knobs[id];
 
-            Knob knob = Knobs[id];
-            Rect knobRect = knob.Rect;
-
-            switch (knob.Side)
-            {
-                case NodeSide.Left:
-                    knobRect.position = new Vector2(nodePos.x - knobRect.width, nodePos.y + position.y - (knobRect.height / 2));
-                    break;
-
-                case NodeSide.Right:
-                    knobRect.position = new Vector2(nodePos.x + nodeRect.width, nodePos.y + position.y - (knobRect.height / 2));
-                    break;
-
-                case NodeSide.Top:
-                    knobRect.position = new Vector2(nodePos.x + position.x, nodePos.y - knobRect.height);
-                    break;
-
-                case NodeSide.Bottom:
-                    knobRect.position = new Vector2(nodePos.x + position.x, nodeRect.yMax);
-                    break;
-            }
-
-            knob.Rect = knobRect;
+            DrawKnob(id, knob.Side == NodeSide.Top || knob.Side == NodeSide.Bottom ? position.x : position.y);
         }
 
         public virtual void DrawKnob(string id, float position)
         {
             Rect nodeRect = Rect;
             Vector2 nodePos = nodeRect.position;
-            nodePos += panOffset;
 
-            Knob knob = Knobs[id];
+            IKnob knob = Knobs[id];
             Rect knobRect = knob.Rect;
 
             switch (knob.Side)
             {
                 case NodeSide.Left:
-                    knobRect.position = new Vector2(nodePos.x - Rect.width, nodePos.y + position - (knobRect.height / 2));
+                    knobRect.position = new Vector2(nodePos.x - knobRect.width - knob.Offset, nodePos.y + position - (knobRect.height / 2));
                     break;
 
                 case NodeSide.Right:
-                    knobRect.position = new Vector2(nodePos.x + Rect.width, nodePos.y + position - (knobRect.height / 2));
+                    knobRect.position = new Vector2(nodeRect.xMax + knob.Offset, nodePos.y + position - (knobRect.height / 2));
                     break;
 
                 case NodeSide.Top:
-                    knobRect.position = new Vector2(nodePos.x + position, nodePos.y - knobRect.height);
+                    knobRect.position = new Vector2(nodePos.x + position, nodePos.y - knobRect.height - knob.Offset);
                     break;
 
                 case NodeSide.Bottom:
-                    knobRect.position = new Vector2(nodePos.x + position, nodeRect.yMax);
+                    knobRect.position = new Vector2(nodePos.x + position, nodeRect.yMax + knob.Offset);
                     break;
             }
 
             knob.Rect = knobRect;
         }
 
-        public Knob AddKnob(string id, NodeSide side)
+        public IKnob AddKnob<TAccept>(string id, NodeSide side)
         {
-            Knob knob = new Knob { ID = id, Side = side };
+            IKnob knob = new Knob<TAccept> { ID = id, Side = side };
             Knobs.Add(id, knob);
             return knob;
         }

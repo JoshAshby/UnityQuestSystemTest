@@ -37,13 +37,13 @@ namespace Ashode
         internal void OnRepaint() { Repaint.SafeInvoke(); }
 
         public event EventHandler<NodeEventArgs> AddNodeToCanvas;
-        internal void OnAddNode(Node node) { AddNodeToCanvas.SafeInvoke(this, new NodeEventArgs { Node = node }); }
+        internal void OnAddNode(INode node) { AddNodeToCanvas.SafeInvoke(this, new NodeEventArgs { Node = node }); }
 
         public event EventHandler<NodeEventArgs> MoveNodeOnCanvas;
-        internal void OnMoveNode(Node node) { MoveNodeOnCanvas.SafeInvoke(this, new NodeEventArgs { Node = node }); }
+        internal void OnMoveNode(INode node) { MoveNodeOnCanvas.SafeInvoke(this, new NodeEventArgs { Node = node }); }
 
         public event EventHandler<NodeEventArgs> RemoveNodeFromCanvas;
-        internal void OnRemoveNode(Node node) { RemoveNodeFromCanvas.SafeInvoke(this, new NodeEventArgs { Node = node }); }
+        internal void OnRemoveNode(INode node) { RemoveNodeFromCanvas.SafeInvoke(this, new NodeEventArgs { Node = node }); }
 
         public Canvas(State state) { this.State = state; }
 
@@ -63,7 +63,13 @@ namespace Ashode
             InputSystem.HandleEvents(this, true);
         }
 
-        private void DrawConnections() { }
+        private void DrawConnections()
+        {
+            foreach (var connection in State.Connections)
+            {
+                connection.DrawConnectionWindow(this);
+            }
+        }
 
         private void DrawNodes()
         {
@@ -79,16 +85,16 @@ namespace Ashode
         }
 
         // Helpers
-        public Node FindNodeAt(Vector2 loc)
+        public INode FindNodeAt(Vector2 loc)
         {
             return State.Nodes.FirstOrDefault(x => x.Rect.Contains(loc));
         }
 
-        public Knob FindKnobAt(Vector2 loc)
+        public IKnob FindKnobAt(Vector2 loc)
         {
             foreach (var node in State.Nodes)
             {
-                Knob knob = node.Knobs.Values.FirstOrDefault(x => x.Rect.Contains(loc));
+                IKnob knob = node.Knobs.Values.FirstOrDefault(x => x.Rect.Contains(loc));
                 if (knob != null)
                     return knob;
             }
@@ -96,17 +102,17 @@ namespace Ashode
             return null;
         }
 
-        public void FindNodeOrKnobAt(Vector2 loc, out Node oNode, out Knob oKnob)
+        public void FindNodeOrKnobAt(Vector2 loc, out INode oNode, out IKnob oKnob)
         {
             oNode = null;
             oKnob = null;
 
             foreach (var node in State.Nodes)
             {
-                if(node.Rect.Contains(loc))
+                if (node.Rect.Contains(loc))
                     oNode = node;
 
-                Knob knob = node.Knobs.Values.FirstOrDefault(x => x.Rect.Contains(loc));
+                IKnob knob = node.Knobs.Values.FirstOrDefault(x => x.Rect.Contains(loc));
                 if (knob != null)
                     oKnob = knob;
             }

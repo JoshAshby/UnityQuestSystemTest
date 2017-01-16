@@ -10,16 +10,16 @@ public class SimpleNode : Node
     {
         GUILayout.BeginHorizontal(EditorStyles.toolbar);
             if(GUILayout.Button("Left", EditorStyles.toolbarButton))
-                AddKnob(id, NodeSide.Left);
+                AddKnob<string>(id, NodeSide.Left);
             if(GUILayout.Button("Right", EditorStyles.toolbarButton))
-                AddKnob(id, NodeSide.Right);
+                AddKnob<string>(id, NodeSide.Right);
         GUILayout.EndHorizontal();
 
         GUILayout.BeginHorizontal(EditorStyles.toolbar);
             if(GUILayout.Button("Top", EditorStyles.toolbarButton))
-                AddKnob(id, NodeSide.Top);
+                AddKnob<string>(id, NodeSide.Top);
             if(GUILayout.Button("Bottom", EditorStyles.toolbarButton))
-                AddKnob(id, NodeSide.Bottom);
+                AddKnob<string>(id, NodeSide.Bottom);
         GUILayout.EndHorizontal();
 
         string removeKnob = null;

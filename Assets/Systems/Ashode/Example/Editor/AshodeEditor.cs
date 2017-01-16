@@ -23,13 +23,30 @@ public class AshodeEditor : EditorWindow
     {
         Ashode.State state = new Ashode.State();
 
-        state.Nodes.AddRange(new List<Ashode.Node> {
-            new SimpleNode(),
-            // new SimpleNode { Rect = new Rect(230, 30, 200, 100) }
+        state.Nodes.AddRange(new List<Ashode.INode> {
+            new SimpleNode { Rect = new Rect(30, 30, 200, 600) },
+            new SimpleNode { Rect = new Rect(300, 30, 200, 400) }
+        });
+
+        state.Nodes[0].AddKnob<string>("out1", Ashode.NodeSide.Top);
+        state.Nodes[0].AddKnob<string>("out2", Ashode.NodeSide.Right);
+        state.Nodes[1].AddKnob<string>("in1", Ashode.NodeSide.Bottom);
+        state.Nodes[1].AddKnob<string>("in2", Ashode.NodeSide.Left);
+
+        state.Connections.AddRange(new List<Ashode.IConnection> {
+            new Ashode.Connection<string>
+            {
+                FromKnob = state.Nodes[0].Knobs["out1"],
+                ToKnob = state.Nodes[1].Knobs["in1"]
+            },
+            new Ashode.Connection<string>
+            {
+                FromKnob = state.Nodes[0].Knobs["out2"],
+                ToKnob = state.Nodes[1].Knobs["in2"]
+            }
         });
 
         Canvas = new Ashode.Canvas(state);
-
         Canvas.Repaint += Repaint;
     }
 
