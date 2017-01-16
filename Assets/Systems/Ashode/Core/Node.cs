@@ -97,7 +97,9 @@ namespace Ashode
             GUI.changed = false;
             OnGUI();
 
-            if(Event.current.type != EventType.Layout)
+            // https://docs.unity3d.com/ScriptReference/GUILayoutUtility.GetLastRect.html
+            // GetLastRect only works during repaint events
+            if(Event.current.type == EventType.Repaint)
                 lastPosition = GUILayoutUtility.GetLastRect().max + contentOffset;
 
             GUILayout.EndArea();
@@ -109,7 +111,7 @@ namespace Ashode
 
         public virtual void ResizeWindow(Canvas Canvas)
         {
-            if(Event.current.type == EventType.Layout)
+            if(Event.current.type != EventType.Repaint)
                 return;
 
             if (!CanResize)
@@ -153,8 +155,9 @@ namespace Ashode
 
         public virtual void DrawKnob(string id)
         {
-            // During layout we don't know the last rects position, so skip drawing knobs with weird and wrong info
-            if (Event.current.type == EventType.Layout)
+            // https://docs.unity3d.com/ScriptReference/GUILayoutUtility.GetLastRect.html
+            // GetLastRect only works during repaint events
+            if (Event.current.type != EventType.Repaint)
                 return;
 
             Vector2 position = GUILayoutUtility.GetLastRect().center + contentOffset;
