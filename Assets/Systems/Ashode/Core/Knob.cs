@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace Ashode
@@ -75,8 +74,9 @@ namespace Ashode
 
         public Vector3 DirectionVector
         {
-            get {
-                switch(Side)
+            get
+            {
+                switch (Side)
                 {
                     case NodeSide.Left:
                         return Vector3.left;
@@ -107,27 +107,46 @@ namespace Ashode
 
         public virtual void DrawKnobWindow(Canvas Canvas)
         {
-            string text = "";
+            string textureName = "";
 
             switch (Direction)
             {
                 case Direction.Input:
-                    text = "I";
+                    textureName = "Knob@2x";
                     break;
 
                 case Direction.Output:
-                    text = "O";
+                    textureName = "Knob@2x";
                     break;
 
                 case Direction.Both:
-                    text = "B";
+                    textureName = "Knob@2x";
                     break;
             }
+
+            int rotation = 0;
+
+            switch(Side)
+            {
+                case NodeSide.Bottom:
+                    rotation = 1;
+                    break;
+
+                case NodeSide.Right:
+                    rotation = 2;
+                    break;
+
+                case NodeSide.Top:
+                    rotation = 3;
+                    break;
+            }
+
+            Texture2D knobTexture = Canvas.Theme.GetTexture(textureName, rotation, Canvas.Theme.GetColor(Type.Name));
 
             Rect knobRect = Rect;
             knobRect.position += Canvas.State.PanOffset;
 
-            GUI.Box(knobRect, text, GUI.skin.box);
+            GUI.DrawTexture(knobRect, knobTexture);
         }
     }
 }

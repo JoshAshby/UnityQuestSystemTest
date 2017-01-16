@@ -44,7 +44,15 @@ namespace Ashode
                 return;
 
             Vector2 canvasSpace = inputEvent.Canvas.ScreenToCanvasSpace(inputEvent.Event.mousePosition);
-            inputEvent.State.SelectedNode = inputEvent.Canvas.FindNodeAt(canvasSpace);
+
+            INode node;
+            IKnob knob;
+
+            inputEvent.Canvas.FindNodeOrKnobAt(canvasSpace, out node, out knob);
+
+            inputEvent.State.SelectedNode = node;
+            inputEvent.State.SelectedKnob = knob;
+
             updateFocus = true;
             inputEvent.Canvas.OnRepaint();
         }

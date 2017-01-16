@@ -8,6 +8,7 @@ namespace Ashode
     {
         public State State;
         public InputSystem InputSystem = new InputSystem(typeof(InputControls));
+        public Theme Theme = new Theme();
 
         // This is an Action instead of an EventHandler because it
         // makes it quick to subscribe the EditorWindow.Repaint action
@@ -21,15 +22,31 @@ namespace Ashode
         public void Draw(Rect canvasRect)
         {
             State.CanvasSize = canvasRect;
-
             InputSystem.HandleEvents(this, false);
 
+            DrawBackground();
             DrawConnections();
             DrawNodes();
 
             OnGUI();
 
             InputSystem.HandleEvents(this, true);
+        }
+        private void DrawBackground()
+        {
+            if(Event.current.type != EventType.Repaint)
+                return;
+
+            float width = Theme.CanvasBackground.width;
+            float height = Theme.CanvasBackground.height;
+            Vector2 offset = State.PanOffset;
+
+            Rect uvDrawRect = new Rect(-offset.x * width,
+                (offset.y - State.CanvasSize.height) * height,
+                State.CanvasSize.width * width,
+                State.CanvasSize.height * height);
+
+            GUI.DrawTextureWithTexCoords(State.CanvasSize, Theme.CanvasBackground, uvDrawRect);
         }
 
         private void DrawConnections()

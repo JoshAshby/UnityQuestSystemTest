@@ -8,19 +8,29 @@ public class SimpleNode : Node
     private string id = "";
     public override void OnGUI()
     {
-        GUILayout.BeginHorizontal(EditorStyles.toolbar);
-            if(GUILayout.Button("Left", EditorStyles.toolbarButton))
+        GUILayout.BeginHorizontal();
+            GUILayout.FlexibleSpace();
+            if(GUILayout.Button("Top"))
+                AddKnob<string>(id, NodeSide.Top);
+            GUILayout.FlexibleSpace();
+        GUILayout.EndHorizontal();
+
+        GUILayout.BeginHorizontal();
+            if(GUILayout.Button("Left"))
                 AddKnob<string>(id, NodeSide.Left);
-            if(GUILayout.Button("Right", EditorStyles.toolbarButton))
+            GUILayout.FlexibleSpace();
+            if(GUILayout.Button("Right"))
                 AddKnob<string>(id, NodeSide.Right);
         GUILayout.EndHorizontal();
 
-        GUILayout.BeginHorizontal(EditorStyles.toolbar);
-            if(GUILayout.Button("Top", EditorStyles.toolbarButton))
-                AddKnob<string>(id, NodeSide.Top);
-            if(GUILayout.Button("Bottom", EditorStyles.toolbarButton))
+        GUILayout.BeginHorizontal();
+            GUILayout.FlexibleSpace();
+            if(GUILayout.Button("Bottom"))
                 AddKnob<string>(id, NodeSide.Bottom);
+            GUILayout.FlexibleSpace();
         GUILayout.EndHorizontal();
+
+        GUILayout.Space(20);
 
         string removeKnob = null;
         GUILayout.BeginVertical();
@@ -32,6 +42,7 @@ public class SimpleNode : Node
                 GUILayout.BeginHorizontal();
                     GUILayout.Label(knob.Key);
                     DrawKnob(knob.Key);
+                    GUILayout.FlexibleSpace();
                     if(GUILayout.Button("X"))
                         removeKnob = knob.Key;
                 GUILayout.EndHorizontal();
@@ -45,6 +56,7 @@ public class SimpleNode : Node
                 GUILayout.BeginHorizontal();
                     GUILayout.Label(knob.Key);
                     DrawKnob(knob.Key, i * 25);
+                    GUILayout.FlexibleSpace();
                     if(GUILayout.Button("X"))
                         removeKnob = knob.Key;
                 GUILayout.EndHorizontal();
@@ -58,6 +70,7 @@ public class SimpleNode : Node
                 GUILayout.BeginHorizontal();
                     GUILayout.Label(knob.Key);
                     DrawKnob(knob.Key, i * 25);
+                    GUILayout.FlexibleSpace();
                     if(GUILayout.Button("X"))
                         removeKnob = knob.Key;
                 GUILayout.EndHorizontal();

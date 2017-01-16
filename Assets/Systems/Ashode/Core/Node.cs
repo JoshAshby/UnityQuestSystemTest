@@ -99,7 +99,7 @@ namespace Ashode
 
             // https://docs.unity3d.com/ScriptReference/GUILayoutUtility.GetLastRect.html
             // GetLastRect only works during repaint events
-            if(Event.current.type == EventType.Repaint)
+            if (Event.current.type == EventType.Repaint)
                 lastPosition = GUILayoutUtility.GetLastRect().max + contentOffset;
 
             GUILayout.EndArea();
@@ -111,7 +111,7 @@ namespace Ashode
 
         public virtual void ResizeWindow(Canvas Canvas)
         {
-            if(Event.current.type != EventType.Repaint)
+            if (Event.current.type != EventType.Repaint)
                 return;
 
             if (!CanResize)
@@ -123,13 +123,15 @@ namespace Ashode
 
             // TODO: Think about handling manual resizes too
             List<IKnob> topBottomKnobs = Knobs.Values.Where(x => x.Side == NodeSide.Bottom || x.Side == NodeSide.Top).ToList();
-            if(topBottomKnobs.Any())
+            if (topBottomKnobs.Any())
             {
                 float knobSize = topBottomKnobs.Max(x => x.Rect.xMax - nodeRect.xMin);
                 float minWidth = MinSize.x;
 
-                maxSize.x = new List<float>{ knobSize, minWidth }.Max();
-            } else {
+                maxSize.x = new List<float> { knobSize, minWidth }.Max();
+            }
+            else
+            {
                 maxSize.x = nodeRect.width;
             }
 
