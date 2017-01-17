@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using UnityEditor;
 using UnityEngine;
 
 namespace Ashode
@@ -27,6 +28,25 @@ namespace Ashode
             DrawBackground();
             DrawConnections();
             DrawNodes();
+
+            if(State.SelectedKnob != null && Event.current.type == EventType.Repaint)
+            {
+                Vector3 PanOffset = new Vector3(State.PanOffset.x, State.PanOffset.y, 0);
+
+                Vector3 startPosition = new Vector3(State.SelectedKnob.Rect.center.x, State.SelectedKnob.Rect.center.y, 0) + PanOffset;
+                Vector3 startTangent = startPosition + State.SelectedKnob.DirectionVector * 50;
+
+                Vector2 guiMouse = ScreenToCanvasSpace(Event.current.mousePosition);
+                Vector3 endPosition = new Vector3(guiMouse.x, guiMouse.y, 0) + PanOffset;
+                Vector3 endTangent = endPosition + Vector3.up * 50;
+ 
+                Color color = Color.black;
+                if(State.FocusedKnob != null && State.FocusedKnob.Type != State.SelectedKnob.Type)
+                    color = Color.red;
+
+                Handles.DrawBezier(startPosition, endPosition, startTangent, endTangent, color, Theme.Line, 2);
+                OnRepaint();
+            }
 
             OnGUI();
 

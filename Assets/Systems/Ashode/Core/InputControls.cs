@@ -14,8 +14,8 @@ namespace Ashode
         {
             Vector2 canvasSpace = inputEvent.Canvas.ScreenToCanvasSpace(inputEvent.Event.mousePosition);
 
-            INode node;
-            IKnob knob;
+            INode node = null;
+            IKnob knob = null;
 
             inputEvent.Canvas.FindNodeOrKnobAt(canvasSpace, out node, out knob);
 
@@ -30,6 +30,48 @@ namespace Ashode
             }
         }
 
+        // Click on knob
+        [EventHandler(EventType.MouseDown, Priority = -3)]
+        public static void HandleKnobClick(InputEvent inputEvent)
+        {
+            if(inputEvent.State.SelectedKnob == null)
+                return;
+
+            if(inputEvent.State.FocusedKnob == null)
+                return;
+
+            if (GUIUtility.hotControl > 0)
+                return;
+
+            if (inputEvent.Event.button != 0)
+                return;
+
+            if (inputEvent.State.FocusedKnob == inputEvent.State.SelectedKnob)
+                return;
+
+            if(inputEvent.State.FocusedKnob.Type != inputEvent.State.SelectedKnob.Type)
+                return;
+
+            Vector2 canvasSpace = inputEvent.Canvas.ScreenToCanvasSpace(inputEvent.Event.mousePosition);
+
+            INode node = null;
+            IKnob knob = null;
+
+            inputEvent.Canvas.FindNodeOrKnobAt(canvasSpace, out node, out knob);
+
+            inputEvent.State.Connections.Add(new Connection<string> {
+                FromKnob = inputEvent.State.SelectedKnob,
+                ToKnob = knob
+            });
+
+            inputEvent.State.FocusedKnob = null;
+            inputEvent.State.SelectedKnob = knob;
+            inputEvent.State.FocusedNode = null;
+            inputEvent.State.SelectedNode = node;
+
+            inputEvent.Canvas.OnRepaint();
+        }
+
         // Click on node
         [EventHandler(EventType.MouseDown, Priority = -2)]
         public static void HandleNodeClick(InputEvent inputEvent)
@@ -40,13 +82,13 @@ namespace Ashode
             if (inputEvent.Event.button != 0)
                 return;
 
-            if (inputEvent.State.FocusedNode == inputEvent.State.SelectedNode)
+            if (inputEvent.State.FocusedNode == inputEvent.State.SelectedNode && inputEvent.State.FocusedNode != null)
                 return;
 
             Vector2 canvasSpace = inputEvent.Canvas.ScreenToCanvasSpace(inputEvent.Event.mousePosition);
 
-            INode node;
-            IKnob knob;
+            INode node = null;
+            IKnob knob = null;
 
             inputEvent.Canvas.FindNodeOrKnobAt(canvasSpace, out node, out knob);
 
