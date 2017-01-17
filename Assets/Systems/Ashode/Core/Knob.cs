@@ -51,7 +51,7 @@ namespace Ashode
             set { _rect = value; }
         }
 
-        private float _offset = 2;
+        private float _offset = 0;
         public float Offset
         {
             get { return _offset; }
@@ -112,15 +112,15 @@ namespace Ashode
             switch (Direction)
             {
                 case Direction.Input:
-                    textureName = "Knob@2x";
+                    textureName = "Input Knob@2x";
                     break;
 
                 case Direction.Output:
-                    textureName = "Knob@2x";
+                    textureName = "Output Knob@2x";
                     break;
 
                 case Direction.Both:
-                    textureName = "Knob@2x";
+                    textureName = "Both Knob@2x";
                     break;
             }
 

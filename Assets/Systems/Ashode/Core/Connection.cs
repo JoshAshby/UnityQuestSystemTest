@@ -37,7 +37,7 @@ namespace Ashode
             Vector3 endPosition = new Vector3(ToKnob.Rect.center.x, ToKnob.Rect.center.y, 0) + PanOffset;
             Vector3 endTangent = endPosition + ToKnob.DirectionVector * 50;
 
-            Handles.DrawBezier(startPosition, endPosition, startTangent, endTangent, Canvas.Theme.GetColor(Type.Name), Canvas.Theme.Line, 2);
+            Handles.DrawBezier(startPosition, endPosition, startTangent, endTangent, Canvas.Theme.GetColor(Type.Name), Canvas.Theme.Line, 3);
         }
     }
 }

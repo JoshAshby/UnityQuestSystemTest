@@ -26,39 +26,24 @@ namespace Ashode
             InputSystem.HandleEvents(this, false);
 
             DrawBackground();
+
             DrawConnections();
             DrawNodes();
 
-            if(State.SelectedKnob != null && Event.current.type == EventType.Repaint)
-            {
-                Vector3 PanOffset = new Vector3(State.PanOffset.x, State.PanOffset.y, 0);
-
-                Vector3 startPosition = new Vector3(State.SelectedKnob.Rect.center.x, State.SelectedKnob.Rect.center.y, 0) + PanOffset;
-                Vector3 startTangent = startPosition + State.SelectedKnob.DirectionVector * 50;
-
-                Vector2 guiMouse = ScreenToCanvasSpace(Event.current.mousePosition);
-                Vector3 endPosition = new Vector3(guiMouse.x, guiMouse.y, 0) + PanOffset;
-                Vector3 endTangent = endPosition + Vector3.up * 50;
- 
-                Color color = Color.black;
-                if(State.FocusedKnob != null && State.FocusedKnob.Type != State.SelectedKnob.Type)
-                    color = Color.red;
-
-                Handles.DrawBezier(startPosition, endPosition, startTangent, endTangent, color, Theme.Line, 2);
-                OnRepaint();
-            }
+            DrawCurveToMouse();
 
             OnGUI();
 
             InputSystem.HandleEvents(this, true);
         }
+
         private void DrawBackground()
         {
             if(Event.current.type != EventType.Repaint)
                 return;
 
-            float width = Theme.CanvasBackground.width;
-            float height = Theme.CanvasBackground.height;
+            float width = 5f/Theme.CanvasBackground.width;
+            float height = 5f/Theme.CanvasBackground.height;
             Vector2 offset = State.PanOffset;
 
             Rect uvDrawRect = new Rect(-offset.x * width,
@@ -67,6 +52,31 @@ namespace Ashode
                 State.CanvasSize.height * height);
 
             GUI.DrawTextureWithTexCoords(State.CanvasSize, Theme.CanvasBackground, uvDrawRect);
+        }
+
+        private void DrawCurveToMouse()
+        {
+            if(State.SelectedKnob == null)
+                return;
+
+            if(Event.current.type != EventType.Repaint)
+                return;
+
+            Vector3 PanOffset = new Vector3(State.PanOffset.x, State.PanOffset.y, 0);
+
+            Vector3 startPosition = new Vector3(State.SelectedKnob.Rect.center.x, State.SelectedKnob.Rect.center.y, 0) + PanOffset;
+            Vector3 startTangent = startPosition + State.SelectedKnob.DirectionVector * 50;
+
+            Vector2 guiMouse = ScreenToCanvasSpace(Event.current.mousePosition);
+            Vector3 endPosition = new Vector3(guiMouse.x, guiMouse.y, 0) + PanOffset;
+            Vector3 endTangent = endPosition + Vector3.up * 50;
+
+            Color color = Color.black;
+            if(State.FocusedKnob != null && State.FocusedKnob.Type != State.SelectedKnob.Type)
+                color = Color.red;
+
+            Handles.DrawBezier(startPosition, endPosition, startTangent, endTangent, color, Theme.Line, 3);
+            OnRepaint();
         }
 
         private void DrawConnections()
@@ -79,6 +89,13 @@ namespace Ashode
 
         private void DrawNodes()
         {
+            // Make sure the top node is the selected one
+            if(Event.current.type == EventType.Layout && State.SelectedNode != null)
+            {
+                State.Nodes.Remove(State.SelectedNode);
+                State.Nodes.Add(State.SelectedNode);
+            }
+
             foreach (var node in State.Nodes)
             {
                 node.DrawNodeWindow(this);

@@ -21,11 +21,11 @@ namespace Ashode
 
         public Theme()
         {
-            CanvasBackground = GetTexture("Grid Background@2x", 0, Color.gray);
+            CanvasBackground = AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/Systems/Ashode/Resources/Textures/Grid Background@2x.png");
 
-            InputKnob = AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/Systems/Ashode/Resources/Textures/Knob@2x.png");
-            OutputKnob = AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/Systems/Ashode/Resources/Textures/Knob@2x.png");
-            BothKnob = AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/Systems/Ashode/Resources/Textures/Knob@2x.png");
+            InputKnob = AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/Systems/Ashode/Resources/Textures/Input Knob@2x.png");
+            OutputKnob = AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/Systems/Ashode/Resources/Textures/Output Knob@2x.png");
+            BothKnob = AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/Systems/Ashode/Resources/Textures/Both Knob@2x.png");
 
             ResizeHandle = AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/Systems/Ashode/Resources/Textures/Resize Handle@2x.png");
 
