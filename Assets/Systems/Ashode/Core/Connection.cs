@@ -6,10 +6,7 @@ namespace Ashode
 {
     public interface IConnection
     {
-        INode FromNode { get; set; }
         IKnob FromKnob { get; set; }
-
-        INode ToNode { get; set; }
         IKnob ToKnob { get; set; }
 
         Type Type { get; }
@@ -17,15 +14,17 @@ namespace Ashode
         void DrawConnectionWindow(Canvas Canvas);
     }
 
-    public class Connection<TType> : IConnection
+    public class Connection : IConnection
     {
-        public INode FromNode { get; set; }
         public IKnob FromKnob { get; set; }
-
-        public INode ToNode { get; set; }
         public IKnob ToKnob { get; set; }
 
-        public Type Type { get { return typeof(TType); } }
+        public Type Type { get; }
+
+        public Connection(IKnob FromKnob, IKnob ToKnob)
+        {
+
+        }
 
         public void DrawConnectionWindow(Canvas Canvas)
         {

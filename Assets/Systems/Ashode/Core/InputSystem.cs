@@ -6,6 +6,59 @@ using UnityEngine;
 
 namespace Ashode
 {
+    [AttributeUsageAttribute(AttributeTargets.Method, AllowMultiple = true)]
+    public class EventHandlerAttribute : Attribute
+    {
+        public EventType? EventType { get; set; }
+
+        protected int _priority = 50;
+        public int Priority
+        {
+            get { return _priority; }
+            set { _priority = value; }
+        }
+
+        public EventHandlerAttribute() { this.EventType = null; }
+        public EventHandlerAttribute(EventType type) { this.EventType = type; }
+    }
+
+    [AttributeUsageAttribute(AttributeTargets.Method, AllowMultiple = true)]
+    public class HotkeyHandlerAttribute : Attribute
+    {
+        public KeyCode Key { get; set; }
+        public EventModifiers? Modifiers { get; set; }
+        public EventType? EventType { get; set; }
+
+        protected int _priority = 50;
+        public int Priority
+        {
+            get { return _priority; }
+            set { _priority = value; }
+        }
+
+        public HotkeyHandlerAttribute(KeyCode key) { this.Key = key; }
+
+        public HotkeyHandlerAttribute(KeyCode key, EventModifiers modifiers)
+        {
+            this.Key = key;
+            this.Modifiers = modifiers;
+        }
+
+        public HotkeyHandlerAttribute(KeyCode key, EventType limiter)
+        {
+            this.Key = key;
+            this.EventType = limiter;
+        }
+
+        public HotkeyHandlerAttribute(KeyCode key, EventModifiers modifiers, EventType limiter)
+        {
+            this.Key = key;
+            this.Modifiers = modifiers;
+            this.EventType = limiter;
+        }
+    }
+
+    // Passed along to event handlers to encapsulate the current info
     public class InputEvent
     {
         public Event Event;
@@ -25,7 +78,6 @@ namespace Ashode
 
     class EventAttributeInfo : AttributeInfo
     {
-
         public EventAttributeInfo(EventHandlerAttribute attribute, MethodInfo method)
         {
             this.Action = (Action<InputEvent>)Delegate.CreateDelegate(typeof(Action<InputEvent>), method);
@@ -126,58 +178,6 @@ namespace Ashode
                 if (inputEvent.Event.type == EventType.Used)
                     return;
             }
-        }
-    }
-
-    [AttributeUsageAttribute(AttributeTargets.Method, AllowMultiple = true)]
-    public class EventHandlerAttribute : Attribute
-    {
-        public EventType? EventType { get; set; }
-
-        protected int _priority = 50;
-        public int Priority
-        {
-            get { return _priority; }
-            set { _priority = value; }
-        }
-
-        public EventHandlerAttribute() { this.EventType = null; }
-        public EventHandlerAttribute(EventType type) { this.EventType = type; }
-    }
-
-    [AttributeUsageAttribute(AttributeTargets.Method, AllowMultiple = true)]
-    public class HotkeyHandlerAttribute : Attribute
-    {
-        public KeyCode Key { get; set; }
-        public EventModifiers? Modifiers { get; set; }
-        public EventType? EventType { get; set; }
-
-        protected int _priority = 50;
-        public int Priority
-        {
-            get { return _priority; }
-            set { _priority = value; }
-        }
-
-        public HotkeyHandlerAttribute(KeyCode key) { this.Key = key; }
-
-        public HotkeyHandlerAttribute(KeyCode key, EventModifiers modifiers)
-        {
-            this.Key = key;
-            this.Modifiers = modifiers;
-        }
-
-        public HotkeyHandlerAttribute(KeyCode key, EventType limiter)
-        {
-            this.Key = key;
-            this.EventType = limiter;
-        }
-
-        public HotkeyHandlerAttribute(KeyCode key, EventModifiers modifiers, EventType limiter)
-        {
-            this.Key = key;
-            this.Modifiers = modifiers;
-            this.EventType = limiter;
         }
     }
 }

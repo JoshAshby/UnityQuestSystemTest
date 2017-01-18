@@ -24,6 +24,7 @@ namespace Ashode
 
         Rect Rect { get; set; }
         float Offset { get; set; }
+
         NodeSide Side { get; set; }
         Vector3 DirectionVector { get; }
 
@@ -35,7 +36,7 @@ namespace Ashode
         Type Type { get; }
     }
 
-    public class Knob<TAccept> : IKnob
+    public class Knob : IKnob
     {
         private string _id = Guid.NewGuid().ToString();
         public string ID
@@ -103,7 +104,7 @@ namespace Ashode
             set { _allowMultiple = value; }
         }
 
-        public Type Type { get { return typeof(TAccept); } }
+        public Type Type { get; internal set; }
 
         public virtual void DrawKnobWindow(Canvas Canvas)
         {
@@ -112,15 +113,15 @@ namespace Ashode
             switch (Direction)
             {
                 case Direction.Input:
-                    textureName = "Input Knob@2x";
+                    textureName = Canvas.Theme.InputKnob;
                     break;
 
                 case Direction.Output:
-                    textureName = "Output Knob@2x";
+                    textureName = Canvas.Theme.OutputKnob;
                     break;
 
                 case Direction.Both:
-                    textureName = "Both Knob@2x";
+                    textureName = Canvas.Theme.BothKnob;
                     break;
             }
 

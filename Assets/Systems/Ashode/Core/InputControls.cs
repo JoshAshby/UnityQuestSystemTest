@@ -59,10 +59,7 @@ namespace Ashode
 
             inputEvent.Canvas.FindNodeOrKnobAt(canvasSpace, out node, out knob);
 
-            inputEvent.State.Connections.Add(new Connection<string> {
-                FromKnob = inputEvent.State.SelectedKnob,
-                ToKnob = knob
-            });
+            inputEvent.State.Connections.Add(new Connection(inputEvent.State.SelectedKnob, knob));
 
             inputEvent.State.FocusedKnob = null;
             inputEvent.State.SelectedKnob = knob;

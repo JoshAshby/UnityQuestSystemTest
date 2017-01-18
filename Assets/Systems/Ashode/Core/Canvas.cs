@@ -42,8 +42,8 @@ namespace Ashode
             if(Event.current.type != EventType.Repaint)
                 return;
 
-            float width = 5f/Theme.CanvasBackground.width;
-            float height = 5f/Theme.CanvasBackground.height;
+            float width = 4f/Theme.CanvasBackground.width;
+            float height = 4f/Theme.CanvasBackground.height;
             Vector2 offset = State.PanOffset;
 
             Rect uvDrawRect = new Rect(-offset.x * width,

@@ -201,7 +201,7 @@ namespace Ashode
 
         public IKnob AddKnob<TAccept>(string id, NodeSide side)
         {
-            IKnob knob = new Knob<TAccept> { ID = id, Side = side };
+            IKnob knob = new Knob { ID = id, Side = side, Type = typeof(TAccept) };
             Knobs.Add(id, knob);
             return knob;
         }
