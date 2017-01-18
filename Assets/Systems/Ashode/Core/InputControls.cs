@@ -59,6 +59,9 @@ namespace Ashode
 
             inputEvent.Canvas.FindNodeOrKnobAt(canvasSpace, out node, out knob);
 
+            if(!Connection.Verify(inputEvent.Canvas, inputEvent.State.SelectedKnob, knob))
+                return;
+
             inputEvent.State.Connections.Add(new Connection(inputEvent.State.SelectedKnob, knob));
 
             inputEvent.State.FocusedKnob = null;
@@ -67,6 +70,7 @@ namespace Ashode
             inputEvent.State.SelectedNode = node;
 
             inputEvent.Canvas.OnRepaint();
+            inputEvent.Event.Use();
         }
 
         // Click on node

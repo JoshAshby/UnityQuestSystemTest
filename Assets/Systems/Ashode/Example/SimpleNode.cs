@@ -6,27 +6,36 @@ using Ashode;
 public class SimpleNode : Node
 {
     private string id = "";
+
+    bool allowMultiple = false;
+    Direction direction = Direction.Both;
+
     public override void OnGUI()
     {
+        GUILayout.BeginVertical();
+        allowMultiple = GUILayout.Toggle(allowMultiple, "Allow Multiple?");
+        direction = (Direction) EditorGUILayout.EnumPopup("Direction", direction);
+        GUILayout.EndVertical();
+
         GUILayout.BeginHorizontal();
             GUILayout.FlexibleSpace();
             if(GUILayout.Button("Top"))
-                AddKnob<string>(id, NodeSide.Top);
+                AddKnob<object>(id, NodeSide.Top, allowMultiple, direction);
             GUILayout.FlexibleSpace();
         GUILayout.EndHorizontal();
 
         GUILayout.BeginHorizontal();
             if(GUILayout.Button("Left"))
-                AddKnob<string>(id, NodeSide.Left);
+                AddKnob<string>(id, NodeSide.Left, allowMultiple, direction);
             GUILayout.FlexibleSpace();
             if(GUILayout.Button("Right"))
-                AddKnob<string>(id, NodeSide.Right);
+                AddKnob<int>(id, NodeSide.Right, allowMultiple, direction);
         GUILayout.EndHorizontal();
 
         GUILayout.BeginHorizontal();
             GUILayout.FlexibleSpace();
             if(GUILayout.Button("Bottom"))
-                AddKnob<string>(id, NodeSide.Bottom);
+                AddKnob<float>(id, NodeSide.Bottom, allowMultiple, direction);
             GUILayout.FlexibleSpace();
         GUILayout.EndHorizontal();
 

@@ -42,8 +42,8 @@ namespace Ashode
             if(Event.current.type != EventType.Repaint)
                 return;
 
-            float width = 4f/Theme.CanvasBackground.width;
-            float height = 4f/Theme.CanvasBackground.height;
+            float width = 5f/Theme.CanvasBackground.width;
+            float height = 5f/Theme.CanvasBackground.height;
             Vector2 offset = State.PanOffset;
 
             Rect uvDrawRect = new Rect(-offset.x * width,
@@ -72,8 +72,9 @@ namespace Ashode
             Vector3 endTangent = endPosition + Vector3.up * 50;
 
             Color color = Color.black;
-            if(State.FocusedKnob != null && State.FocusedKnob.Type != State.SelectedKnob.Type)
-                color = Color.red;
+            if(State.FocusedKnob != null)
+                if(!Connection.Verify(this, State.SelectedKnob, State.FocusedKnob))
+                    color = Color.red;
 
             Handles.DrawBezier(startPosition, endPosition, startTangent, endTangent, color, Theme.Line, 3);
             OnRepaint();

@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using UnityEngine;
 
 namespace Ashode
@@ -30,8 +31,11 @@ namespace Ashode
 
         Direction Direction { get; set; }
         bool AllowMultiple { get; set; }
+        bool Removable { get; set; }
 
         void DrawKnobWindow(Canvas Canvas);
+
+        bool Available(Canvas Canvas);
 
         Type Type { get; }
     }
@@ -104,7 +108,26 @@ namespace Ashode
             set { _allowMultiple = value; }
         }
 
+        private bool _removable = true;
+        public bool Removable
+        {
+            get { return _removable; }
+            set { _removable = value; }
+        }
+
         public Type Type { get; internal set; }
+
+        public bool Available(Canvas Canvas)
+        {
+            bool hasConns = Canvas.State.Connections
+                .Where(x => x.FromKnob == this || x.ToKnob == this)
+                .Any();
+
+            if(hasConns && !AllowMultiple)
+                return false;
+
+            return true;
+        }
 
         public virtual void DrawKnobWindow(Canvas Canvas)
         {
