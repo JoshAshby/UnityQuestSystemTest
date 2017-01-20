@@ -10,7 +10,9 @@ namespace Ashode
         ICanvas Canvas { get; }
 
         IKnob FromKnob { get; set; }
+        INode FromNode { get; }
         IKnob ToKnob { get; set; }
+        INode ToNode { get; }
 
         Type Type { get; }
 
@@ -23,7 +25,9 @@ namespace Ashode
         public ICanvas Canvas { get { return Parent; } }
 
         public IKnob FromKnob { get; set; }
+        public INode FromNode { get { return FromKnob.Parent; } }
         public IKnob ToKnob { get; set; }
+        public INode ToNode { get { return ToKnob.Parent; } }
 
         public Type Type { get; }
 

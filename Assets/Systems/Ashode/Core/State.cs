@@ -47,5 +47,14 @@ namespace Ashode
         {
             this.Parent = canvas;
         }
+
+        public TNode AddNode<TNode>(Rect pos) where TNode : Node, INode, new()
+        {
+            TNode node = new TNode(this, pos);
+
+            Nodes.Add(node);
+
+            return node;
+        }
     }
 }

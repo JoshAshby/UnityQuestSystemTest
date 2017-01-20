@@ -41,9 +41,9 @@ namespace Ashode
 
         List<IConnection> Connections { get; }
 
-        void DrawKnobWindow();
-
         bool Available();
+
+        void DrawKnobWindow();
     }
 
     public class Knob : IKnob

@@ -247,6 +247,15 @@ namespace Ashode
 
         public void RemoveKnob(string id)
         {
+            // TODO: Throw an error or debug at least if removing a non-removable knob?
+            if(!Knobs[id].Removable)
+                return;
+
+            foreach(var conn in Knobs[id].Connections)
+            {
+                conn.Parent.State.Connections.Remove(conn);
+            }
+
             Knobs.Remove(id);
         }
     }
