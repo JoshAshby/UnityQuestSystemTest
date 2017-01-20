@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
@@ -21,6 +22,9 @@ namespace Ashode
 
     public interface IKnob
     {
+        INode Parent { get; }
+        ICanvas Canvas { get; }
+
         string ID { get; set; }
 
         Rect Rect { get; set; }
@@ -33,15 +37,20 @@ namespace Ashode
         bool AllowMultiple { get; set; }
         bool Removable { get; set; }
 
-        void DrawKnobWindow(Canvas Canvas);
-
-        bool Available(Canvas Canvas);
-
         Type Type { get; }
+
+        List<IConnection> Connections { get; }
+
+        void DrawKnobWindow();
+
+        bool Available();
     }
 
     public class Knob : IKnob
     {
+        public INode Parent { get; internal set; }
+        public ICanvas Canvas { get { return Parent.Parent.Parent; } }
+
         private string _id = Guid.NewGuid().ToString();
         public string ID
         {
@@ -117,7 +126,12 @@ namespace Ashode
 
         public Type Type { get; internal set; }
 
-        public bool Available(Canvas Canvas)
+        public List<IConnection> Connections
+        {
+            get { return Canvas.State.Connections.Where( x=> x.FromKnob == this || x.ToKnob == this).ToList(); }
+        }
+
+        public bool Available()
         {
             bool hasConns = Canvas.State.Connections
                 .Where(x => x.FromKnob == this || x.ToKnob == this)
@@ -129,7 +143,7 @@ namespace Ashode
             return true;
         }
 
-        public virtual void DrawKnobWindow(Canvas Canvas)
+        public virtual void DrawKnobWindow()
         {
             string textureName = "";
 

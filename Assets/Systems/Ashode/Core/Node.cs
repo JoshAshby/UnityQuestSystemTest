@@ -8,6 +8,9 @@ namespace Ashode
 {
     public interface INode
     {
+        State Parent { get; }
+        ICanvas Canvas { get; }
+
         string ID { get; set; }
         Rect Rect { get; set; }
         Vector2 MinSize { get; set; }
@@ -15,14 +18,15 @@ namespace Ashode
 
         string Title { get; set; }
 
-        void DrawNodeWindow(Canvas Canvas);
-        void ResizeWindow(Canvas Canvas);
+        void DrawNodeWindow();
+        void ResizeWindow();
 
+        void SetupKnobs();
         void OnGUI();
 
         Dictionary<string, IKnob> Knobs { get; set; }
 
-        void DrawKnobWindows(Canvas Canvas);
+        void DrawKnobWindows();
         void DrawKnob(string id);
         void DrawKnob(string id, float position);
 
@@ -33,6 +37,9 @@ namespace Ashode
 
     public abstract class Node : INode
     {
+        public State Parent { get; internal set; }
+        public ICanvas Canvas { get { return Parent.Parent; } }
+
         private Vector2 _minSize = new Vector2(200, 100);
         public Vector2 MinSize
         {
@@ -75,9 +82,18 @@ namespace Ashode
             set { _knobs = value; }
         }
 
+        public Node(State parent)
+        {
+            this.Parent = parent;
+
+            SetupKnobs();
+        }
+
+        public virtual void SetupKnobs() { }
+
         private Vector2 lastPosition;
         private Vector2 contentOffset = new Vector2(0, 20);
-        public virtual void DrawNodeWindow(Canvas Canvas)
+        public virtual void DrawNodeWindow()
         {
             if (lastPosition == null)
                 lastPosition = Rect.max;
@@ -106,11 +122,11 @@ namespace Ashode
             GUILayout.EndArea();
             GUI.EndGroup();
 
-            DrawKnobWindows(Canvas);
-            ResizeWindow(Canvas);
+            DrawKnobWindows();
+            ResizeWindow();
         }
 
-        public virtual void ResizeWindow(Canvas Canvas)
+        public virtual void ResizeWindow()
         {
             if (Event.current.type != EventType.Repaint)
                 return;
@@ -146,11 +162,11 @@ namespace Ashode
             }
         }
 
-        public virtual void DrawKnobWindows(Canvas Canvas)
+        public virtual void DrawKnobWindows()
         {
             foreach (var knob in Knobs.Values)
             {
-                knob.DrawKnobWindow(Canvas);
+                knob.DrawKnobWindow();
             }
         }
 
@@ -207,8 +223,10 @@ namespace Ashode
                 AllowMultiple = multiple,
                 Side = side,
                 Direction = direction,
-                Type = typeof(TAccept)
+                Type = typeof(TAccept),
+                Parent = this
             };
+
             Knobs.Add(id, knob);
             return knob;
         }
@@ -220,7 +238,8 @@ namespace Ashode
                 AllowMultiple = multiple,
                 Side = side,
                 Direction = direction,
-                Type = TAccept
+                Type = TAccept,
+                Parent = this
             };
             Knobs.Add(id, knob);
             return knob;

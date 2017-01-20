@@ -21,15 +21,16 @@ public class AshodeEditor : EditorWindow
 
     private void Setup()
     {
-        Ashode.State state = new Ashode.State();
+        Canvas = new Ashode.Canvas();
+        Canvas.Repaint += Repaint;
+
+        Ashode.State state = new Ashode.State(Canvas);
+        Canvas.State = state;
 
         state.Nodes.AddRange(new List<Ashode.INode> {
-            new SimpleNode { Rect = new Rect(30, 30, 200, 100) },
-            new SimpleNode { Rect = new Rect(300, 30, 200, 100) }
+            new SimpleNode(state, new Rect(30, 30, 200, 100)),
+            new SimpleNode(state, new Rect(300, 30, 200, 100))
         });
-
-        Canvas = new Ashode.Canvas(state);
-        Canvas.Repaint += Repaint;
     }
 
     private void OnDestroy()

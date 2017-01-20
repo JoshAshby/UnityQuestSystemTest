@@ -10,6 +10,11 @@ public class SimpleNode : Node
     bool allowMultiple = false;
     Direction direction = Direction.Both;
 
+    public SimpleNode(State state, Rect rect) : base(state)
+    {
+        this.Rect = rect;
+    }
+
     public override void OnGUI()
     {
         GUILayout.BeginVertical();

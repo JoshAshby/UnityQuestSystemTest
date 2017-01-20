@@ -59,10 +59,10 @@ namespace Ashode
 
             inputEvent.Canvas.FindNodeOrKnobAt(canvasSpace, out node, out knob);
 
-            if(!Connection.Verify(inputEvent.Canvas, inputEvent.State.SelectedKnob, knob))
+            if(!Connection.Verify(inputEvent.State.SelectedKnob, knob))
                 return;
 
-            inputEvent.State.Connections.Add(new Connection(inputEvent.State.SelectedKnob, knob));
+            inputEvent.State.Connections.Add(new Connection(inputEvent.Canvas, inputEvent.State.SelectedKnob, knob));
 
             inputEvent.State.FocusedKnob = null;
             inputEvent.State.SelectedKnob = knob;

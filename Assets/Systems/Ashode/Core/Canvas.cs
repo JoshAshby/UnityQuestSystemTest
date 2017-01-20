@@ -5,22 +5,53 @@ using UnityEngine;
 
 namespace Ashode
 {
-    public class Canvas
+    public interface ICanvas
     {
-        public State State;
-        public InputSystem InputSystem = new InputSystem(typeof(InputControls));
-        public Theme Theme = new Theme();
+        State State { get; set; }
+        InputSystem InputSystem { get; set; }
+        Theme Theme { get; set; }
 
         // This is an Action instead of an EventHandler because it
         // makes it quick to subscribe the EditorWindow.Repaint action
-        public event Action Repaint;
-        internal void OnRepaint() { Repaint.SafeInvoke(); }
+        event Action Repaint;
+        void OnRepaint();
 
-        public Canvas(State state) { this.State = state; }
+        void OnGUI();
+
+        void Draw(Rect canvasRect);
+        void DrawBackground();
+
+        INode FindNodeAt(Vector2 loc);
+        IKnob FindKnobAt(Vector2 loc);
+        void FindNodeOrKnobAt(Vector2 loc, out INode oNode, out IKnob oKnob);
+        Vector2 ScreenToCanvasSpace(Vector2 screenPos);
+    }
+
+    public class Canvas : ICanvas
+    {
+        public State State { get; set; }
+
+        private InputSystem _inputSystem = new InputSystem(typeof(InputControls));
+        public InputSystem InputSystem
+        {
+            get { return _inputSystem; }
+            set { _inputSystem = value; }
+
+        }
+
+        private Theme _theme = new Theme();
+        public Theme Theme
+        {
+            get { return _theme; }
+            set { _theme = value; }
+        }
+
+        public event Action Repaint;
+        public void OnRepaint() { Repaint.SafeInvoke(); }
 
         public virtual void OnGUI() { }
 
-        public void Draw(Rect canvasRect)
+        public virtual void Draw(Rect canvasRect)
         {
             State.CanvasSize = canvasRect;
             InputSystem.HandleEvents(this, false);
@@ -37,13 +68,13 @@ namespace Ashode
             InputSystem.HandleEvents(this, true);
         }
 
-        private void DrawBackground()
+        public virtual void DrawBackground()
         {
             if(Event.current.type != EventType.Repaint)
                 return;
 
-            float width = 5f/Theme.CanvasBackground.width;
-            float height = 5f/Theme.CanvasBackground.height;
+            float width = 1f/Theme.CanvasBackground.width;
+            float height = 1f/Theme.CanvasBackground.height;
             Vector2 offset = State.PanOffset;
 
             Rect uvDrawRect = new Rect(-offset.x * width,
@@ -73,8 +104,10 @@ namespace Ashode
 
             Color color = Color.black;
             if(State.FocusedKnob != null)
-                if(!Connection.Verify(this, State.SelectedKnob, State.FocusedKnob))
+                if(!Connection.Verify(State.SelectedKnob, State.FocusedKnob))
                     color = Color.red;
+                else
+                    color = Color.green;
 
             Handles.DrawBezier(startPosition, endPosition, startTangent, endTangent, color, Theme.Line, 3);
             OnRepaint();
@@ -84,7 +117,7 @@ namespace Ashode
         {
             foreach (var connection in State.Connections)
             {
-                connection.DrawConnectionWindow(this);
+                connection.DrawConnectionWindow();
             }
         }
 
@@ -99,13 +132,8 @@ namespace Ashode
 
             foreach (var node in State.Nodes)
             {
-                node.DrawNodeWindow(this);
+                node.DrawNodeWindow();
             }
-        }
-
-        public void AddNode<TNode>(Rect placement)
-        {
-
         }
 
         // Helpers
