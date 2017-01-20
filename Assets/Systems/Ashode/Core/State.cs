@@ -48,13 +48,36 @@ namespace Ashode
             this.Parent = canvas;
         }
 
-        public TNode AddNode<TNode>(Rect pos) where TNode : Node, INode, new()
+        public INode AddNode(Type type, Rect pos)
         {
-            TNode node = new TNode(this, pos);
+            if(!(type is INode))
+                return null;
+
+            INode node = (INode)Activator.CreateInstance(type, this, pos);
 
             Nodes.Add(node);
 
             return node;
+        }
+
+        public TNode AddNode<TNode>(Rect pos) where TNode : INode, new()
+        {
+            return (TNode)AddNode(typeof(TNode), pos);
+        }
+
+        public void RemoveNode(INode node)
+        {
+            foreach(var knob in node.Knobs)
+            {
+                node.RemoveKnob(knob.Key);
+            }
+
+            Nodes.Remove(node);
+        }
+
+        public void RemoveNode(string id)
+        {
+            RemoveNode(Nodes.Find(x => x.ID == id));
         }
     }
 }

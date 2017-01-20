@@ -30,8 +30,8 @@ namespace Ashode
         void DrawKnob(string id);
         void DrawKnob(string id, float position);
 
-        IKnob AddKnob<TAccept>(string id, NodeSide side, bool multiple, Direction direction);
         IKnob AddKnob(string id, NodeSide side, bool multiple, Direction direction, Type TAccept);
+        IKnob AddKnob<TAccept>(string id, NodeSide side, bool multiple, Direction direction);
         void RemoveKnob(string id);
     }
 
@@ -216,21 +216,6 @@ namespace Ashode
             knob.Rect = knobRect;
         }
 
-        public IKnob AddKnob<TAccept>(string id, NodeSide side, bool multiple, Direction direction)
-        {
-            IKnob knob = new Knob {
-                ID = id,
-                AllowMultiple = multiple,
-                Side = side,
-                Direction = direction,
-                Type = typeof(TAccept),
-                Parent = this
-            };
-
-            Knobs.Add(id, knob);
-            return knob;
-        }
-
         public IKnob AddKnob(string id, NodeSide side, bool multiple, Direction direction, Type TAccept)
         {
             IKnob knob = new Knob {
@@ -243,6 +228,11 @@ namespace Ashode
             };
             Knobs.Add(id, knob);
             return knob;
+        }
+
+        public IKnob AddKnob<TAccept>(string id, NodeSide side, bool multiple, Direction direction)
+        {
+            return AddKnob(id, side, multiple, direction, typeof(TAccept));
         }
 
         public void RemoveKnob(string id)
