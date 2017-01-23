@@ -42,6 +42,7 @@ namespace Ashode
         List<IConnection> Connections { get; }
 
         bool Available();
+        Vector2 CenterForConnection(IConnection conn);
 
         void DrawKnobWindow();
     }
@@ -128,7 +129,7 @@ namespace Ashode
 
         public List<IConnection> Connections
         {
-            get { return Canvas.State.Connections.Where( x=> x.FromKnob == this || x.ToKnob == this).ToList(); }
+            get { return Canvas.State.Connections.Where(x => x.FromKnob == this || x.ToKnob == this).ToList(); }
         }
 
         public bool Available()
@@ -137,14 +138,29 @@ namespace Ashode
                 .Where(x => x.FromKnob == this || x.ToKnob == this)
                 .Any();
 
-            if(hasConns && !AllowMultiple)
+            if (hasConns && !AllowMultiple)
                 return false;
 
             return true;
         }
 
+        public Vector2 CenterForConnection(IConnection conn)
+        {
+            if(Canvas.State.SelectedKnob != this)
+                return Rect.center;
+
+            int index = Connections.IndexOf(conn);
+            Vector2 TopCenter = new Vector2(25, -((Connections.Count*20+2))/2+10);
+            return Rect.center + TopCenter + new Vector2(0, 20*index+1);
+        }
+
         public virtual void DrawKnobWindow()
         {
+            if(Canvas.State.FocusedKnob == this)
+                Offset = 5;
+            else
+                Offset = 0;
+
             string textureName = "";
 
             switch (Direction)
@@ -164,7 +180,7 @@ namespace Ashode
 
             int rotation = 0;
 
-            switch(Side)
+            switch (Side)
             {
                 case NodeSide.Bottom:
                     rotation = 1;
@@ -185,6 +201,18 @@ namespace Ashode
             knobRect.position += Canvas.State.PanOffset;
 
             GUI.DrawTexture(knobRect, knobTexture);
+
+            if (Canvas.State.SelectedKnob != this)
+                return;
+
+            Vector2 TopCenter = new Vector2(25, -((((Connections.Count*22)+4))/2)+11);
+
+            for (int i = 0; i < Connections.Count; i++)
+            {
+                Rect rect = new Rect(0, 0, 20, 20);
+                rect.center = knobRect.center + TopCenter + new Vector2(0, (22*i));
+                GUI.DrawTexture(rect, knobTexture);
+            }
         }
     }
 }

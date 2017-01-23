@@ -43,12 +43,12 @@ namespace Ashode
 
         public void DrawConnectionWindow()
         {
-            Vector3 PanOffset = new Vector3(Canvas.State.PanOffset.x, Canvas.State.PanOffset.y, 0);
+            Vector3 PanOffset = (Vector3)Canvas.State.PanOffset;
 
-            Vector3 startPosition = new Vector3(FromKnob.Rect.center.x, FromKnob.Rect.center.y, 0) + PanOffset;
+            Vector3 startPosition = (Vector3)FromKnob.CenterForConnection(this) + PanOffset;
+            Vector3 endPosition = (Vector3)ToKnob.CenterForConnection(this) + PanOffset;
+
             Vector3 startTangent = startPosition + FromKnob.DirectionVector * 50;
-
-            Vector3 endPosition = new Vector3(ToKnob.Rect.center.x, ToKnob.Rect.center.y, 0) + PanOffset;
             Vector3 endTangent = endPosition + ToKnob.DirectionVector * 50;
 
             Handles.DrawBezier(
@@ -64,26 +64,26 @@ namespace Ashode
 
         public static bool Verify(IKnob Knob1, IKnob Knob2)
         {
-            if(Knob1 == Knob2)
+            if (Knob1 == Knob2)
                 return false;
 
-            if(Knob1.Direction == Knob2.Direction)
+            if (Knob1.Direction == Knob2.Direction)
             {
-                if(Knob1.Direction != Direction.Both)
+                if (Knob1.Direction != Direction.Both)
                     return false;
 
                 // Todo: Does this make sense for dual direction knobs?
-                if(!Knob1.Type.IsAssignableFrom(Knob2.Type) || !Knob2.Type.IsAssignableFrom(Knob1.Type))
+                if (!Knob1.Type.IsAssignableFrom(Knob2.Type) || !Knob2.Type.IsAssignableFrom(Knob1.Type))
                     return false;
             }
 
-            if(!Knob1.Available() || !Knob2.Available())
+            if (!Knob1.Available() || !Knob2.Available())
                 return false;
 
             IKnob FromKnob = Knob1.Direction == Direction.Input ? Knob2 : Knob1;
             IKnob ToKnob = FromKnob == Knob2 ? Knob1 : Knob2;
 
-            if(!FromKnob.Type.IsAssignableFrom(ToKnob.Type))
+            if (!FromKnob.Type.IsAssignableFrom(ToKnob.Type))
                 return false;
 
             return true;

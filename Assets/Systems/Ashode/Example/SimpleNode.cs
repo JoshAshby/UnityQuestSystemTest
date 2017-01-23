@@ -25,7 +25,7 @@ public class SimpleNode : Node
         GUILayout.BeginHorizontal();
             GUILayout.FlexibleSpace();
             if(GUILayout.Button("Top"))
-                AddKnob<object>(id, NodeSide.Top, allowMultiple, direction);
+                AddKnob<string>(id, NodeSide.Top, allowMultiple, direction);
             GUILayout.FlexibleSpace();
         GUILayout.EndHorizontal();
 
@@ -34,13 +34,13 @@ public class SimpleNode : Node
                 AddKnob<string>(id, NodeSide.Left, allowMultiple, direction);
             GUILayout.FlexibleSpace();
             if(GUILayout.Button("Right"))
-                AddKnob<int>(id, NodeSide.Right, allowMultiple, direction);
+                AddKnob<string>(id, NodeSide.Right, allowMultiple, direction);
         GUILayout.EndHorizontal();
 
         GUILayout.BeginHorizontal();
             GUILayout.FlexibleSpace();
             if(GUILayout.Button("Bottom"))
-                AddKnob<float>(id, NodeSide.Bottom, allowMultiple, direction);
+                AddKnob<string>(id, NodeSide.Bottom, allowMultiple, direction);
             GUILayout.FlexibleSpace();
         GUILayout.EndHorizontal();
 

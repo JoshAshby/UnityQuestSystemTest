@@ -70,27 +70,24 @@ namespace Ashode
 
         public virtual void DrawBackground()
         {
-            if(Event.current.type != EventType.Repaint)
+            if (Event.current.type != EventType.Repaint)
                 return;
 
-            float width = 1f/Theme.CanvasBackground.width;
-            float height = 1f/Theme.CanvasBackground.height;
+            float width = 1f / Theme.CanvasBackground.width;
+            float height = 1f / Theme.CanvasBackground.height;
             Vector2 offset = State.PanOffset;
 
-            Rect uvDrawRect = new Rect(-offset.x * width,
-                (offset.y - State.CanvasSize.height) * height,
-                State.CanvasSize.width * width,
-                State.CanvasSize.height * height);
+            Rect uvDrawRect = new Rect(0, 0, State.CanvasSize.width * width, State.CanvasSize.height * height);
 
             GUI.DrawTextureWithTexCoords(State.CanvasSize, Theme.CanvasBackground, uvDrawRect);
         }
 
         private void DrawCurveToMouse()
         {
-            if(State.SelectedKnob == null)
+            if (State.SelectedKnob == null)
                 return;
 
-            if(Event.current.type != EventType.Repaint)
+            if (Event.current.type != EventType.Repaint)
                 return;
 
             Vector3 PanOffset = new Vector3(State.PanOffset.x, State.PanOffset.y, 0);
@@ -103,8 +100,8 @@ namespace Ashode
             Vector3 endTangent = endPosition + Vector3.up * 50;
 
             Color color = Color.black;
-            if(State.FocusedKnob != null)
-                if(!Connection.Verify(State.SelectedKnob, State.FocusedKnob))
+            if (State.FocusedKnob != null)
+                if (!Connection.Verify(State.SelectedKnob, State.FocusedKnob))
                     color = Color.red;
                 else
                     color = Color.green;
@@ -124,7 +121,7 @@ namespace Ashode
         private void DrawNodes()
         {
             // Make sure the top node is the selected one
-            if(Event.current.type == EventType.Layout && State.SelectedNode != null)
+            if (Event.current.type == EventType.Layout && State.SelectedNode != null)
             {
                 State.Nodes.Remove(State.SelectedNode);
                 State.Nodes.Add(State.SelectedNode);
@@ -167,6 +164,9 @@ namespace Ashode
                 IKnob knob = node.Knobs.Values.FirstOrDefault(x => x.Rect.Contains(loc));
                 if (knob != null)
                     oKnob = knob;
+
+                if(oNode != null || oKnob != null)
+                    return;
             }
         }
 

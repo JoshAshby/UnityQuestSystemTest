@@ -50,7 +50,7 @@ namespace Ashode
 
         public INode AddNode(Type type, Rect pos)
         {
-            if(!(type is INode))
+            if (!(type is INode))
                 return null;
 
             INode node = (INode)Activator.CreateInstance(type, this, pos);
@@ -67,7 +67,7 @@ namespace Ashode
 
         public void RemoveNode(INode node)
         {
-            foreach(var knob in node.Knobs)
+            foreach (var knob in node.Knobs)
             {
                 node.RemoveKnob(knob.Key);
             }

@@ -23,9 +23,9 @@ namespace Ashode
         {
             CanvasBackground = AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/Systems/Ashode/Resources/Textures/Grid Background@2x.png");
 
-            InputKnob =  "Input Knob@2x";
+            InputKnob = "Input Knob@2x";
             OutputKnob = "Output Knob@2x";
-            BothKnob =   "Both Knob@2x";
+            BothKnob = "Both Knob@2x";
 
             ResizeHandle = AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/Systems/Ashode/Resources/Textures/Resize Handle@2x.png");
 
@@ -54,7 +54,7 @@ namespace Ashode
 
         public Color GetColor(string id)
         {
-            if(_colorCache.ContainsKey(id))
+            if (_colorCache.ContainsKey(id))
                 return _colorCache[id];
 
             int hash = id.GetHashCode();
