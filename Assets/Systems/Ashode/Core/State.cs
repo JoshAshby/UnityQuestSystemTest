@@ -17,15 +17,17 @@ namespace Ashode
         public List<INode> Nodes = new List<INode>();
         public List<IConnection> Connections = new List<IConnection>();
 
-        public INode SelectedNode = null;
         public INode FocusedNode = null;
+        public INode SelectedNode = null;
 
-        public IKnob SelectedKnob = null;
         public IKnob FocusedKnob = null;
+        public IKnob SelectedKnob = null;
+        public bool ExpandedKnob = false;
 
-        // Draggin, Panning and Zoom
+        // Draggin, panning, connecting and maybe eventually zoommmmmmz
         public bool Panning = false;
         public bool Dragging = false;
+        public bool Connecting = false;
 
         public Vector2 DraggingStart = Vector2.zero;
         public Vector2 DragPosition = Vector2.zero;

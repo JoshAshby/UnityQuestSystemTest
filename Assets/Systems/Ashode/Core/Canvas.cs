@@ -84,19 +84,22 @@ namespace Ashode
 
         private void DrawCurveToMouse()
         {
+            if(!State.Connecting)
+                return;
+
             if (State.SelectedKnob == null)
                 return;
 
             if (Event.current.type != EventType.Repaint)
                 return;
 
-            Vector3 PanOffset = new Vector3(State.PanOffset.x, State.PanOffset.y, 0);
+            Vector3 PanOffset = (Vector3)State.PanOffset;
 
-            Vector3 startPosition = new Vector3(State.SelectedKnob.Rect.center.x, State.SelectedKnob.Rect.center.y, 0) + PanOffset;
+            Vector3 startPosition = (Vector3)State.SelectedKnob.Rect.center + PanOffset;
             Vector3 startTangent = startPosition + State.SelectedKnob.DirectionVector * 50;
 
             Vector2 guiMouse = ScreenToCanvasSpace(Event.current.mousePosition);
-            Vector3 endPosition = new Vector3(guiMouse.x, guiMouse.y, 0) + PanOffset;
+            Vector3 endPosition = (Vector3)guiMouse + PanOffset;
             Vector3 endTangent = endPosition + Vector3.up * 50;
 
             Color color = Color.black;

@@ -12,12 +12,19 @@ namespace Ashode
         public string OutputKnob { get; }
         public string BothKnob { get; }
 
+        public Texture2D AddKnob { get; }
+        public string RemoveKnob { get; }
+
+        public string ExpandKnob { get; }
+
         public Texture2D ResizeHandle { get; }
 
         public Texture2D Line { get; }
 
         private Dictionary<string, Texture2D> _textureCache = new Dictionary<string, Texture2D>();
         private Dictionary<string, Color> _colorCache = new Dictionary<string, Color>();
+
+        public GUIStyle BlankButton { get; }
 
         public Theme()
         {
@@ -27,9 +34,19 @@ namespace Ashode
             OutputKnob = "Output Knob@2x";
             BothKnob = "Both Knob@2x";
 
+            AddKnob = AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/Systems/Ashode/Resources/Textures/Add Knob@2x.png");
+            RemoveKnob = "Remove Knob@2x";
+
+            ExpandKnob = "Expand Knob@2x";
+
             ResizeHandle = AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/Systems/Ashode/Resources/Textures/Resize Handle@2x.png");
 
             Line = AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/Systems/Ashode/Resources/Textures/AA Line@2x.png");
+
+            BlankButton = new GUIStyle();
+            BlankButton.active.background = null;
+            BlankButton.hover.background = null;
+            BlankButton.normal.background = null;
         }
 
         public Texture2D GetTexture(string name, int ccrotation, Color color)

@@ -32,48 +32,38 @@ namespace Ashode
             }
         }
 
-        // Click on knob
-        [EventHandler(EventType.MouseDown, Priority = -3)]
-        public static void HandleKnobClick(InputEvent inputEvent)
-        {
-            if (inputEvent.State.SelectedKnob == null)
-                return;
+        // // Right click on knob
+        // [EventHandler(EventType.MouseDown, Priority = -3)]
+        // public static void HandleKnobClick(InputEvent inputEvent)
+        // {
+        //     if (inputEvent.State.FocusedKnob == null)
+        //         return;
 
-            if (inputEvent.State.FocusedKnob == null)
-                return;
+        //     if (GUIUtility.hotControl > 0)
+        //         return;
 
-            if (GUIUtility.hotControl > 0)
-                return;
+        //     if (inputEvent.Event.button != 1)
+        //         return;
 
-            if (inputEvent.Event.button != 0)
-                return;
+        //     Vector2 canvasSpace = inputEvent.Canvas.ScreenToCanvasSpace(inputEvent.Event.mousePosition);
 
-            if (inputEvent.State.FocusedKnob == inputEvent.State.SelectedKnob)
-                return;
+        //     INode node = null;
+        //     IKnob knob = null;
 
-            if (inputEvent.State.FocusedKnob.Type != inputEvent.State.SelectedKnob.Type)
-                return;
+        //     inputEvent.Canvas.FindNodeOrKnobAt(canvasSpace, out node, out knob);
 
-            Vector2 canvasSpace = inputEvent.Canvas.ScreenToCanvasSpace(inputEvent.Event.mousePosition);
+        //     inputEvent.State.SelectedNode = node;
+        //     inputEvent.State.SelectedKnob = knob;
+        //     inputEvent.State.ExpandedKnob = !inputEvent.State.ExpandedKnob;
 
-            INode node = null;
-            IKnob knob = null;
+        //     inputEvent.Canvas.OnRepaint();
+        //     inputEvent.Event.Use();
 
-            inputEvent.Canvas.FindNodeOrKnobAt(canvasSpace, out node, out knob);
+        //     // if (!Connection.Verify(inputEvent.State.SelectedKnob, knob))
+        //     //     return;
 
-            if (!Connection.Verify(inputEvent.State.SelectedKnob, knob))
-                return;
-
-            inputEvent.State.Connections.Add(new Connection(inputEvent.Canvas, inputEvent.State.SelectedKnob, knob));
-
-            inputEvent.State.FocusedKnob = null;
-            inputEvent.State.SelectedKnob = knob;
-            inputEvent.State.FocusedNode = null;
-            inputEvent.State.SelectedNode = node;
-
-            inputEvent.Canvas.OnRepaint();
-            inputEvent.Event.Use();
-        }
+        //     // inputEvent.State.Connections.Add(new Connection(inputEvent.Canvas, inputEvent.State.SelectedKnob, knob));
+        // }
 
         // Click on node
         [EventHandler(EventType.MouseDown, Priority = -2)]
@@ -96,7 +86,7 @@ namespace Ashode
             inputEvent.Canvas.FindNodeOrKnobAt(canvasSpace, out node, out knob);
 
             inputEvent.State.SelectedNode = node;
-            inputEvent.State.SelectedKnob = knob;
+            // inputEvent.State.SelectedKnob = knob;
 
             updateFocus = true;
             inputEvent.Canvas.OnRepaint();
