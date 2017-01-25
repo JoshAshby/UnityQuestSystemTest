@@ -94,7 +94,7 @@ namespace Ashode
         public virtual void SetupKnobs() { }
 
         private Vector2 lastPosition;
-        private Vector2 contentOffset = new Vector2(0, 20);
+        private Vector2 contentOffset = new Vector2(0, 21);
         public virtual void DrawNodeWindow()
         {
             if (lastPosition == null)
@@ -107,6 +107,13 @@ namespace Ashode
             Rect headerRect = new Rect(nodeRect.x, nodeRect.y, nodeRect.width, contentOffset.y);
             GUI.Box(headerRect, "", GUI.skin.box);
             GUI.Label(headerRect, Title, Canvas.State.SelectedNode == this ? EditorStyles.boldLabel : EditorStyles.label);
+
+            Rect closeRect = new Rect(0, 0, 16, 16);
+            closeRect.position = new Vector2(headerRect.xMax - closeRect.width - 2, headerRect.yMin + 2);
+
+            Texture2D closeTexture = Canvas.Theme.GetTexture(Canvas.Theme.RemoveKnobName, 0, Color.red);
+
+            GUI.DrawTexture(closeRect, closeTexture);
 
             Rect bodyRect = new Rect(nodeRect.x, nodeRect.y + contentOffset.y, nodeRect.width, nodeRect.height - contentOffset.y);
             GUI.BeginGroup(bodyRect, GUI.skin.box);

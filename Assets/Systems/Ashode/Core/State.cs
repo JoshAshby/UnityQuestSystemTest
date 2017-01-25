@@ -53,7 +53,9 @@ namespace Ashode
         public List<IConnection> Connections { get { return _connections; } }
 
         public INode FocusedNode { get; set; }
-        public INode SelectedNode { get; set; }
+
+        private INode _selectedNode = null;
+        public INode SelectedNode { get { return _selectedNode; } set { _selectedNode = value; } }
 
         public IKnob FocusedKnob { get; set; }
         public IKnob SelectedKnob { get; set; }

@@ -12,13 +12,9 @@ namespace Ashode
         [EventHandler(Priority = -4)]
         public static void HandleNodeFocus(InputEvent inputEvent)
         {
-            Vector2 canvasSpace = inputEvent.Canvas.ScreenToCanvasSpace(inputEvent.Event.mousePosition);
-
-            IControl control = inputEvent.Canvas.FindControlAt(canvasSpace);
-
-            inputEvent.State.FocusedNode = control as INode;
-            inputEvent.State.FocusedKnob = control as IKnob;
-            inputEvent.State.FocusedConnection = control as IConnection;
+            inputEvent.State.FocusedNode = inputEvent.Control as INode;
+            inputEvent.State.FocusedKnob = inputEvent.Control as IKnob;
+            inputEvent.State.FocusedConnection = inputEvent.Control as IConnection;
 
             inputEvent.Canvas.OnRepaint();
 
@@ -30,59 +26,103 @@ namespace Ashode
             }
         }
 
+        // Click on connection
+        [MouseEventHandler( Priority = -3)]
+        public static void HandleConnectionClick(InputEvent inputEvent)
+        {
+            if (GUIUtility.hotControl > 0)
+                return;
+
+            IConnection connection = inputEvent.Control as IConnection;
+
+            if (connection == null)
+                return;
+
+            inputEvent.State.RemoveConnection(connection);
+            inputEvent.Event.Use();
+        }
+
+        // Finish building a connection
+        [MouseEventHandler(Priority = -2)]
+        public static void HandleMakeConnectionClick(InputEvent inputEvent)
+        {
+            if (GUIUtility.hotControl > 0)
+                return;
+
+            IKnob knob = inputEvent.Control as IKnob;
+
+            if (knob == null)
+                return;
+
+            if (inputEvent.State.ConnectedFromKnob == null)
+                return;
+
+            if (!Connection.Verify(inputEvent.State.ConnectedFromKnob, knob))
+                return;
+
+            inputEvent.State.AddConnection(inputEvent.State.ConnectedFromKnob, knob);
+            inputEvent.State.ExpandedKnob = inputEvent.State.ConnectedFromKnob;
+            inputEvent.State.ConnectedFromKnob = null;
+
+            inputEvent.Event.Use();
+        }
+
+        // Start building a connection
+        [MouseEventHandler(Priority = -1)]
+        public static void HandleStartConnectionClick(InputEvent inputEvent)
+        {
+            if (GUIUtility.hotControl > 0)
+                return;
+
+            IKnob knob = inputEvent.Control as IKnob;
+
+            if (knob == null)
+                return;
+
+            if (!knob.Available)
+                return;
+
+            if (inputEvent.State.ExpandedKnob != knob)
+                return;
+
+            inputEvent.State.ConnectedFromKnob = knob;
+            inputEvent.State.SelectedKnob = null;
+            inputEvent.State.ExpandedKnob = null;
+            inputEvent.Event.Use();
+        }
+
         // Click on node
-        [EventHandler(EventType.MouseDown, Priority = -2)]
+        [MouseEventHandler(Priority = -0)]
         public static void HandleNodeClick(InputEvent inputEvent)
         {
             if (GUIUtility.hotControl > 0)
                 return;
 
-            if (inputEvent.Event.button != 0)
+            INode node = inputEvent.Control as INode;
+            IKnob knob = inputEvent.Control as IKnob;
+
+            if(node == inputEvent.State.SelectedNode && node != null)
                 return;
 
-            Vector2 canvasSpace = inputEvent.Canvas.ScreenToCanvasSpace(inputEvent.Event.mousePosition);
+            if (inputEvent.State.FocusedNode != node && inputEvent.State.FocusedNode != null)
+                updateFocus = true;
+                // inputEvent.Event.Use();
 
-            IControl control = inputEvent.Canvas.FindControlAt(canvasSpace);
+            inputEvent.State.SelectedNode = node;
+            inputEvent.State.SelectedKnob = knob;
+            inputEvent.State.ExpandedKnob = knob;
+            inputEvent.State.ConnectedFromKnob = null;
 
-            if ((control as IConnection) != null)
-            {
-                inputEvent.State.RemoveConnection(control as IConnection);
-            }
-            else if (inputEvent.State.ConnectedFromKnob != null && (control as IKnob) != null)
-            {
-                if (Connection.Verify(inputEvent.State.ConnectedFromKnob, (control as IKnob)))
-                    inputEvent.State.AddConnection(inputEvent.State.ConnectedFromKnob, (control as IKnob));
-                    inputEvent.State.ExpandedKnob = inputEvent.State.ConnectedFromKnob;
-                    inputEvent.State.ConnectedFromKnob = null;
-            }
-            else if (inputEvent.State.ExpandedKnob == (control as IKnob) && (control as IKnob) != null && (control as IKnob).Available)
-            {
-                inputEvent.State.ConnectedFromKnob = control as IKnob;
-                inputEvent.State.SelectedKnob = null;
-                inputEvent.State.ExpandedKnob = null;
-            }
-            else
-            {
-                if (inputEvent.State.FocusedNode != inputEvent.State.SelectedNode && inputEvent.State.FocusedNode != null)
-                    updateFocus = true;
-
-                inputEvent.State.SelectedNode = control as INode;
-                inputEvent.State.SelectedKnob = control as IKnob;
-                inputEvent.State.ExpandedKnob = control as IKnob;
-                inputEvent.State.ConnectedFromKnob = null;
-            }
+            Debug.Log(inputEvent.State.SelectedNode);
 
             inputEvent.Canvas.OnRepaint();
         }
 
-        // Drag node
-        [EventHandler(EventType.MouseDown, Priority = 110)]
+        // Start dragging node
+        [MouseEventHandler(Priority = 110)]
         public static void HandleNodeDragStart(InputEvent inputEvent)
         {
             if (GUIUtility.hotControl > 0)
-                return;
-
-            if (inputEvent.Event.button != 0)
                 return;
 
             if (inputEvent.State.FocusedNode == null)
@@ -98,7 +138,8 @@ namespace Ashode
             inputEvent.Event.delta = Vector2.zero;
         }
 
-        [EventHandler(EventType.MouseDrag)]
+        // Dragging node
+        [MouseEventHandler(EventType.MouseDrag)]
         public static void HandleNodeDragging(InputEvent inputEvent)
         {
             if (!inputEvent.State.Dragging)
@@ -119,15 +160,16 @@ namespace Ashode
             inputEvent.Canvas.OnRepaint();
         }
 
-        [EventHandler(EventType.MouseDown)]
-        [EventHandler(EventType.MouseUp)]
+        // Stop dragging node
+        [MouseEventHandler(EventType.MouseDown)]
+        [MouseEventHandler(EventType.MouseUp)]
         public static void HandleNodeDragStop(InputEvent inputEvent)
         {
             inputEvent.State.Dragging = false;
         }
 
-        // Panning
-        [EventHandler(EventType.MouseDown, Priority = 100)]
+        // Start panning
+        [MouseEventHandler(Priority = 100)]
         public static void HandlePanStart(InputEvent inputEvent)
         {
             if (GUIUtility.hotControl > 0)
@@ -144,7 +186,8 @@ namespace Ashode
             inputEvent.State.DragOffset = Vector2.zero;
         }
 
-        [EventHandler(EventType.MouseDrag)]
+        // Drag panning
+        [MouseEventHandler(EventType.MouseDrag)]
         public static void HandlePanDragging(InputEvent inputEvent)
         {
             if (!inputEvent.State.Panning)
@@ -163,8 +206,9 @@ namespace Ashode
             inputEvent.Canvas.OnRepaint();
         }
 
-        [EventHandler(EventType.MouseDown)]
-        [EventHandler(EventType.MouseUp)]
+        // Stop Panning
+        [MouseEventHandler(EventType.MouseDown)]
+        [MouseEventHandler(EventType.MouseUp)]
         public static void HandlePanStop(InputEvent inputEvent)
         {
             inputEvent.State.Panning = false;

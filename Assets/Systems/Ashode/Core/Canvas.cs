@@ -137,9 +137,12 @@ namespace Ashode
         {
             IControl hit = null;
 
-            foreach (var node in State.Nodes)
+            for(int i = State.Nodes.Count-1; i >= 0; i--)
+            {
+                var node = State.Nodes[i];
                 if (node.HitTest(loc, out hit))
                     return hit;
+            }
 
             foreach (var conn in State.Connections)
                 if (conn.HitTest(loc, out hit))

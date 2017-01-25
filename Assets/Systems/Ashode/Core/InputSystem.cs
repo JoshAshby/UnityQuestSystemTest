@@ -32,8 +32,7 @@ namespace Ashode
     [AttributeUsageAttribute(AttributeTargets.Method, AllowMultiple = true)]
     public class MouseEventHandlerAttribute : Attribute
     {
-        private EventType? _eventType;
-        public EventType? EventType { get { return _eventType ?? UnityEngine.EventType.MouseDown; } set { _eventType = (EventType)value; } }
+        public EventType? EventType { get; set; }
 
         public MouseButtons Button { get; set; }
 
@@ -44,8 +43,21 @@ namespace Ashode
             set { _priority = value; }
         }
 
+        public MouseEventHandlerAttribute() { this.Button = MouseButtons.Left; }
+
         public MouseEventHandlerAttribute(MouseButtons button) { this.Button = button; }
-        public MouseEventHandlerAttribute(EventType type) { this.EventType = type; this.Button = MouseButtons.Left; }
+
+        public MouseEventHandlerAttribute(EventType type)
+        {
+            this.EventType = type;
+            this.Button = MouseButtons.Left;
+        }
+
+        public MouseEventHandlerAttribute(MouseButtons button, EventType type)
+        {
+            this.EventType = type;
+            this.Button = button;
+        }
     }
 
     [AttributeUsageAttribute(AttributeTargets.Method, AllowMultiple = true)]
@@ -206,7 +218,7 @@ namespace Ashode
 
         private bool ShouldIgnoreEvent(InputEvent inputEvent)
         {
-            return inputEvent.State.CanvasSize.Contains(inputEvent.Event.mousePosition);
+            return !inputEvent.State.CanvasSize.Contains(inputEvent.Event.mousePosition);
         }
 
         private void HandlePlainEvents(InputEvent inputEvent, bool late)
