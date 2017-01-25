@@ -29,8 +29,6 @@ public class AshodeEditor : EditorWindow
 
         INode a = state.AddNode(typeof(SimpleNode), new Rect(50, 50, 200, 100));
         a.AddKnob("a", NodeSide.Right, 1, Direction.Both, typeof(string));
-        a.AddKnob("b", NodeSide.Right, 2, Direction.Input, typeof(string));
-        a.AddKnob("c", NodeSide.Right, 2, Direction.Output, typeof(string));
 
         INode b = state.AddNode(typeof(SimpleNode), new Rect(500, 50, 200, 100));
         b.AddKnob("a", NodeSide.Left, 1, Direction.Both, typeof(string));
@@ -45,11 +43,11 @@ public class AshodeEditor : EditorWindow
         state.AddConnection(a.Knobs["a"], b.Knobs["a"]);
         state.AddConnection(a.Knobs["a"], c.Knobs["a"]);
 
-        state.AddConnection(a.Knobs["b"], b.Knobs["b"]);
-        state.AddConnection(a.Knobs["b"], c.Knobs["b"]);
+        state.AddConnection(a.Knobs["a"], b.Knobs["b"]);
+        state.AddConnection(a.Knobs["a"], c.Knobs["b"]);
 
-        state.AddConnection(a.Knobs["c"], b.Knobs["c"]);
-        state.AddConnection(a.Knobs["c"], c.Knobs["c"]);
+        state.AddConnection(a.Knobs["a"], b.Knobs["c"]);
+        state.AddConnection(a.Knobs["a"], c.Knobs["c"]);
     }
 
     private void OnDestroy()

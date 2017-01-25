@@ -265,7 +265,8 @@ namespace Ashode
             }
 
             foreach (var knob in Knobs.Values)
-                knob.HitTest(loc, out hit);
+                if(knob.HitTest(loc, out hit))
+                    return hit != null;
 
             return hit != null;
         }

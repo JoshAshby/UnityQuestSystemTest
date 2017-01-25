@@ -40,10 +40,9 @@ namespace Ashode
         bool Removable { get; set; }
 
         Type Type { get; }
+        bool Available();
 
         List<IConnection> Connections { get; }
-
-        bool Available();
         Vector2 CenterForConnection(IConnection conn);
 
         void DrawKnobWindow();
@@ -135,17 +134,6 @@ namespace Ashode
 
         public Type Type { get; internal set; }
 
-        public List<IConnection> Connections
-        {
-            get
-            {
-                return Canvas.State
-                    .Connections
-                    .Where(x => x.FromKnob == this || x.ToKnob == this)
-                    .ToList();
-            }
-        }
-
         public bool Available()
         {
             if (ConnectionLimit == 0)
@@ -155,6 +143,22 @@ namespace Ashode
                 return false;
 
             return true;
+        }
+
+        public List<IConnection> Connections
+        {
+            get
+            {
+                return Canvas.State
+                    .Connections
+                    .Where(x => x.FromKnob == this || x.ToKnob == this)
+                    .OrderBy(x => (Side == NodeSide.Top || Side == NodeSide.Bottom ?
+                    (x.ToKnob == this ? x.FromKnob.CenterForConnection(x).x : x.ToKnob.CenterForConnection(x).x)
+                    :
+                    (x.ToKnob == this ? x.FromKnob.CenterForConnection(x).y : x.ToKnob.CenterForConnection(x).y)
+                    ))
+                    .ToList();
+            }
         }
 
         public Vector2 CenterForConnection(IConnection conn)
@@ -223,12 +227,7 @@ namespace Ashode
                 return;
 
             Rect rect = new Rect(0, 0, 20, 20);
-            foreach (var conn in Connections
-                    .OrderBy(x => (Side == NodeSide.Top || Side == NodeSide.Bottom ?
-                    (x.ToKnob == this ? x.FromKnob.CenterForConnection(x).x : x.ToKnob.CenterForConnection(x).x)
-                    :
-                    (x.ToKnob == this ? x.FromKnob.CenterForConnection(x).y : x.ToKnob.CenterForConnection(x).y)
-                    )))
+            foreach (var conn in Connections)
             {
                 rect.center = CenterForConnection(conn) + Canvas.State.PanOffset;
                 GUI.DrawTexture(rect, knobTexture);
