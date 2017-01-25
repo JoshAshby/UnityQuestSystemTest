@@ -80,7 +80,7 @@ namespace Ashode
             float height = 1f / Theme.CanvasBackground.height;
             Vector2 offset = State.PanOffset;
 
-            Rect uvDrawRect = new Rect(0, 0, State.CanvasSize.width * width, State.CanvasSize.height * height);
+            Rect uvDrawRect = new Rect(-offset.x * width, (offset.y - State.CanvasSize.height) * height, State.CanvasSize.width * width, State.CanvasSize.height * height);
 
             GUI.DrawTextureWithTexCoords(State.CanvasSize, Theme.CanvasBackground, uvDrawRect);
         }

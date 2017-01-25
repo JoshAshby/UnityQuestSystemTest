@@ -249,7 +249,7 @@ namespace Ashode
             }
 
             foreach (var conn in Knobs[id].Connections)
-                conn.Parent.State.Connections.Remove(conn);
+                conn.Parent.State.RemoveConnection(conn);
 
             Knobs.Remove(id);
         }

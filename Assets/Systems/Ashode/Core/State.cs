@@ -4,7 +4,21 @@ using UnityEngine;
 
 namespace Ashode
 {
-    public class State
+    public interface IState
+    {
+        NodeCanvas Parent { get; }
+
+        INode AddNode(Type type, Rect pos);
+        void RemoveNode(INode node);
+        void RemoveNode(string id);
+
+        IConnection AddConnection(IKnob FromKnob, IKnob ToKnob);
+        IConnection AddConnection(Type type, IKnob FromKnob, IKnob ToKnob);
+        void RemoveConnection(IConnection conn);
+        void RemoveConnection(string id);
+    }
+
+    public class State : IState
     {
         public NodeCanvas Parent { get; internal set; }
 
@@ -48,11 +62,6 @@ namespace Ashode
             return node;
         }
 
-        public TNode AddNode<TNode>(Rect pos) where TNode : INode, new()
-        {
-            return (TNode)AddNode(typeof(TNode), pos);
-        }
-
         public void RemoveNode(INode node)
         {
             foreach (var knob in node.Knobs)
@@ -85,11 +94,6 @@ namespace Ashode
             Connections.Add(connection);
 
             return connection;
-        }
-
-        public TConnection AddConnection<TConnection>(IKnob FromKnob, IKnob ToKnob)
-        {
-            return (TConnection)AddConnection(typeof(TConnection), FromKnob, ToKnob);
         }
 
         public void RemoveConnection(IConnection conn)
