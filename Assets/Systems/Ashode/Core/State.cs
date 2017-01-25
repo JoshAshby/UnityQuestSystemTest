@@ -32,11 +32,13 @@ namespace Ashode
         public IKnob FocusedKnob = null;
         public IKnob SelectedKnob = null;
         public IKnob ExpandedKnob = null;
+        public IKnob ConnectedFromKnob = null;
+
+        public IConnection FocusedConnection = null;
 
         // Draggin, panning, connecting and maybe eventually zoommmmmmz
         public bool Panning = false;
         public bool Dragging = false;
-        public bool Connecting = false;
 
         public Vector2 DraggingStart = Vector2.zero;
         public Vector2 DragPosition = Vector2.zero;

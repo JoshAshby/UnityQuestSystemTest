@@ -40,7 +40,7 @@ namespace Ashode
         bool Removable { get; set; }
 
         Type Type { get; }
-        bool Available();
+        bool Available { get; }
 
         List<IConnection> Connections { get; }
         Vector2 CenterForConnection(IConnection conn);
@@ -134,15 +134,15 @@ namespace Ashode
 
         public Type Type { get; internal set; }
 
-        public bool Available()
+        public bool Available
         {
-            if (ConnectionLimit == 0)
-                return true;
+            get
+            {
+                if (ConnectionLimit == 0)
+                    return true;
 
-            if (Connections.Count <= ConnectionLimit)
-                return false;
-
-            return true;
+                return Connections.Count < ConnectionLimit;
+            }
         }
 
         public List<IConnection> Connections
@@ -216,25 +216,18 @@ namespace Ashode
                     break;
             }
 
-            Texture2D knobTexture = Canvas.Theme.GetTexture(textureName, rotation, Canvas.Theme.GetColor(Type.Name));
+            Texture2D knobTexture = null;
+            Color color = Canvas.Theme.GetColor(Type.Name);
+
+            if (Expanded && Available)
+                knobTexture = Canvas.Theme.GetTexture(Canvas.Theme.AddKnobName, 0, color);
+            else
+                knobTexture = Canvas.Theme.GetTexture(textureName, rotation, color);
 
             Rect knobRect = Rect;
             knobRect.position += Canvas.State.PanOffset;
 
             GUI.DrawTexture(knobRect, knobTexture);
-
-            if (!Expanded)
-                return;
-
-            Rect rect = new Rect(0, 0, 20, 20);
-            foreach (var conn in Connections)
-            {
-                rect.center = CenterForConnection(conn) + Canvas.State.PanOffset;
-                GUI.DrawTexture(rect, knobTexture);
-            }
-
-            rect.center += new Vector2(0, 22);
-            GUI.DrawTexture(rect, Canvas.Theme.AddKnob);
         }
 
         public bool HitTest(Vector2 loc, out IControl hit)

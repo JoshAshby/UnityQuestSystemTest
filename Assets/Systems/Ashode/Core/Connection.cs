@@ -39,7 +39,7 @@ namespace Ashode
                     return false;
             }
 
-            if (!Knob1.Available() || !Knob2.Available())
+            if (!Knob1.Available || !Knob2.Available)
                 return false;
 
             IKnob FromKnob = Knob1.Direction == Direction.Input ? Knob2 : Knob1;
@@ -79,12 +79,15 @@ namespace Ashode
             this.Type = FromKnob.Type;
         }
 
-        public void DrawConnectionWindow()
+        public virtual void DrawConnectionWindow()
         {
             Vector3 PanOffset = (Vector3)Canvas.State.PanOffset;
 
-            Vector3 startPosition = (Vector3)FromKnob.CenterForConnection(this) + PanOffset;
-            Vector3 endPosition = (Vector3)ToKnob.CenterForConnection(this) + PanOffset;
+            Vector2 startCenter = FromKnob.CenterForConnection(this) + Canvas.State.PanOffset;
+            Vector3 startPosition = (Vector3)startCenter;
+
+            Vector2 endCenter = ToKnob.CenterForConnection(this) + Canvas.State.PanOffset;
+            Vector3 endPosition = (Vector3)endCenter;
 
             Vector3 startTangent = startPosition + FromKnob.DirectionVector * 50;
             Vector3 endTangent = endPosition + ToKnob.DirectionVector * 50;
@@ -98,16 +101,78 @@ namespace Ashode
                 Canvas.Theme.Line,
                 3
             );
+
+            DrawKnob(FromKnob, startCenter);
+            DrawKnob(ToKnob, endCenter);
+        }
+
+        public void DrawKnob(IKnob knob, Vector2 center)
+        {
+            if (!knob.Expanded)
+                return;
+
+            string textureName = "";
+            if (Canvas.State.FocusedConnection == this)
+            {
+                textureName = Canvas.Theme.RemoveKnobName;
+            }
+            else
+            {
+                switch (knob.Direction)
+                {
+                    case Direction.Input:
+                        textureName = Canvas.Theme.InputKnob;
+                        break;
+
+                    case Direction.Output:
+                        textureName = Canvas.Theme.OutputKnob;
+                        break;
+
+                    case Direction.Both:
+                        textureName = Canvas.Theme.BothKnob;
+                        break;
+                }
+            }
+
+            int rotation = 0;
+            switch (knob.Side)
+            {
+                case NodeSide.Bottom:
+                    rotation = 1;
+                    break;
+
+                case NodeSide.Right:
+                    rotation = 2;
+                    break;
+
+                case NodeSide.Top:
+                    rotation = 3;
+                    break;
+            }
+
+            Texture2D knobTexture = null;
+            Color color = Canvas.Theme.GetColor(Type.Name);
+
+            knobTexture = Canvas.Theme.GetTexture(textureName, rotation, color);
+
+            Rect knobRect = new Rect(0, 0, 20, 20);
+            knobRect.center = center;
+
+            GUI.DrawTexture(knobRect, knobTexture);
         }
 
         public bool HitTest(Vector2 loc, out IControl hit)
         {
             hit = null;
 
-            if (FromKnob.Rect.Contains(loc))
+            Rect rect = new Rect(0, 0, 20, 20);
+
+            rect.center = FromKnob.CenterForConnection(this);
+            if (rect.Contains(loc))
                 hit = this;
 
-            if (ToKnob.Rect.Contains(loc))
+            rect.center = ToKnob.CenterForConnection(this);
+            if (rect.Contains(loc))
                 hit = this;
 
             return hit != null;

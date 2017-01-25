@@ -87,10 +87,7 @@ namespace Ashode
 
         private void DrawCurveToMouse()
         {
-            if (!State.Connecting)
-                return;
-
-            if (State.SelectedKnob == null)
+            if (State.ConnectedFromKnob == null)
                 return;
 
             if (Event.current.type != EventType.Repaint)
@@ -98,8 +95,8 @@ namespace Ashode
 
             Vector3 PanOffset = (Vector3)State.PanOffset;
 
-            Vector3 startPosition = (Vector3)State.SelectedKnob.Rect.center + PanOffset;
-            Vector3 startTangent = startPosition + State.SelectedKnob.DirectionVector * 50;
+            Vector3 startPosition = (Vector3)State.ConnectedFromKnob.Rect.center + PanOffset;
+            Vector3 startTangent = startPosition + State.ConnectedFromKnob.DirectionVector * 50;
 
             Vector2 guiMouse = ScreenToCanvasSpace(Event.current.mousePosition);
             Vector3 endPosition = (Vector3)guiMouse + PanOffset;
@@ -107,7 +104,7 @@ namespace Ashode
 
             Color color = Color.black;
             if (State.FocusedKnob != null)
-                if (!Connection.Verify(State.SelectedKnob, State.FocusedKnob))
+                if (!Connection.Verify(State.ConnectedFromKnob, State.FocusedKnob))
                     color = Color.red;
                 else
                     color = Color.green;

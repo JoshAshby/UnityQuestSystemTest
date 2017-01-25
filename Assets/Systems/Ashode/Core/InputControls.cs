@@ -18,6 +18,7 @@ namespace Ashode
 
             inputEvent.State.FocusedNode = control as INode;
             inputEvent.State.FocusedKnob = control as IKnob;
+            inputEvent.State.FocusedConnection = control as IConnection;
 
             inputEvent.Canvas.OnRepaint();
 
@@ -39,20 +40,38 @@ namespace Ashode
             if (inputEvent.Event.button != 0)
                 return;
 
-            if (inputEvent.State.FocusedNode == inputEvent.State.SelectedNode && inputEvent.State.FocusedNode != null)
-                return;
-
             Vector2 canvasSpace = inputEvent.Canvas.ScreenToCanvasSpace(inputEvent.Event.mousePosition);
 
             IControl control = inputEvent.Canvas.FindControlAt(canvasSpace);
 
-            inputEvent.State.SelectedNode = control as INode;
-            inputEvent.State.SelectedKnob = control as IKnob;
-            inputEvent.State.ExpandedKnob = control as IKnob;
+            if ((control as IConnection) != null)
+            {
+                inputEvent.State.RemoveConnection(control as IConnection);
+            }
+            else if (inputEvent.State.ConnectedFromKnob != null && (control as IKnob) != null)
+            {
+                if (Connection.Verify(inputEvent.State.ConnectedFromKnob, (control as IKnob)))
+                    inputEvent.State.AddConnection(inputEvent.State.ConnectedFromKnob, (control as IKnob));
+                    inputEvent.State.ExpandedKnob = inputEvent.State.ConnectedFromKnob;
+                    inputEvent.State.ConnectedFromKnob = null;
+            }
+            else if (inputEvent.State.ExpandedKnob == (control as IKnob) && (control as IKnob) != null && (control as IKnob).Available)
+            {
+                inputEvent.State.ConnectedFromKnob = control as IKnob;
+                inputEvent.State.SelectedKnob = null;
+                inputEvent.State.ExpandedKnob = null;
+            }
+            else
+            {
+                if (inputEvent.State.FocusedNode != inputEvent.State.SelectedNode && inputEvent.State.FocusedNode != null)
+                    updateFocus = true;
 
-            Debug.Log(control);
+                inputEvent.State.SelectedNode = control as INode;
+                inputEvent.State.SelectedKnob = control as IKnob;
+                inputEvent.State.ExpandedKnob = control as IKnob;
+                inputEvent.State.ConnectedFromKnob = null;
+            }
 
-            updateFocus = true;
             inputEvent.Canvas.OnRepaint();
         }
 
@@ -156,6 +175,10 @@ namespace Ashode
         [HotkeyHandler(KeyCode.DownArrow, EventType.KeyDown)]
         [HotkeyHandler(KeyCode.LeftArrow, EventType.KeyDown)]
         [HotkeyHandler(KeyCode.RightArrow, EventType.KeyDown)]
+        [HotkeyHandler(KeyCode.W, EventType.KeyDown)]
+        [HotkeyHandler(KeyCode.S, EventType.KeyDown)]
+        [HotkeyHandler(KeyCode.A, EventType.KeyDown)]
+        [HotkeyHandler(KeyCode.D, EventType.KeyDown)]
         public static void HandleKeyboardNav(InputEvent inputEvent)
         {
             if (inputEvent.State.SelectedNode != null)
@@ -165,18 +188,22 @@ namespace Ashode
             switch (inputEvent.Event.keyCode)
             {
                 case KeyCode.UpArrow:
+                case KeyCode.W:
                     inputEvent.State.PanOffset += new Vector2(0, -shiftAmount);
                     break;
 
                 case KeyCode.DownArrow:
+                case KeyCode.S:
                     inputEvent.State.PanOffset += new Vector2(0, shiftAmount);
                     break;
 
                 case KeyCode.LeftArrow:
+                case KeyCode.A:
                     inputEvent.State.PanOffset += new Vector2(-shiftAmount, 0);
                     break;
 
                 case KeyCode.RightArrow:
+                case KeyCode.D:
                     inputEvent.State.PanOffset += new Vector2(shiftAmount, 0);
                     break;
             }

@@ -12,6 +12,9 @@ namespace Ashode
         public string OutputKnob { get; }
         public string BothKnob { get; }
 
+        public string AddKnobName { get; }
+        public string RemoveKnobName { get; }
+
         public Texture2D AddKnob { get; }
         public Texture2D RemoveKnob { get; }
 
@@ -29,6 +32,9 @@ namespace Ashode
             InputKnob = "Input Knob@2x";
             OutputKnob = "Output Knob@2x";
             BothKnob = "Both Knob@2x";
+
+            AddKnobName = "Add Knob@2x";
+            RemoveKnobName = "Remove Knob@2x";
 
             AddKnob = AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/Systems/Ashode/Resources/Textures/Add Knob@2x.png");
             RemoveKnob = AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/Systems/Ashode/Resources/Textures/Remove Knob@2x.png");
