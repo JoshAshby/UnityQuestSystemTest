@@ -43,20 +43,28 @@ namespace Ashode
             set { _priority = value; }
         }
 
-        public MouseEventHandlerAttribute() { this.Button = MouseButtons.Left; }
+        public MouseEventHandlerAttribute()
+        {
+            this.Button = MouseButtons.Left;
+            this.EventType = UnityEngine.EventType.MouseDown;
+        }
 
-        public MouseEventHandlerAttribute(MouseButtons button) { this.Button = button; }
+        public MouseEventHandlerAttribute(MouseButtons button)
+        {
+            this.Button = button;
+            this.EventType = UnityEngine.EventType.MouseDown;
+        }
 
         public MouseEventHandlerAttribute(EventType type)
         {
-            this.EventType = type;
             this.Button = MouseButtons.Left;
+            this.EventType = type;
         }
 
         public MouseEventHandlerAttribute(MouseButtons button, EventType type)
         {
-            this.EventType = type;
             this.Button = button;
+            this.EventType = type;
         }
     }
 
@@ -218,11 +226,13 @@ namespace Ashode
 
         private bool ShouldIgnoreEvent(InputEvent inputEvent)
         {
-            return !inputEvent.State.CanvasSize.Contains(inputEvent.Event.mousePosition);
+            // return !inputEvent.State.CanvasSize.Contains(inputEvent.Event.mousePosition);
+            return false;
         }
 
         private void HandlePlainEvents(InputEvent inputEvent, bool late)
         {
+
             var attrInfos = EventAttributeInfos
                 .Where(x => late ? x.Priority >= 100 : x.Priority < 100)
                 .Where(x => x.EventType == null || x.EventType == inputEvent.Type);
@@ -238,7 +248,10 @@ namespace Ashode
 
         private void HandleMouseEvents(InputEvent inputEvent, bool late)
         {
-            if (inputEvent.Type != EventType.MouseDown || inputEvent.Type != EventType.MouseUp)
+            if (inputEvent.Type == EventType.Used)
+                return;
+
+            if (!inputEvent.Event.isMouse)
                 return;
 
             var attrInfos = MouseEventAttributeInfos
@@ -257,7 +270,10 @@ namespace Ashode
 
         private void HandleHotkeyEvents(InputEvent inputEvent, bool late)
         {
-            if (inputEvent.Type != EventType.KeyDown || inputEvent.Type != EventType.KeyUp)
+            if (inputEvent.Type == EventType.Used)
+                return;
+
+            if (!inputEvent.Event.isKey)
                 return;
 
             var attrInfos = HotkeyAttributeInfos

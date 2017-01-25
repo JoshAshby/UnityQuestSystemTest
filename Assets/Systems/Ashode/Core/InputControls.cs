@@ -26,8 +26,18 @@ namespace Ashode
             }
         }
 
+        [MouseEventHandler(Priority = -5)]
+        [HotkeyHandler(KeyCode.Escape)]
+        public static void HandleNullClick(InputEvent inputEvent)
+        {
+            if (inputEvent.Control != null && !inputEvent.Event.isKey)
+                return;
+
+            updateFocus = true;
+        }
+
         // Click on connection
-        [MouseEventHandler( Priority = -3)]
+        [MouseEventHandler(Priority = -4)]
         public static void HandleConnectionClick(InputEvent inputEvent)
         {
             if (GUIUtility.hotControl > 0)
@@ -43,7 +53,7 @@ namespace Ashode
         }
 
         // Finish building a connection
-        [MouseEventHandler(Priority = -2)]
+        [MouseEventHandler(Priority = -3)]
         public static void HandleMakeConnectionClick(InputEvent inputEvent)
         {
             if (GUIUtility.hotControl > 0)
@@ -68,7 +78,7 @@ namespace Ashode
         }
 
         // Start building a connection
-        [MouseEventHandler(Priority = -1)]
+        [MouseEventHandler(Priority = -2)]
         public static void HandleStartConnectionClick(InputEvent inputEvent)
         {
             if (GUIUtility.hotControl > 0)
@@ -91,6 +101,25 @@ namespace Ashode
             inputEvent.Event.Use();
         }
 
+        // Click on knob
+        [MouseEventHandler(Priority = -1)]
+        public static void HandleKnobClick(InputEvent inputEvent)
+        {
+            if (GUIUtility.hotControl > 0)
+                return;
+
+            IKnob knob = inputEvent.Control as IKnob;
+
+            if (knob == null)
+                return;
+
+            inputEvent.State.SelectedKnob = knob;
+            inputEvent.State.ExpandedKnob = knob;
+            inputEvent.State.ConnectedFromKnob = null;
+
+            inputEvent.Event.Use();
+        }
+
         // Click on node
         [MouseEventHandler(Priority = -0)]
         public static void HandleNodeClick(InputEvent inputEvent)
@@ -99,21 +128,20 @@ namespace Ashode
                 return;
 
             INode node = inputEvent.Control as INode;
-            IKnob knob = inputEvent.Control as IKnob;
 
-            if(node == inputEvent.State.SelectedNode && node != null)
+            if (node == inputEvent.State.SelectedNode && node != null)
                 return;
 
             if (inputEvent.State.FocusedNode != node && inputEvent.State.FocusedNode != null)
+            {
                 updateFocus = true;
-                // inputEvent.Event.Use();
+                inputEvent.Event.Use();
+            }
 
             inputEvent.State.SelectedNode = node;
-            inputEvent.State.SelectedKnob = knob;
-            inputEvent.State.ExpandedKnob = knob;
+            inputEvent.State.SelectedKnob = null;
+            inputEvent.State.ExpandedKnob = null;
             inputEvent.State.ConnectedFromKnob = null;
-
-            Debug.Log(inputEvent.State.SelectedNode);
 
             inputEvent.Canvas.OnRepaint();
         }

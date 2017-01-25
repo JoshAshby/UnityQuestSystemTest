@@ -94,7 +94,7 @@ namespace Ashode
         public virtual void SetupKnobs() { }
 
         private Vector2 lastPosition;
-        private Vector2 contentOffset = new Vector2(0, 21);
+        private Vector2 contentOffset = new Vector2(0, 20);
         public virtual void DrawNodeWindow()
         {
             if (lastPosition == null)
