@@ -63,7 +63,7 @@ namespace Ashode
     {
         public Event Event;
 
-        public Canvas Canvas;
+        public NodeCanvas Canvas;
         public State State { get { return Canvas.State; } }
     }
 
@@ -132,7 +132,7 @@ namespace Ashode
             HotkeyAttributeInfos.Sort((a, b) => a.Priority.CompareTo(b.Priority));
         }
 
-        public void HandleEvents(Canvas canvas, bool late)
+        public void HandleEvents(NodeCanvas canvas, bool late)
         {
             InputEvent inputEvent = new InputEvent { Event = Event.current, Canvas = canvas };
 

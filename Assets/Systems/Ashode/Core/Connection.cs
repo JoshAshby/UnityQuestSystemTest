@@ -4,10 +4,13 @@ using UnityEngine;
 
 namespace Ashode
 {
-    public interface IConnection
+    public interface IConnection : IControl
     {
-        ICanvas Parent { get; }
-        ICanvas Canvas { get; }
+        INodeCanvas Parent { get; }
+        INodeCanvas Canvas { get; }
+        State State { get; }
+
+        string ID { get; set; }
 
         IKnob FromKnob { get; set; }
         INode FromNode { get; }
@@ -21,8 +24,43 @@ namespace Ashode
 
     public class Connection : IConnection
     {
-        public ICanvas Parent { get; internal set; }
-        public ICanvas Canvas { get { return Parent; } }
+        public static bool Verify(IKnob Knob1, IKnob Knob2)
+        {
+            if (Knob1 == Knob2)
+                return false;
+
+            if (Knob1.Direction == Knob2.Direction)
+            {
+                if (Knob1.Direction != Direction.Both)
+                    return false;
+
+                // Todo: Does this make sense for dual direction knobs?
+                if (!Knob1.Type.IsAssignableFrom(Knob2.Type) || !Knob2.Type.IsAssignableFrom(Knob1.Type))
+                    return false;
+            }
+
+            if (!Knob1.Available() || !Knob2.Available())
+                return false;
+
+            IKnob FromKnob = Knob1.Direction == Direction.Input ? Knob2 : Knob1;
+            IKnob ToKnob = FromKnob == Knob2 ? Knob1 : Knob2;
+
+            if (!FromKnob.Type.IsAssignableFrom(ToKnob.Type))
+                return false;
+
+            return true;
+        }
+
+        public INodeCanvas Parent { get; internal set; }
+        public INodeCanvas Canvas { get { return Parent; } }
+        public State State { get { return Canvas.State; } }
+
+        private string _id = Guid.NewGuid().ToString();
+        public string ID
+        {
+            get { return _id; }
+            set { _id = value; }
+        }
 
         public IKnob FromKnob { get; set; }
         public INode FromNode { get { return FromKnob.Parent; } }
@@ -31,7 +69,7 @@ namespace Ashode
 
         public Type Type { get; }
 
-        public Connection(Canvas canvas, IKnob FromKnob, IKnob ToKnob)
+        public Connection(NodeCanvas canvas, IKnob FromKnob, IKnob ToKnob)
         {
             this.Parent = canvas;
 
@@ -62,31 +100,17 @@ namespace Ashode
             );
         }
 
-        public static bool Verify(IKnob Knob1, IKnob Knob2)
+        public bool HitTest(Vector2 loc, out IControl hit)
         {
-            if (Knob1 == Knob2)
-                return false;
+            hit = null;
 
-            if (Knob1.Direction == Knob2.Direction)
-            {
-                if (Knob1.Direction != Direction.Both)
-                    return false;
+            if (FromKnob.Rect.Contains(loc))
+                hit = this;
 
-                // Todo: Does this make sense for dual direction knobs?
-                if (!Knob1.Type.IsAssignableFrom(Knob2.Type) || !Knob2.Type.IsAssignableFrom(Knob1.Type))
-                    return false;
-            }
+            if (ToKnob.Rect.Contains(loc))
+                hit = this;
 
-            if (!Knob1.Available() || !Knob2.Available())
-                return false;
-
-            IKnob FromKnob = Knob1.Direction == Direction.Input ? Knob2 : Knob1;
-            IKnob ToKnob = FromKnob == Knob2 ? Knob1 : Knob2;
-
-            if (!FromKnob.Type.IsAssignableFrom(ToKnob.Type))
-                return false;
-
-            return true;
+            return hit != null;
         }
     }
 }

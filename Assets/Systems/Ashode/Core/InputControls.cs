@@ -14,13 +14,10 @@ namespace Ashode
         {
             Vector2 canvasSpace = inputEvent.Canvas.ScreenToCanvasSpace(inputEvent.Event.mousePosition);
 
-            INode node = null;
-            IKnob knob = null;
+            IControl control = inputEvent.Canvas.FindControlAt(canvasSpace);
 
-            inputEvent.Canvas.FindNodeOrKnobAt(canvasSpace, out node, out knob);
-
-            inputEvent.State.FocusedNode = node;
-            inputEvent.State.FocusedKnob = knob;
+            inputEvent.State.FocusedNode = control as INode;
+            inputEvent.State.FocusedKnob = control as IKnob;
 
             inputEvent.Canvas.OnRepaint();
 
@@ -31,39 +28,6 @@ namespace Ashode
                 GUIUtility.keyboardControl = 0;
             }
         }
-
-        // // Right click on knob
-        // [EventHandler(EventType.MouseDown, Priority = -3)]
-        // public static void HandleKnobClick(InputEvent inputEvent)
-        // {
-        //     if (inputEvent.State.FocusedKnob == null)
-        //         return;
-
-        //     if (GUIUtility.hotControl > 0)
-        //         return;
-
-        //     if (inputEvent.Event.button != 1)
-        //         return;
-
-        //     Vector2 canvasSpace = inputEvent.Canvas.ScreenToCanvasSpace(inputEvent.Event.mousePosition);
-
-        //     INode node = null;
-        //     IKnob knob = null;
-
-        //     inputEvent.Canvas.FindNodeOrKnobAt(canvasSpace, out node, out knob);
-
-        //     inputEvent.State.SelectedNode = node;
-        //     inputEvent.State.SelectedKnob = knob;
-        //     inputEvent.State.ExpandedKnob = !inputEvent.State.ExpandedKnob;
-
-        //     inputEvent.Canvas.OnRepaint();
-        //     inputEvent.Event.Use();
-
-        //     // if (!Connection.Verify(inputEvent.State.SelectedKnob, knob))
-        //     //     return;
-
-        //     // inputEvent.State.Connections.Add(new Connection(inputEvent.Canvas, inputEvent.State.SelectedKnob, knob));
-        // }
 
         // Click on node
         [EventHandler(EventType.MouseDown, Priority = -2)]
@@ -80,13 +44,13 @@ namespace Ashode
 
             Vector2 canvasSpace = inputEvent.Canvas.ScreenToCanvasSpace(inputEvent.Event.mousePosition);
 
-            INode node = null;
-            IKnob knob = null;
+            IControl control = inputEvent.Canvas.FindControlAt(canvasSpace);
 
-            inputEvent.Canvas.FindNodeOrKnobAt(canvasSpace, out node, out knob);
+            inputEvent.State.SelectedNode = control as INode;
+            inputEvent.State.SelectedKnob = control as IKnob;
+            inputEvent.State.ExpandedKnob = control as IKnob;
 
-            inputEvent.State.SelectedNode = node;
-            // inputEvent.State.SelectedKnob = knob;
+            Debug.Log(control);
 
             updateFocus = true;
             inputEvent.Canvas.OnRepaint();

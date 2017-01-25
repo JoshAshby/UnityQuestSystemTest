@@ -1,6 +1,6 @@
-using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
+using Ashode;
 
 public class AshodeEditor : EditorWindow
 {
@@ -8,7 +8,7 @@ public class AshodeEditor : EditorWindow
     public static AshodeEditor editor { get { AssureEditor(); return _editor; } }
     public static void AssureEditor() { if (_editor == null) OpenEditor(); }
 
-    private Ashode.Canvas Canvas;
+    private NodeCanvas Canvas;
 
     [MenuItem("Window/Ashode/Example Editor")]
     public static AshodeEditor OpenEditor()
@@ -21,26 +21,35 @@ public class AshodeEditor : EditorWindow
 
     private void Setup()
     {
-        Canvas = new Ashode.Canvas();
+        Canvas = new NodeCanvas();
         Canvas.Repaint += Repaint;
 
-        Ashode.State state = new Ashode.State(Canvas);
+        State state = new State(Canvas);
         Canvas.State = state;
 
-        state.Nodes.AddRange(new List<Ashode.INode> {
-            new SimpleNode(state, new Rect(50, 50, 200, 100)),
-            new SimpleNode(state, new Rect(500, 50, 200, 100)),
-            new SimpleNode(state, new Rect(500, 300, 200, 100))
-        });
+        INode a = state.AddNode(typeof(SimpleNode), new Rect(50, 50, 200, 100));
+        a.AddKnob("a", NodeSide.Right, 1, Direction.Both, typeof(string));
+        a.AddKnob("b", NodeSide.Right, 2, Direction.Input, typeof(string));
+        a.AddKnob("c", NodeSide.Right, 2, Direction.Output, typeof(string));
 
-        Ashode.IKnob a = state.Nodes[0].AddKnob("a", Ashode.NodeSide.Right, true, Ashode.Direction.Both, typeof(string));
-        Ashode.IKnob b = state.Nodes[1].AddKnob("b", Ashode.NodeSide.Left, true, Ashode.Direction.Both, typeof(string));
-        Ashode.IKnob c = state.Nodes[2].AddKnob("c", Ashode.NodeSide.Left, true, Ashode.Direction.Both, typeof(string));
+        INode b = state.AddNode(typeof(SimpleNode), new Rect(500, 50, 200, 100));
+        b.AddKnob("a", NodeSide.Left, 1, Direction.Both, typeof(string));
+        b.AddKnob("b", NodeSide.Bottom, 1, Direction.Input, typeof(string));
+        b.AddKnob("c", NodeSide.Left, 1, Direction.Output, typeof(string));
 
-        state.Connections.AddRange(new List<Ashode.IConnection> {
-            new Ashode.Connection(Canvas, a, b),
-            new Ashode.Connection(Canvas, a, c)
-        });
+        INode c = state.AddNode(typeof(SimpleNode), new Rect(500, 400, 200, 100));
+        c.AddKnob("a", NodeSide.Left, 1, Direction.Both, typeof(string));
+        c.AddKnob("b", NodeSide.Top, 1, Direction.Input, typeof(string));
+        c.AddKnob("c", NodeSide.Left, 1, Direction.Output, typeof(string));
+
+        state.AddConnection(a.Knobs["a"], b.Knobs["a"]);
+        state.AddConnection(a.Knobs["a"], c.Knobs["a"]);
+
+        state.AddConnection(a.Knobs["b"], b.Knobs["b"]);
+        state.AddConnection(a.Knobs["b"], c.Knobs["b"]);
+
+        state.AddConnection(a.Knobs["c"], b.Knobs["c"]);
+        state.AddConnection(a.Knobs["c"], c.Knobs["c"]);
     }
 
     private void OnDestroy()
@@ -53,6 +62,6 @@ public class AshodeEditor : EditorWindow
         if (Canvas == null)
             Setup();
 
-        Canvas.Draw(GUILayoutUtility.GetRect(600, 600));
+        Canvas.Draw(GUILayoutUtility.GetRect(600, 900));
     }
 }

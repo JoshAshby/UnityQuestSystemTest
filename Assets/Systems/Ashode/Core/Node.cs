@@ -6,10 +6,11 @@ using UnityEngine;
 
 namespace Ashode
 {
-    public interface INode
+    public interface INode : IControl
     {
-        State Parent { get; }
-        ICanvas Canvas { get; }
+        INodeCanvas Parent { get; }
+        INodeCanvas Canvas { get; }
+        State State { get; }
 
         string ID { get; set; }
         Rect Rect { get; set; }
@@ -30,15 +31,16 @@ namespace Ashode
         void DrawKnob(string id);
         void DrawKnob(string id, float position);
 
-        IKnob AddKnob(string id, NodeSide side, bool multiple, Direction direction, Type TAccept);
-        IKnob AddKnob<TAccept>(string id, NodeSide side, bool multiple, Direction direction);
+        IKnob AddKnob(string id, NodeSide side, int limit, Direction direction, Type TAccept);
+        IKnob AddKnob<TAccept>(string id, NodeSide side, int limit, Direction direction);
         void RemoveKnob(string id);
     }
 
     public abstract class Node : INode
     {
-        public State Parent { get; internal set; }
-        public ICanvas Canvas { get { return Parent.Parent; } }
+        public INodeCanvas Parent { get; internal set; }
+        public INodeCanvas Canvas { get { return Parent; } }
+        public State State { get { return Canvas.State; } }
 
         private Vector2 _minSize = new Vector2(200, 100);
         public Vector2 MinSize
@@ -82,7 +84,7 @@ namespace Ashode
             set { _knobs = value; }
         }
 
-        public Node(State parent)
+        public Node(INodeCanvas parent)
         {
             this.Parent = parent;
 
@@ -216,37 +218,56 @@ namespace Ashode
             knob.Rect = knobRect;
         }
 
-        public IKnob AddKnob(string id, NodeSide side, bool multiple, Direction direction, Type TAccept)
+        public IKnob AddKnob(string id, NodeSide side, int limit, Direction direction, Type TAccept)
         {
-            IKnob knob = new Knob {
+            IKnob knob = new Knob
+            {
                 ID = id,
-                AllowMultiple = multiple,
+                ConnectionLimit = limit,
                 Side = side,
                 Direction = direction,
                 Type = TAccept,
                 Parent = this
             };
+
             Knobs.Add(id, knob);
             return knob;
         }
 
-        public IKnob AddKnob<TAccept>(string id, NodeSide side, bool multiple, Direction direction)
+        public IKnob AddKnob<TAccept>(string id, NodeSide side, int limit, Direction direction)
         {
-            return AddKnob(id, side, multiple, direction, typeof(TAccept));
+            return AddKnob(id, side, limit, direction, typeof(TAccept));
         }
 
         public void RemoveKnob(string id)
         {
             // TODO: Throw an error or debug at least if removing a non-removable knob?
-            if(!Knobs[id].Removable)
-                return;
-
-            foreach(var conn in Knobs[id].Connections)
+            if (!Knobs[id].Removable)
             {
-                conn.Parent.State.Connections.Remove(conn);
+                Debug.LogErrorFormat("Can't remove a non-removable knob: {0}", id);
+                return;
             }
 
+            foreach (var conn in Knobs[id].Connections)
+                conn.Parent.State.Connections.Remove(conn);
+
             Knobs.Remove(id);
+        }
+
+        public bool HitTest(Vector2 loc, out IControl hit)
+        {
+            hit = null;
+
+            if (Rect.Contains(loc))
+            {
+                hit = this;
+                return true;
+            }
+
+            foreach (var knob in Knobs.Values)
+                knob.HitTest(loc, out hit);
+
+            return hit != null;
         }
     }
 }

@@ -5,7 +5,12 @@ using UnityEngine;
 
 namespace Ashode
 {
-    public interface ICanvas
+    public interface IControl
+    {
+        bool HitTest(Vector2 loc, out IControl hit);
+    }
+
+    public interface INodeCanvas
     {
         State State { get; set; }
         InputSystem InputSystem { get; set; }
@@ -21,13 +26,11 @@ namespace Ashode
         void Draw(Rect canvasRect);
         void DrawBackground();
 
-        INode FindNodeAt(Vector2 loc);
-        IKnob FindKnobAt(Vector2 loc);
-        void FindNodeOrKnobAt(Vector2 loc, out INode oNode, out IKnob oKnob);
+        IControl FindControlAt(Vector2 loc);
         Vector2 ScreenToCanvasSpace(Vector2 screenPos);
     }
 
-    public class Canvas : ICanvas
+    public class NodeCanvas : INodeCanvas
     {
         public State State { get; set; }
 
@@ -84,7 +87,7 @@ namespace Ashode
 
         private void DrawCurveToMouse()
         {
-            if(!State.Connecting)
+            if (!State.Connecting)
                 return;
 
             if (State.SelectedKnob == null)
@@ -116,9 +119,7 @@ namespace Ashode
         private void DrawConnections()
         {
             foreach (var connection in State.Connections)
-            {
                 connection.DrawConnectionWindow();
-            }
         }
 
         private void DrawNodes()
@@ -131,46 +132,23 @@ namespace Ashode
             }
 
             foreach (var node in State.Nodes)
-            {
                 node.DrawNodeWindow();
-            }
         }
 
         // Helpers
-        public INode FindNodeAt(Vector2 loc)
+        public IControl FindControlAt(Vector2 loc)
         {
-            return State.Nodes.FirstOrDefault(x => x.Rect.Contains(loc));
-        }
-
-        public IKnob FindKnobAt(Vector2 loc)
-        {
-            foreach (var node in State.Nodes)
-            {
-                IKnob knob = node.Knobs.Values.FirstOrDefault(x => x.Rect.Contains(loc));
-                if (knob != null)
-                    return knob;
-            }
-
-            return null;
-        }
-
-        public void FindNodeOrKnobAt(Vector2 loc, out INode oNode, out IKnob oKnob)
-        {
-            oNode = null;
-            oKnob = null;
+            IControl hit = null;
 
             foreach (var node in State.Nodes)
-            {
-                if (node.Rect.Contains(loc))
-                    oNode = node;
+                if (node.HitTest(loc, out hit))
+                    return hit;
 
-                IKnob knob = node.Knobs.Values.FirstOrDefault(x => x.Rect.Contains(loc));
-                if (knob != null)
-                    oKnob = knob;
+            foreach (var conn in State.Connections)
+                if (conn.HitTest(loc, out hit))
+                    return hit;
 
-                if(oNode != null || oKnob != null)
-                    return;
-            }
+            return hit;
         }
 
         public Vector2 ScreenToCanvasSpace(Vector2 screenPos)

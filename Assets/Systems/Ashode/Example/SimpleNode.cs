@@ -7,10 +7,10 @@ public class SimpleNode : Node
 {
     private string id = "";
 
-    bool allowMultiple = false;
+    int limit = 1;
     Direction direction = Direction.Both;
 
-    public SimpleNode(State state, Rect rect) : base(state)
+    public SimpleNode(INodeCanvas parent, Rect rect) : base(parent)
     {
         this.Rect = rect;
     }
@@ -18,29 +18,29 @@ public class SimpleNode : Node
     public override void OnGUI()
     {
         GUILayout.BeginVertical();
-        allowMultiple = GUILayout.Toggle(allowMultiple, "Allow Multiple?");
+        limit = EditorGUILayout.IntField("Limit", limit);
         direction = (Direction) EditorGUILayout.EnumPopup("Direction", direction);
         GUILayout.EndVertical();
 
         GUILayout.BeginHorizontal();
             GUILayout.FlexibleSpace();
             if(GUILayout.Button("Top"))
-                AddKnob<string>(id, NodeSide.Top, allowMultiple, direction);
+                AddKnob<string>(id, NodeSide.Top, limit, direction);
             GUILayout.FlexibleSpace();
         GUILayout.EndHorizontal();
 
         GUILayout.BeginHorizontal();
             if(GUILayout.Button("Left"))
-                AddKnob<string>(id, NodeSide.Left, allowMultiple, direction);
+                AddKnob<string>(id, NodeSide.Left, limit, direction);
             GUILayout.FlexibleSpace();
             if(GUILayout.Button("Right"))
-                AddKnob<string>(id, NodeSide.Right, allowMultiple, direction);
+                AddKnob<string>(id, NodeSide.Right, limit, direction);
         GUILayout.EndHorizontal();
 
         GUILayout.BeginHorizontal();
             GUILayout.FlexibleSpace();
             if(GUILayout.Button("Bottom"))
-                AddKnob<string>(id, NodeSide.Bottom, allowMultiple, direction);
+                AddKnob<string>(id, NodeSide.Bottom, limit, direction);
             GUILayout.FlexibleSpace();
         GUILayout.EndHorizontal();
 

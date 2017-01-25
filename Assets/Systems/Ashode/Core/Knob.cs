@@ -20,21 +20,23 @@ namespace Ashode
         Both
     }
 
-    public interface IKnob
+    public interface IKnob : IControl
     {
         INode Parent { get; }
-        ICanvas Canvas { get; }
+        INodeCanvas Canvas { get; }
+        State State { get; }
 
         string ID { get; set; }
 
         Rect Rect { get; set; }
         float Offset { get; set; }
+        bool Expanded { get; }
 
         NodeSide Side { get; set; }
         Vector3 DirectionVector { get; }
 
         Direction Direction { get; set; }
-        bool AllowMultiple { get; set; }
+        int ConnectionLimit { get; set; }
         bool Removable { get; set; }
 
         Type Type { get; }
@@ -50,7 +52,8 @@ namespace Ashode
     public class Knob : IKnob
     {
         public INode Parent { get; internal set; }
-        public ICanvas Canvas { get { return Parent.Parent.Parent; } }
+        public INodeCanvas Canvas { get { return Parent.Parent; } }
+        public State State { get { return Canvas.State; } }
 
         private string _id = Guid.NewGuid().ToString();
         public string ID
@@ -71,6 +74,11 @@ namespace Ashode
         {
             get { return _offset; }
             set { _offset = value; }
+        }
+
+        public bool Expanded
+        {
+            get { return Canvas.State.ExpandedKnob == this; }
         }
 
         private NodeSide _side = NodeSide.Right;
@@ -111,11 +119,11 @@ namespace Ashode
             }
         }
 
-        private bool _allowMultiple = false;
-        public bool AllowMultiple
+        private int _connectionLimit = 1;
+        public int ConnectionLimit
         {
-            get { return _allowMultiple; }
-            set { _allowMultiple = value; }
+            get { return _connectionLimit; }
+            set { _connectionLimit = value; }
         }
 
         private bool _removable = true;
@@ -127,12 +135,6 @@ namespace Ashode
 
         public Type Type { get; internal set; }
 
-        public bool Expanded
-        {
-            get { return true; }
-            // get { return Canvas.State.SelectedKnob == this && Canvas.State.ExpandedKnob; }
-        }
-
         public List<IConnection> Connections
         {
             get
@@ -140,22 +142,16 @@ namespace Ashode
                 return Canvas.State
                     .Connections
                     .Where(x => x.FromKnob == this || x.ToKnob == this)
-                    .OrderBy(x => (Side == NodeSide.Top || Side == NodeSide.Bottom ?
-                    (x.ToKnob == this ? x.FromKnob.CenterForConnection(x).x : x.ToKnob.CenterForConnection(x).x)
-                    :
-                    (x.ToKnob == this ? x.FromKnob.CenterForConnection(x).y : x.ToKnob.CenterForConnection(x).y)
-                    ))
                     .ToList();
             }
         }
 
         public bool Available()
         {
-            bool hasConns = Canvas.State.Connections
-                .Where(x => x.FromKnob == this || x.ToKnob == this)
-                .Any();
+            if (ConnectionLimit == 0)
+                return true;
 
-            if (hasConns && !AllowMultiple)
+            if (Connections.Count <= ConnectionLimit)
                 return false;
 
             return true;
@@ -167,14 +163,15 @@ namespace Ashode
                 return Rect.center;
 
             int index = Connections.IndexOf(conn);
+            float position = -(Connections.Count * 22) / 2 + 10;
             if (Side == NodeSide.Top || Side == NodeSide.Bottom)
             {
-                Vector2 TopCenter = new Vector2(-((((Connections.Count*22)+4))/2)+11, Side == NodeSide.Top ? -25 : 25);
+                Vector2 TopCenter = new Vector2(position, Side == NodeSide.Top ? -25 : 25);
                 return Rect.center + TopCenter + new Vector2(20 * index + 1, 0);
             }
             else
             {
-                Vector2 TopCenter = new Vector2(Side == NodeSide.Left ? -25 : 25, -((((Connections.Count*22)+4))/2)+11);
+                Vector2 TopCenter = new Vector2(Side == NodeSide.Left ? -25 : 25, position);
                 return Rect.center + TopCenter + new Vector2(0, 20 * index + 1);
             }
         }
@@ -226,7 +223,12 @@ namespace Ashode
                 return;
 
             Rect rect = new Rect(0, 0, 20, 20);
-            foreach (var conn in Connections)
+            foreach (var conn in Connections
+                    .OrderBy(x => (Side == NodeSide.Top || Side == NodeSide.Bottom ?
+                    (x.ToKnob == this ? x.FromKnob.CenterForConnection(x).x : x.ToKnob.CenterForConnection(x).x)
+                    :
+                    (x.ToKnob == this ? x.FromKnob.CenterForConnection(x).y : x.ToKnob.CenterForConnection(x).y)
+                    )))
             {
                 rect.center = CenterForConnection(conn) + Canvas.State.PanOffset;
                 GUI.DrawTexture(rect, knobTexture);
@@ -234,6 +236,16 @@ namespace Ashode
 
             rect.center += new Vector2(0, 22);
             GUI.DrawTexture(rect, Canvas.Theme.AddKnob);
+        }
+
+        public bool HitTest(Vector2 loc, out IControl hit)
+        {
+            hit = null;
+
+            if (Rect.Contains(loc))
+                hit = this;
+
+            return hit != null;
         }
     }
 }
