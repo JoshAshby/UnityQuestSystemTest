@@ -16,6 +16,29 @@ namespace Ashode
         IConnection AddConnection(Type type, IKnob FromKnob, IKnob ToKnob);
         void RemoveConnection(IConnection conn);
         void RemoveConnection(string id);
+
+        List<INode> Nodes { get; }
+        List<IConnection> Connections { get; }
+
+        INode FocusedNode { get; set; }
+        INode SelectedNode { get; set; }
+
+        IKnob FocusedKnob { get; set; }
+        IKnob SelectedKnob { get; set; }
+        IKnob ExpandedKnob { get; set; }
+        IKnob ConnectedFromKnob { get; set; }
+
+        IConnection FocusedConnection { get; set; }
+
+        bool Panning { get; set; }
+        bool Dragging { get; set; }
+
+        Vector2 DraggingStart { get; set; }
+        Vector2 DragPosition { get; set; }
+
+        Vector2 DragOffset { get; set; }
+        Vector2 PanOffset { get; set; }
+        Rect CanvasSize { get; set; }
     }
 
     public class State : IState
@@ -23,29 +46,40 @@ namespace Ashode
         public NodeCanvas Parent { get; internal set; }
 
         // These should probably be properties because they are the exposed API but meh, fuck it
-        public List<INode> Nodes = new List<INode>();
-        public List<IConnection> Connections = new List<IConnection>();
+        private List<INode> _nodes = new List<INode>();
+        public List<INode> Nodes { get { return _nodes; } }
 
-        public INode FocusedNode = null;
-        public INode SelectedNode = null;
+        private List<IConnection> _connections = new List<IConnection>();
+        public List<IConnection> Connections { get { return _connections; } }
 
-        public IKnob FocusedKnob = null;
-        public IKnob SelectedKnob = null;
-        public IKnob ExpandedKnob = null;
-        public IKnob ConnectedFromKnob = null;
+        public INode FocusedNode { get; set; }
+        public INode SelectedNode { get; set; }
 
-        public IConnection FocusedConnection = null;
+        public IKnob FocusedKnob { get; set; }
+        public IKnob SelectedKnob { get; set; }
+        public IKnob ExpandedKnob { get; set; }
+        public IKnob ConnectedFromKnob { get; set; }
+
+        public IConnection FocusedConnection { get; set; }
 
         // Draggin, panning, connecting and maybe eventually zoommmmmmz
-        public bool Panning = false;
-        public bool Dragging = false;
+        public bool Panning { get; set; }
+        public bool Dragging { get; set; }
 
-        public Vector2 DraggingStart = Vector2.zero;
-        public Vector2 DragPosition = Vector2.zero;
+        private Vector2 _draggingStart = Vector2.zero;
+        public Vector2 DraggingStart { get { return _draggingStart; } set { _draggingStart = value; } }
 
-        public Vector2 DragOffset = Vector2.zero;
-        public Vector2 PanOffset = Vector2.zero;
-        public Rect CanvasSize = new Rect(0, 0, 800, 600);
+        private Vector2 _dragPosition = Vector2.zero;
+        public Vector2 DragPosition { get { return _dragPosition; } set { _dragPosition = value; } }
+
+        private Vector2 _dragOffset = Vector2.zero;
+        public Vector2 DragOffset { get { return _dragOffset; } set { _dragOffset = value; } }
+
+        private Vector2 _panOffset = Vector2.zero;
+        public Vector2 PanOffset { get { return _panOffset; } set { _panOffset = value; } }
+
+        private Rect _canvasSize = new Rect(0, 0, 800, 600);
+        public Rect CanvasSize { get { return _canvasSize; } set { _canvasSize = value; } }
 
         public State(NodeCanvas canvas)
         {
