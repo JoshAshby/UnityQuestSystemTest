@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using UnityEditor;
 using UnityEngine;
 
@@ -40,6 +41,9 @@ namespace Ashode
             }
 
             if (!Knob1.Available || !Knob2.Available)
+                return false;
+
+            if(Knob1.Connections.Intersect(Knob2.Connections).Any())
                 return false;
 
             IKnob FromKnob = Knob1.Direction == Direction.Input ? Knob2 : Knob1;

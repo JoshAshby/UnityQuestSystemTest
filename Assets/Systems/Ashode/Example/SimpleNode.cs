@@ -19,6 +19,9 @@ public class SimpleNode : Node
     {
         GUILayout.BeginVertical();
         limit = EditorGUILayout.IntField("Limit", limit);
+        if(limit < 0)
+            limit = 0;
+
         direction = (Direction) EditorGUILayout.EnumPopup("Direction", direction);
         GUILayout.EndVertical();
 
