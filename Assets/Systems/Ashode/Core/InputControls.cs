@@ -38,7 +38,7 @@ namespace Ashode
         }
 
         // Click on connection
-        [MouseEventHandler(Priority = -4)]
+        [MouseEventHandler(HandledType = typeof(IConnection), Priority = -4)]
         public static void HandleConnectionClick(InputEvent inputEvent)
         {
             if (GUIUtility.hotControl > 0)
@@ -46,24 +46,18 @@ namespace Ashode
 
             IConnection connection = inputEvent.Control as IConnection;
 
-            if (connection == null)
-                return;
-
             inputEvent.State.RemoveConnection(connection);
             inputEvent.Event.Use();
         }
 
         // Finish building a connection
-        [MouseEventHandler(Priority = -3)]
+        [MouseEventHandler(HandledType = typeof(IKnob), Priority = -3)]
         public static void HandleMakeConnectionClick(InputEvent inputEvent)
         {
             if (GUIUtility.hotControl > 0)
                 return;
 
             IKnob knob = inputEvent.Control as IKnob;
-
-            if (knob == null)
-                return;
 
             if (inputEvent.State.ConnectedFromKnob == null)
                 return;
@@ -79,16 +73,13 @@ namespace Ashode
         }
 
         // Start building a connection
-        [MouseEventHandler(Priority = -2)]
+        [MouseEventHandler(HandledType = typeof(IKnob), Priority = -2)]
         public static void HandleStartConnectionClick(InputEvent inputEvent)
         {
             if (GUIUtility.hotControl > 0)
                 return;
 
             IKnob knob = inputEvent.Control as IKnob;
-
-            if (knob == null)
-                return;
 
             if (!knob.Available)
                 return;
@@ -103,16 +94,13 @@ namespace Ashode
         }
 
         // Click on knob
-        [MouseEventHandler(Priority = -1)]
+        [MouseEventHandler(HandledType = typeof(IKnob), Priority = -1)]
         public static void HandleKnobClick(InputEvent inputEvent)
         {
             if (GUIUtility.hotControl > 0)
                 return;
 
             IKnob knob = inputEvent.Control as IKnob;
-
-            if (knob == null)
-                return;
 
             inputEvent.State.SelectedKnob = knob;
             inputEvent.State.ExpandedKnob = knob;
@@ -122,7 +110,7 @@ namespace Ashode
         }
 
         // Click on node
-        [MouseEventHandler(Priority = 0)]
+        [MouseEventHandler(HandledType = typeof(INode), Priority = 0)]
         public static void HandleNodeClick(InputEvent inputEvent)
         {
             if (GUIUtility.hotControl > 0)
@@ -130,7 +118,7 @@ namespace Ashode
 
             INode node = inputEvent.Control as INode;
 
-            if (node == inputEvent.State.SelectedNode && node != null)
+            if (node == inputEvent.State.SelectedNode)
                 return;
 
             if (inputEvent.State.FocusedNode != node && inputEvent.State.FocusedNode != null)
@@ -155,13 +143,10 @@ namespace Ashode
         }
 
         // Right click on node
-        [MouseEventHandler(MouseButtons.Right, Priority = 1)]
+        [MouseEventHandler(MouseButtons.Right, HandledType = typeof(INode), Priority = 1)]
         public static void HandleNodeRightClick(InputEvent inputEvent)
         {
             INode node = inputEvent.Control as INode;
-
-            if (node == null)
-                return;
 
             GenericMenu menu = new GenericMenu();
             menu.AddItem(new GUIContent("Remove Node"), false, RemoveNodeCallback, inputEvent);
@@ -169,7 +154,6 @@ namespace Ashode
 
             inputEvent.Event.Use();
         }
-
 
         // Start dragging node
         [MouseEventHandler(Priority = 110)]
@@ -226,9 +210,6 @@ namespace Ashode
         public static void HandlePanStart(InputEvent inputEvent)
         {
             if (GUIUtility.hotControl > 0)
-                return;
-
-            if (inputEvent.Event.button != 0)
                 return;
 
             if (inputEvent.State.FocusedNode != null)

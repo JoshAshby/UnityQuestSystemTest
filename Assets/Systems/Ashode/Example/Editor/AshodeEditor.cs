@@ -62,12 +62,14 @@ public class AshodeEditor : EditorWindow
         if (Canvas == null)
             Setup();
 
-        Canvas.Draw(GUILayoutUtility.GetRect(600, 900));
+        Rect canvasRect = new Rect(0, 0, EditorGUIUtility.currentViewWidth - 600, 600);
+        Canvas.Draw(canvasRect);
 
-        Rect sideWindowRect = new Rect(600, 200, 200, 200);
+        Rect sideWindowRect = new Rect(EditorGUIUtility.currentViewWidth - 600, 0, 200, 600);
 
         GUILayout.BeginArea(sideWindowRect, GUI.skin.box);
-        GUILayout.Button("test");
+        if(GUILayout.Button("Add SimpleNode"))
+            Canvas.State.AddNode(typeof(SimpleNode), new Rect(100, 100, 200, 100));
         GUILayout.EndArea();
     }
 }

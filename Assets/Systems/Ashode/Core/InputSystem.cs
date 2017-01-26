@@ -10,6 +10,7 @@ namespace Ashode
     public class EventHandlerAttribute : Attribute
     {
         public EventType? EventType { get; set; }
+        public Type HandledType { get; set; }
 
         protected int _priority = 50;
         public int Priority
@@ -33,6 +34,7 @@ namespace Ashode
     public class MouseEventHandlerAttribute : Attribute
     {
         public EventType? EventType { get; set; }
+        public Type HandledType { get; set; }
 
         public MouseButtons Button { get; set; }
 
@@ -71,9 +73,11 @@ namespace Ashode
     [AttributeUsageAttribute(AttributeTargets.Method, AllowMultiple = true)]
     public class HotkeyHandlerAttribute : Attribute
     {
+        public EventType? EventType { get; set; }
+        public Type HandledType { get; set; }
+
         public KeyCode Key { get; set; }
         public EventModifiers? Modifiers { get; set; }
-        public EventType? EventType { get; set; }
 
         protected int _priority = 50;
         public int Priority
@@ -125,58 +129,56 @@ namespace Ashode
         }
     }
 
-    abstract class AttributeInfo
+    class AttributeInfo
     {
         public EventType? EventType { get; internal set; }
-
         public int Priority { get; internal set; }
 
         public Action<InputEvent> Action { get; internal set; }
-    }
 
-    class EventAttributeInfo : AttributeInfo
-    {
-        public EventAttributeInfo(EventHandlerAttribute attribute, MethodInfo method)
-        {
-            this.Action = (Action<InputEvent>)Delegate.CreateDelegate(typeof(Action<InputEvent>), method);
-            this.EventType = attribute.EventType;
-            this.Priority = attribute.Priority;
-        }
-    }
+        public Type HandledType { get; internal set; }
 
-    class MouseEventAttributeInfo : AttributeInfo
-    {
-        public int Button { get; internal set; }
+        public int? Button { get; internal set; }
 
-        public MouseEventAttributeInfo(MouseEventHandlerAttribute attribute, MethodInfo method)
-        {
-            this.Action = (Action<InputEvent>)Delegate.CreateDelegate(typeof(Action<InputEvent>), method);
-            this.EventType = attribute.EventType;
-            this.Button = (int)attribute.Button;
-            this.Priority = attribute.Priority;
-        }
-    }
-
-    class HotkeyAttributeInfo : AttributeInfo
-    {
-        public KeyCode Key { get; internal set; }
+        public KeyCode? Key { get; internal set; }
         public EventModifiers? Modifiers { get; internal set; }
 
-        public HotkeyAttributeInfo(HotkeyHandlerAttribute attribute, MethodInfo method)
+        public AttributeInfo(EventHandlerAttribute attribute, MethodInfo method)
         {
-            this.Action = (Action<InputEvent>)Delegate.CreateDelegate(typeof(Action<InputEvent>), method);
-            this.Key = attribute.Key;
-            this.Modifiers = attribute.Modifiers;
             this.EventType = attribute.EventType;
             this.Priority = attribute.Priority;
+            this.HandledType = attribute.HandledType;
+
+            this.Action = (Action<InputEvent>)Delegate.CreateDelegate(typeof(Action<InputEvent>), method);
+        }
+
+        public AttributeInfo(MouseEventHandlerAttribute attribute, MethodInfo method)
+        {
+            this.EventType = attribute.EventType;
+            this.Priority = attribute.Priority;
+            this.HandledType = attribute.HandledType;
+
+            this.Action = (Action<InputEvent>)Delegate.CreateDelegate(typeof(Action<InputEvent>), method);
+
+            this.Button = (int)attribute.Button;
+        }
+
+        public AttributeInfo(HotkeyHandlerAttribute attribute, MethodInfo method)
+        {
+            this.EventType = attribute.EventType;
+            this.Priority = attribute.Priority;
+            this.HandledType = attribute.HandledType;
+
+            this.Action = (Action<InputEvent>)Delegate.CreateDelegate(typeof(Action<InputEvent>), method);
+
+            this.Key = attribute.Key;
+            this.Modifiers = attribute.Modifiers;
         }
     }
 
     public class InputSystem
     {
-        private List<EventAttributeInfo> EventAttributeInfos = new List<EventAttributeInfo>();
-        private List<MouseEventAttributeInfo> MouseEventAttributeInfos = new List<MouseEventAttributeInfo>();
-        private List<HotkeyAttributeInfo> HotkeyAttributeInfos = new List<HotkeyAttributeInfo>();
+        private List<AttributeInfo> AttributeInfos = new List<AttributeInfo>();
 
         public InputSystem(Type controlContainer)
         {
@@ -191,25 +193,28 @@ namespace Ashode
                 EventHandlerAttribute[] eventAttributes = method.GetCustomAttributes(typeof(EventHandlerAttribute), true) as EventHandlerAttribute[];
                 foreach (var attribute in eventAttributes)
                 {
-                    EventAttributeInfos.Add(new EventAttributeInfo(attribute, method));
+                    AttributeInfos.Add(new AttributeInfo(attribute, method));
                 }
 
                 MouseEventHandlerAttribute[] mouseEventAttributes = method.GetCustomAttributes(typeof(MouseEventHandlerAttribute), true) as MouseEventHandlerAttribute[];
                 foreach (var attribute in mouseEventAttributes)
                 {
-                    MouseEventAttributeInfos.Add(new MouseEventAttributeInfo(attribute, method));
+                    AttributeInfos.Add(new AttributeInfo(attribute, method));
                 }
 
                 HotkeyHandlerAttribute[] hotkeyAttributes = method.GetCustomAttributes(typeof(HotkeyHandlerAttribute), true) as HotkeyHandlerAttribute[];
                 foreach (var attribute in hotkeyAttributes)
                 {
-                    HotkeyAttributeInfos.Add(new HotkeyAttributeInfo(attribute, method));
+                    AttributeInfos.Add(new AttributeInfo(attribute, method));
                 }
             }
 
-            EventAttributeInfos.Sort((a, b) => a.Priority.CompareTo(b.Priority));
-            MouseEventAttributeInfos.Sort((a, b) => a.Priority.CompareTo(b.Priority));
-            HotkeyAttributeInfos.Sort((a, b) => a.Priority.CompareTo(b.Priority));
+            AttributeInfos.Sort((a, b) => a.Priority.CompareTo(b.Priority));
+        }
+
+        private bool ShouldIgnoreEvent(InputEvent inputEvent)
+        {
+            return !inputEvent.State.CanvasSize.Contains(inputEvent.Event.mousePosition);
         }
 
         public void HandleEvents(NodeCanvas canvas, bool late)
@@ -219,71 +224,24 @@ namespace Ashode
             if (ShouldIgnoreEvent(inputEvent))
                 return;
 
-            HandlePlainEvents(inputEvent, late);
-            HandleMouseEvents(inputEvent, late);
-            HandleHotkeyEvents(inputEvent, late);
-        }
+            Type controlType = null;
+            if (inputEvent.Control != null)
+                controlType = inputEvent.Control.GetType();
 
-        private bool ShouldIgnoreEvent(InputEvent inputEvent)
-        {
-            // return !inputEvent.State.CanvasSize.Contains(inputEvent.Event.mousePosition);
-            return false;
-        }
-
-        private void HandlePlainEvents(InputEvent inputEvent, bool late)
-        {
-
-            var attrInfos = EventAttributeInfos
-                .Where(x => late ? x.Priority >= 100 : x.Priority < 100)
-                .Where(x => x.EventType == null || x.EventType == inputEvent.Type);
-
-            foreach (var info in attrInfos)
-            {
-                info.Action(inputEvent);
-
-                if (inputEvent.Type == EventType.Used)
-                    return;
-            }
-        }
-
-        private void HandleMouseEvents(InputEvent inputEvent, bool late)
-        {
-            if (inputEvent.Type == EventType.Used)
-                return;
-
-            if (!inputEvent.Event.isMouse)
-                return;
-
-            var attrInfos = MouseEventAttributeInfos
+            var attrInfos = AttributeInfos
                 .Where(x => late ? x.Priority >= 100 : x.Priority < 100)
                 .Where(x => x.EventType == null || x.EventType == inputEvent.Type)
-                .Where(x => x.Button == inputEvent.Event.button);
-
-            foreach (var info in attrInfos)
-            {
-                info.Action(inputEvent);
-
-                if (inputEvent.Type == EventType.Used)
-                    return;
-            }
-        }
-
-        private void HandleHotkeyEvents(InputEvent inputEvent, bool late)
-        {
-            if (inputEvent.Type == EventType.Used)
-                return;
-
-            if (!inputEvent.Event.isKey)
-                return;
-
-            var attrInfos = HotkeyAttributeInfos
-                .Where(x => late ? x.Priority >= 100 : x.Priority < 100)
-                .Where(x => x.Key == inputEvent.Event.keyCode)
                 .Where(x => x.Modifiers == null || x.Modifiers == inputEvent.Event.modifiers)
-                .Where(x => x.EventType == null || x.EventType == inputEvent.Type);
+                .Where(x => x.HandledType == null || x.HandledType.IsAssignableFrom(controlType) );
 
             foreach (var info in attrInfos)
             {
+                if (info.Button != null && inputEvent.Event.button != info.Button)
+                    continue;
+
+                if (info.Key != null && inputEvent.Event.keyCode != info.Key)
+                    continue;
+
                 info.Action(inputEvent);
 
                 if (inputEvent.Type == EventType.Used)
