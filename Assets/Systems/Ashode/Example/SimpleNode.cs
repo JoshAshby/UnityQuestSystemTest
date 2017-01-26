@@ -5,16 +5,25 @@ using Ashode;
 
 public class SimpleNode : Node
 {
-    private string id = "";
-
-    int limit = 1;
-    Direction direction = Direction.Both;
-
-    public SimpleNode(INodeCanvas parent, Rect rect) : base(parent)
+    private Vector2 _minSize = new Vector2(200, 100);
+    public override Vector2 MinSize
     {
-        this.Rect = rect;
+        get { return _minSize; }
+        set { _minSize = value; }
     }
 
+    private string _title = "SimpleNode";
+    public override string Title
+    {
+        get { return _title; }
+        set { _title = value; }
+    }
+
+    public SimpleNode(INodeCanvas parent, Vector2 pos) : base(parent, pos) { }
+
+    private string id = "";
+    private int limit = 1;
+    private Direction direction = Direction.Both;
     public override void OnGUI()
     {
         GUILayout.BeginVertical();

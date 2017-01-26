@@ -180,9 +180,10 @@ namespace Ashode
     {
         private List<AttributeInfo> AttributeInfos = new List<AttributeInfo>();
 
-        public InputSystem(Type controlContainer)
+        public InputSystem(params Type[] controlContainers)
         {
-            AddHandlersFrom(controlContainer);
+            foreach(var controlContainer in controlContainers)
+                AddHandlersFrom(controlContainer);
         }
 
         public void AddHandlersFrom(Type controlContainer)
@@ -214,7 +215,7 @@ namespace Ashode
 
         private bool ShouldIgnoreEvent(InputEvent inputEvent)
         {
-            return !inputEvent.State.CanvasSize.Contains(inputEvent.Event.mousePosition);
+            return !inputEvent.State.LocalCanvasSize.Contains(inputEvent.Event.mousePosition);
         }
 
         public void HandleEvents(NodeCanvas canvas, bool late)
@@ -232,7 +233,7 @@ namespace Ashode
                 .Where(x => late ? x.Priority >= 100 : x.Priority < 100)
                 .Where(x => x.EventType == null || x.EventType == inputEvent.Type)
                 .Where(x => x.Modifiers == null || x.Modifiers == inputEvent.Event.modifiers)
-                .Where(x => x.HandledType == null || x.HandledType.IsAssignableFrom(controlType) );
+                .Where(x => x.HandledType == null || x.HandledType.IsAssignableFrom(controlType));
 
             foreach (var info in attrInfos)
             {

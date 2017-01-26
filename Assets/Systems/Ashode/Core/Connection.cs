@@ -9,7 +9,7 @@ namespace Ashode
     {
         INodeCanvas Parent { get; }
         INodeCanvas Canvas { get; }
-        State State { get; }
+        IState State { get; }
 
         string ID { get; set; }
 
@@ -57,7 +57,7 @@ namespace Ashode
 
         public INodeCanvas Parent { get; internal set; }
         public INodeCanvas Canvas { get { return Parent; } }
-        public State State { get { return Canvas.State; } }
+        public IState State { get { return Canvas.State; } }
 
         private string _id = Guid.NewGuid().ToString();
         public string ID

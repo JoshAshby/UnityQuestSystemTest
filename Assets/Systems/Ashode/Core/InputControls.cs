@@ -155,6 +155,29 @@ namespace Ashode
             inputEvent.Event.Use();
         }
 
+        private static void AddNodeCallback(object obj)
+        {
+            InputEvent inputEvent = obj as InputEvent;
+
+            Vector2 pos = inputEvent.Canvas.ScreenToCanvasSpace((inputEvent.Event.mousePosition)) - inputEvent.State.GlobalCanvasSize.position;
+
+            inputEvent.State.AddNode(typeof(SimpleNode), pos);
+        }
+
+        // Right click on canvas
+        [MouseEventHandler(MouseButtons.Right, Priority = 2)]
+        public static void HandleCanvasRightClick(InputEvent inputEvent)
+        {
+            if (inputEvent.Control != null)
+                return;
+
+            GenericMenu menu = new GenericMenu();
+            menu.AddItem(new GUIContent("Add Node"), false, AddNodeCallback, inputEvent);
+            menu.ShowAsContext();
+
+            inputEvent.Event.Use();
+        }
+
         // Start dragging node
         [MouseEventHandler(Priority = 110)]
         public static void HandleNodeDragStart(InputEvent inputEvent)

@@ -12,7 +12,7 @@ namespace Ashode
 
     public interface INodeCanvas
     {
-        State State { get; set; }
+        IState State { get; set; }
         InputSystem InputSystem { get; set; }
         Theme Theme { get; set; }
 
@@ -32,7 +32,7 @@ namespace Ashode
 
     public class NodeCanvas : INodeCanvas
     {
-        public State State { get; set; }
+        public IState State { get; set; }
 
         private InputSystem _inputSystem = new InputSystem(typeof(InputControls));
         public InputSystem InputSystem
@@ -56,7 +56,9 @@ namespace Ashode
 
         public virtual void Draw(Rect canvasRect)
         {
-            State.CanvasSize = canvasRect;
+            State.GlobalCanvasSize = canvasRect;
+
+            GUI.BeginGroup(canvasRect, GUI.skin.box);
             InputSystem.HandleEvents(this, false);
 
             DrawBackground();
@@ -69,6 +71,7 @@ namespace Ashode
             OnGUI();
 
             InputSystem.HandleEvents(this, true);
+            GUI.EndGroup();
         }
 
         public virtual void DrawBackground()
@@ -80,9 +83,9 @@ namespace Ashode
             float height = 1f / Theme.CanvasBackground.height;
             Vector2 offset = State.PanOffset;
 
-            Rect uvDrawRect = new Rect(-offset.x * width, (offset.y - State.CanvasSize.height) * height, State.CanvasSize.width * width, State.CanvasSize.height * height);
+            Rect uvDrawRect = new Rect(-offset.x * width, (offset.y - State.LocalCanvasSize.height) * height, State.LocalCanvasSize.width * width, State.LocalCanvasSize.height * height);
 
-            GUI.DrawTextureWithTexCoords(State.CanvasSize, Theme.CanvasBackground, uvDrawRect);
+            GUI.DrawTextureWithTexCoords(State.LocalCanvasSize, Theme.CanvasBackground, uvDrawRect);
         }
 
         private void DrawCurveToMouse()

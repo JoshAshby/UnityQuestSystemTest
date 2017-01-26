@@ -9,7 +9,7 @@ namespace Ashode
     {
         NodeCanvas Parent { get; }
 
-        INode AddNode(Type type, Rect pos);
+        INode AddNode(Type type, Vector2 pos);
         void RemoveNode(INode node);
         void RemoveNode(string id);
 
@@ -39,7 +39,9 @@ namespace Ashode
 
         Vector2 DragOffset { get; set; }
         Vector2 PanOffset { get; set; }
-        Rect CanvasSize { get; set; }
+
+        Rect GlobalCanvasSize { get; set; }
+        Rect LocalCanvasSize { get; }
     }
 
     public class State : IState
@@ -54,9 +56,7 @@ namespace Ashode
         public List<IConnection> Connections { get { return _connections; } }
 
         public INode FocusedNode { get; set; }
-
-        private INode _selectedNode = null;
-        public INode SelectedNode { get { return _selectedNode; } set { _selectedNode = value; } }
+        public INode SelectedNode { get; set; }
 
         public IKnob FocusedKnob { get; set; }
         public IKnob SelectedKnob { get; set; }
@@ -81,15 +81,24 @@ namespace Ashode
         private Vector2 _panOffset = Vector2.zero;
         public Vector2 PanOffset { get { return _panOffset; } set { _panOffset = value; } }
 
-        private Rect _canvasSize = new Rect(0, 0, 800, 600);
-        public Rect CanvasSize { get { return _canvasSize; } set { _canvasSize = value; } }
+        public Rect GlobalCanvasSize { get; set; }
+        public Rect LocalCanvasSize
+        {
+            get
+            {
+                Rect canvasRect = GlobalCanvasSize;
+                canvasRect.position = Vector2.zero;
+
+                return canvasRect;
+            }
+        }
 
         public State(NodeCanvas canvas)
         {
             this.Parent = canvas;
         }
 
-        public INode AddNode(Type type, Rect pos)
+        public INode AddNode(Type type, Vector2 pos)
         {
             if (!typeof(INode).IsAssignableFrom(type))
                 return null;
@@ -103,6 +112,12 @@ namespace Ashode
 
         public void RemoveNode(INode node)
         {
+            if (FocusedNode == node)
+                FocusedNode = null;
+
+            if (SelectedNode == node)
+                SelectedNode = null;
+
             List<IKnob> knobs = node.Knobs.Values.ToList();
 
             foreach (var knob in knobs)

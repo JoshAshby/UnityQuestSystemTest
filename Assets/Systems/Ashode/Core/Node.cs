@@ -10,7 +10,7 @@ namespace Ashode
     {
         INodeCanvas Parent { get; }
         INodeCanvas Canvas { get; }
-        State State { get; }
+        IState State { get; }
 
         string ID { get; set; }
         Rect Rect { get; set; }
@@ -40,38 +40,33 @@ namespace Ashode
     {
         public INodeCanvas Parent { get; internal set; }
         public INodeCanvas Canvas { get { return Parent; } }
-        public State State { get { return Canvas.State; } }
+        public IState State { get { return Canvas.State; } }
+
+        private string _id = Guid.NewGuid().ToString();
+        public virtual string ID
+        {
+            get { return _id; }
+            set { _id = value; }
+        }
+
+        public virtual Rect Rect { get; set; }
 
         private Vector2 _minSize = new Vector2(200, 100);
-        public Vector2 MinSize
+        public virtual Vector2 MinSize
         {
             get { return _minSize; }
             set { _minSize = value; }
         }
 
         private bool _canResize = true;
-        public bool CanResize
+        public virtual bool CanResize
         {
             get { return _canResize; }
             set { _canResize = value; }
         }
 
-        private Rect _rect = new Rect(30, 30, 200, 100);
-        public Rect Rect
-        {
-            get { return _rect; }
-            set { _rect = value; }
-        }
-
-        private string _id = Guid.NewGuid().ToString();
-        public string ID
-        {
-            get { return _id; }
-            set { _id = value; }
-        }
-
         private string _title = "Window";
-        public string Title
+        public virtual string Title
         {
             get { return _title; }
             set { _title = value; }
@@ -84,9 +79,10 @@ namespace Ashode
             set { _knobs = value; }
         }
 
-        public Node(INodeCanvas parent)
+        public Node(INodeCanvas parent, Vector2 pos)
         {
             this.Parent = parent;
+            this.Rect = new Rect(pos.x, pos.y, MinSize.x, MinSize.y);
 
             SetupKnobs();
         }
@@ -107,13 +103,6 @@ namespace Ashode
             Rect headerRect = new Rect(nodeRect.x, nodeRect.y, nodeRect.width, contentOffset.y);
             GUI.Box(headerRect, "", GUI.skin.box);
             GUI.Label(headerRect, Title, Canvas.State.SelectedNode == this ? EditorStyles.boldLabel : EditorStyles.label);
-
-            // Rect closeRect = new Rect(0, 0, 16, 16);
-            // closeRect.position = new Vector2(headerRect.xMax - closeRect.width - 2, headerRect.yMin + 2);
-
-            // Texture2D closeTexture = Canvas.Theme.GetTexture(Canvas.Theme.RemoveKnobName, 0, Color.red);
-
-            // GUI.DrawTexture(closeRect, closeTexture);
 
             Rect bodyRect = new Rect(nodeRect.x, nodeRect.y + contentOffset.y, nodeRect.width, nodeRect.height - contentOffset.y);
             GUI.BeginGroup(bodyRect, GUI.skin.box);
@@ -246,12 +235,26 @@ namespace Ashode
 
         public void RemoveKnob(string id)
         {
+            IKnob knob = Knobs[id];
+
             // TODO: Throw an error or debug at least if removing a non-removable knob?
-            if (!Knobs[id].Removable)
+            if (!knob.Removable)
             {
                 Debug.LogErrorFormat("Can't remove a non-removable knob: {0}", id);
                 return;
             }
+
+            if (State.FocusedKnob == knob)
+                State.FocusedKnob = null;
+
+            if (State.SelectedKnob == knob)
+                State.SelectedNode = null;
+
+            if (State.ExpandedKnob == knob)
+                State.ExpandedKnob = null;
+
+            if (State.ConnectedFromKnob == knob)
+                State.ConnectedFromKnob = null;
 
             foreach (var conn in Knobs[id].Connections)
                 conn.Parent.State.RemoveConnection(conn);

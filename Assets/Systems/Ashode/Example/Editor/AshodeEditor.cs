@@ -24,32 +24,15 @@ public class AshodeEditor : EditorWindow
         Canvas = new NodeCanvas();
         Canvas.Repaint += Repaint;
 
-        State state = new State(Canvas);
+        IState state = new State(Canvas);
         Canvas.State = state;
 
-        INode a = state.AddNode(typeof(SimpleNode), new Rect(50, 50, 200, 100));
+        INode a = state.AddNode(typeof(SimpleNode), new Vector2(50, 50));
         a.AddKnob("a", NodeSide.Right, 0, Direction.Both, typeof(string));
 
-        INode b = state.AddNode(typeof(SimpleNode), new Rect(500, 50, 200, 100));
+        INode b = state.AddNode(typeof(SimpleNode), new Vector2(500, 50));
         b.AddKnob("a", NodeSide.Left, 1, Direction.Both, typeof(string));
-        b.AddKnob("b", NodeSide.Bottom, 1, Direction.Input, typeof(string));
-        b.AddKnob("d", NodeSide.Bottom, 1, Direction.Input, typeof(int));
-        b.AddKnob("c", NodeSide.Left, 1, Direction.Output, typeof(string));
-
-        // INode c = state.AddNode(typeof(SimpleNode), new Rect(500, 400, 200, 100));
-        // c.AddKnob("a", NodeSide.Left, 1, Direction.Both, typeof(string));
-        // c.AddKnob("b", NodeSide.Top, 1, Direction.Input, typeof(string));
-        // c.AddKnob("d", NodeSide.Top, 1, Direction.Input, typeof(int));
-        // c.AddKnob("c", NodeSide.Left, 1, Direction.Output, typeof(string));
-
-        // state.AddConnection(a.Knobs["a"], b.Knobs["a"]);
-        // state.AddConnection(a.Knobs["a"], c.Knobs["a"]);
-
-        // state.AddConnection(a.Knobs["a"], b.Knobs["b"]);
-        // state.AddConnection(a.Knobs["a"], c.Knobs["b"]);
-
-        // state.AddConnection(a.Knobs["a"], b.Knobs["c"]);
-        // state.AddConnection(a.Knobs["a"], c.Knobs["c"]);
+        b.AddKnob("b", NodeSide.Bottom, 1, Direction.Input, typeof(int));
     }
 
     private void OnDestroy()
@@ -62,14 +45,16 @@ public class AshodeEditor : EditorWindow
         if (Canvas == null)
             Setup();
 
-        Rect canvasRect = new Rect(0, 0, EditorGUIUtility.currentViewWidth - 600, 600);
-        Canvas.Draw(canvasRect);
+        int sideWindowWidth = 200;
 
-        Rect sideWindowRect = new Rect(EditorGUIUtility.currentViewWidth - 600, 0, 200, 600);
+        Rect sideWindowRect = new Rect(0, 0, sideWindowWidth, position.height);
 
         GUILayout.BeginArea(sideWindowRect, GUI.skin.box);
         if(GUILayout.Button("Add SimpleNode"))
-            Canvas.State.AddNode(typeof(SimpleNode), new Rect(100, 100, 200, 100));
+            Canvas.State.AddNode(typeof(SimpleNode), new Vector2(100, 100));
         GUILayout.EndArea();
+
+        Rect canvasRect = new Rect(sideWindowWidth, 0, position.width - sideWindowWidth, position.height);
+        Canvas.Draw(canvasRect);
     }
 }
