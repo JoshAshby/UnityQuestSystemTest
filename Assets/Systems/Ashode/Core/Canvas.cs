@@ -14,7 +14,7 @@ namespace Ashode
     {
         IState State { get; set; }
         InputSystem InputSystem { get; set; }
-        Theme Theme { get; set; }
+        ITheme Theme { get; set; }
 
         // This is an Action instead of an EventHandler because it
         // makes it quick to subscribe the EditorWindow.Repaint action
@@ -25,6 +25,7 @@ namespace Ashode
 
         void Draw(Rect canvasRect);
         void DrawBackground();
+        void DrawCurveToMouse();
 
         IControl FindControlAt(Vector2 loc);
         Vector2 ScreenToCanvasSpace(Vector2 screenPos);
@@ -42,8 +43,8 @@ namespace Ashode
 
         }
 
-        private Theme _theme = new Theme();
-        public Theme Theme
+        private ITheme _theme = new Theme();
+        public ITheme Theme
         {
             get { return _theme; }
             set { _theme = value; }
@@ -88,7 +89,7 @@ namespace Ashode
             GUI.DrawTextureWithTexCoords(State.LocalCanvasSize, Theme.CanvasBackground, uvDrawRect);
         }
 
-        private void DrawCurveToMouse()
+        public virtual void DrawCurveToMouse()
         {
             if (State.ConnectedFromKnob == null)
                 return;

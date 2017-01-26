@@ -4,7 +4,31 @@ using UnityEngine;
 
 namespace Ashode
 {
-    public class Theme
+    public interface ITheme
+    {
+        Texture2D CanvasBackground { get; }
+
+        string InputKnob { get; }
+        string OutputKnob { get; }
+        string BothKnob { get; }
+
+        string AddKnobName { get; }
+        string RemoveKnobName { get; }
+
+        Texture2D AddKnob { get; }
+        Texture2D RemoveKnob { get; }
+
+        Texture2D ResizeHandle { get; }
+
+        Texture2D Line { get; }
+
+        Texture2D GetTexture(string name, int ccrotation, Color color);
+        Color GetColor(string id);
+        Texture2D RotateTexture(Texture2D Texture, int QuarterCounterClockwise);
+        Texture2D ColorTexture(Texture2D Texture, Color Color);
+    }
+
+    public class Theme : ITheme
     {
         public Texture2D CanvasBackground { get; }
 
