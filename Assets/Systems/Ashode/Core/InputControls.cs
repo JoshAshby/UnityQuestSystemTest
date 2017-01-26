@@ -1,4 +1,5 @@
 using System;
+using UnityEditor;
 using UnityEngine;
 
 namespace Ashode
@@ -121,7 +122,7 @@ namespace Ashode
         }
 
         // Click on node
-        [MouseEventHandler(Priority = -0)]
+        [MouseEventHandler(Priority = 0)]
         public static void HandleNodeClick(InputEvent inputEvent)
         {
             if (GUIUtility.hotControl > 0)
@@ -145,6 +146,30 @@ namespace Ashode
 
             inputEvent.Canvas.OnRepaint();
         }
+
+        private static void RemoveNodeCallback(object obj)
+        {
+            InputEvent inputEvent = obj as InputEvent;
+
+            inputEvent.State.RemoveNode(inputEvent.Control as INode);
+        }
+
+        // Right click on node
+        [MouseEventHandler(MouseButtons.Right, Priority = 1)]
+        public static void HandleNodeRightClick(InputEvent inputEvent)
+        {
+            INode node = inputEvent.Control as INode;
+
+            if (node == null)
+                return;
+
+            GenericMenu menu = new GenericMenu();
+            menu.AddItem(new GUIContent("Remove Node"), false, RemoveNodeCallback, inputEvent);
+            menu.ShowAsContext();
+
+            inputEvent.Event.Use();
+        }
+
 
         // Start dragging node
         [MouseEventHandler(Priority = 110)]

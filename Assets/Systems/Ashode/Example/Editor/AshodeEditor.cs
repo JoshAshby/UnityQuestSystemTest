@@ -63,5 +63,11 @@ public class AshodeEditor : EditorWindow
             Setup();
 
         Canvas.Draw(GUILayoutUtility.GetRect(600, 900));
+
+        Rect sideWindowRect = new Rect(600, 200, 200, 200);
+
+        GUILayout.BeginArea(sideWindowRect, GUI.skin.box);
+        GUILayout.Button("test");
+        GUILayout.EndArea();
     }
 }

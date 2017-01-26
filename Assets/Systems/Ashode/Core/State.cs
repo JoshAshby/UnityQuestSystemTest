@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace Ashode
@@ -102,8 +103,10 @@ namespace Ashode
 
         public void RemoveNode(INode node)
         {
-            foreach (var knob in node.Knobs)
-                node.RemoveKnob(knob.Key);
+            List<IKnob> knobs = node.Knobs.Values.ToList();
+
+            foreach (var knob in knobs)
+                node.RemoveKnob(knob.ID);
 
             Nodes.Remove(node);
         }

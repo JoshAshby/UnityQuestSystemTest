@@ -108,12 +108,12 @@ namespace Ashode
             GUI.Box(headerRect, "", GUI.skin.box);
             GUI.Label(headerRect, Title, Canvas.State.SelectedNode == this ? EditorStyles.boldLabel : EditorStyles.label);
 
-            Rect closeRect = new Rect(0, 0, 16, 16);
-            closeRect.position = new Vector2(headerRect.xMax - closeRect.width - 2, headerRect.yMin + 2);
+            // Rect closeRect = new Rect(0, 0, 16, 16);
+            // closeRect.position = new Vector2(headerRect.xMax - closeRect.width - 2, headerRect.yMin + 2);
 
-            Texture2D closeTexture = Canvas.Theme.GetTexture(Canvas.Theme.RemoveKnobName, 0, Color.red);
+            // Texture2D closeTexture = Canvas.Theme.GetTexture(Canvas.Theme.RemoveKnobName, 0, Color.red);
 
-            GUI.DrawTexture(closeRect, closeTexture);
+            // GUI.DrawTexture(closeRect, closeTexture);
 
             Rect bodyRect = new Rect(nodeRect.x, nodeRect.y + contentOffset.y, nodeRect.width, nodeRect.height - contentOffset.y);
             GUI.BeginGroup(bodyRect, GUI.skin.box);
@@ -174,9 +174,7 @@ namespace Ashode
         public virtual void DrawKnobWindows()
         {
             foreach (var knob in Knobs.Values)
-            {
                 knob.DrawKnobWindow();
-            }
         }
 
         public virtual void OnGUI() { }
