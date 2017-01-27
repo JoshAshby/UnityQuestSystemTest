@@ -5,6 +5,7 @@ using Ashogue.Data;
 using System;
 using System.Linq;
 using System.Collections.Generic;
+using System.Reflection;
 
 class CallbackEvent<T>
 {
@@ -40,24 +41,13 @@ static class ContextMenuHanders
             return;
 
         GenericMenu menu = new GenericMenu();
-        menu.AddItem(new GUIContent("Add/Text Node"), false, AddNodeCallback, new CallbackEvent<Type>(inputEvent, typeof(TextNodeCanvasNode)));
-        menu.AddItem(new GUIContent("Add/Event Node"), false, AddNodeCallback, new CallbackEvent<Type>(inputEvent, typeof(EventNodeCanvasNode)));
-        menu.AddItem(new GUIContent("Add/Wait Node"), false, AddNodeCallback, new CallbackEvent<Type>(inputEvent, typeof(WaitNodeCanvasNode)));
-        menu.AddItem(new GUIContent("Add/End Node"), false, AddNodeCallback, new CallbackEvent<Type>(inputEvent, typeof(EndNodeCanvasNode)));
+        foreach(var attr in inputEvent.Canvas.NodeTypes())
+        {
+            menu.AddItem(new GUIContent(String.Format("Add/{0}", attr.Name)), false, AddNodeCallback, new CallbackEvent<Type>(inputEvent, attr.NodeType));
+        }
         menu.ShowAsContext();
 
         inputEvent.Event.Use();
-    }
-}
-
-[AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
-class NodeBelongsToAttribute : Attribute
-{
-    public Type CanvasType { get; set; }
-
-    public NodeBelongsToAttribute(Type canvasType)
-    {
-        this.CanvasType = canvasType;
     }
 }
 
@@ -66,13 +56,15 @@ class DialogueCanvas : NodeCanvas
     public DialogueCanvas() : base() { }
 }
 
-[NodeBelongsTo(typeof(DialogueCanvas))]
+[NodeBelongsTo(typeof(DialogueCanvas), Hidden = true)]
 class StartNodeCanvasNode : Node
 {
     public override Vector2 MinSize { get { return new Vector2(100, 40); } }
     public override bool CanResize { get { return false; } }
 
     public override string Title { get { return "Start Node"; } }
+
+    public override bool Removable { get { return false; } }
 
     public StartNodeCanvasNode(INodeCanvas parent, Vector2 pos) : base(parent, pos) { }
 
@@ -87,7 +79,7 @@ class StartNodeCanvasNode : Node
     }
 }
 
-[NodeBelongsTo(typeof(DialogueCanvas))]
+[NodeBelongsTo(typeof(DialogueCanvas), Name = "Text Node")]
 class TextNodeCanvasNode : Node
 {
     public override Vector2 MinSize { get { return new Vector2(200, 300); } }
@@ -102,45 +94,45 @@ class TextNodeCanvasNode : Node
         AddKnob("in", NodeSide.Left, 0, Direction.Input, typeof(string)).Removable = false;
     }
 
-    Dictionary<string, string> knobDisplayText = new Dictionary<string, string>();
-    string Text = "";
+    Dictionary<string, string> _KnobDisplayText = new Dictionary<string, string>();
+    string _Text = "";
 
-    private string removeKnob = null;
+    private string _RemoveKnob = null;
     public override void OnGUI()
     {
         DrawKnob("in", 20);
 
         GUILayout.BeginVertical();
-        Text = GUILayout.TextArea(Text, GUILayout.Height(100));
+        _Text = GUILayout.TextArea(_Text, GUILayout.Height(100));
 
         if (GUILayout.Button("Add Branch"))
         {
-            IKnob knob = AddKnob(Guid.NewGuid().ToString(), NodeSide.Right, 0, Direction.Output, typeof(string));
-            knobDisplayText.Add(knob.ID, "");
+            IKnob knob = AddKnob(Guid.NewGuid().ToString(), NodeSide.Right, 1, Direction.Output, typeof(string));
+            _KnobDisplayText.Add(knob.ID, "");
         }
 
         foreach (var knob in Knobs.Where(x => x.Value.Direction == Direction.Output))
         {
             GUILayout.BeginHorizontal();
-            knobDisplayText[knob.Key] = GUILayout.TextField(knobDisplayText[knob.Key]);
+            _KnobDisplayText[knob.Key] = GUILayout.TextField(_KnobDisplayText[knob.Key]);
             DrawKnob(knob.Key);
             if (GUILayout.Button("X", GUILayout.ExpandWidth(false)))
-                removeKnob = knob.Key;
+                _RemoveKnob = knob.Key;
             GUILayout.EndHorizontal();
         }
 
-        if (!string.IsNullOrEmpty(removeKnob))
+        if (!string.IsNullOrEmpty(_RemoveKnob))
         {
-            RemoveKnob(removeKnob);
-            knobDisplayText.Remove(removeKnob);
-            removeKnob = null;
+            RemoveKnob(_RemoveKnob);
+            _KnobDisplayText.Remove(_RemoveKnob);
+            _RemoveKnob = null;
         }
 
         GUILayout.EndVertical();
     }
 }
 
-[NodeBelongsTo(typeof(DialogueCanvas))]
+[NodeBelongsTo(typeof(DialogueCanvas), Name = "Event Node")]
 class EventNodeCanvasNode : Node
 {
     public override Vector2 MinSize { get { return new Vector2(100, 40); } }
@@ -156,18 +148,18 @@ class EventNodeCanvasNode : Node
         AddKnob("out", NodeSide.Right, 1, Direction.Output, typeof(string)).Removable = false;
     }
 
-    string Msg = "";
+    string _Msg = "";
     public override void OnGUI()
     {
 
         DrawKnob("in", 20);
         DrawKnob("out", 20);
 
-        Msg = GUILayout.TextField(Msg);
+        _Msg = GUILayout.TextField(_Msg);
     }
 }
 
-[NodeBelongsTo(typeof(DialogueCanvas))]
+[NodeBelongsTo(typeof(DialogueCanvas), Name = "Wait Node")]
 class WaitNodeCanvasNode : Node
 {
     public override Vector2 MinSize { get { return new Vector2(100, 40); } }
@@ -193,7 +185,7 @@ class WaitNodeCanvasNode : Node
     }
 }
 
-[NodeBelongsTo(typeof(DialogueCanvas))]
+[NodeBelongsTo(typeof(DialogueCanvas), Name = "End Node")]
 class EndNodeCanvasNode : Node
 {
     public override Vector2 MinSize { get { return new Vector2(100, 40); } }
