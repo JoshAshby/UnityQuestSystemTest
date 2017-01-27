@@ -20,7 +20,7 @@ namespace Ashode
         string Title { get; }
 
         void DrawNodeWindow();
-        void ResizeWindow();
+        void ResizeWindow(Vector2 lastPosition, Vector2 contentOffset);
 
         void SetupKnobs();
         void OnGUI();
@@ -114,17 +114,17 @@ namespace Ashode
 
             // https://docs.unity3d.com/ScriptReference/GUILayoutUtility.GetLastRect.html
             // GetLastRect only works during repaint events
-            if (Event.current.type == EventType.Repaint)
+            if (Event.current.type == EventType.Repaint && CanResize)
                 lastPosition = GUILayoutUtility.GetLastRect().max + contentOffset;
 
             GUILayout.EndArea();
             GUI.EndGroup();
 
             DrawKnobWindows();
-            ResizeWindow();
+            ResizeWindow(lastPosition, contentOffset);
         }
 
-        public virtual void ResizeWindow()
+        public virtual void ResizeWindow(Vector2 lastPosition, Vector2 contentOffset)
         {
             if (Event.current.type != EventType.Repaint)
                 return;

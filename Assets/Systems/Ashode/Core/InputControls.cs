@@ -34,6 +34,16 @@ namespace Ashode
             if (inputEvent.Control != null && !inputEvent.Event.isKey)
                 return;
 
+            inputEvent.State.FocusedNode = null;
+            inputEvent.State.SelectedNode = null;
+
+            inputEvent.State.FocusedKnob = null;
+            inputEvent.State.SelectedKnob = null;
+            inputEvent.State.ExpandedKnob = null;
+            inputEvent.State.ConnectedFromKnob = null;
+
+            inputEvent.State.FocusedConnection = null;
+
             updateFocus = true;
         }
 
