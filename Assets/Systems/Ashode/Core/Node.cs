@@ -14,10 +14,10 @@ namespace Ashode
 
         string ID { get; set; }
         Rect Rect { get; set; }
-        Vector2 MinSize { get; set; }
-        bool CanResize { get; set; }
+        Vector2 MinSize { get; }
+        bool CanResize { get; }
 
-        string Title { get; set; }
+        string Title { get; }
 
         void DrawNodeWindow();
         void ResizeWindow();

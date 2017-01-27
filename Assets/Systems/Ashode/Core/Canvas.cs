@@ -1,7 +1,7 @@
 using System;
-using System.Linq;
 using UnityEditor;
 using UnityEngine;
+using Ashode.CoreExtensions;
 
 namespace Ashode
 {
@@ -34,24 +34,18 @@ namespace Ashode
     public class NodeCanvas : INodeCanvas
     {
         public IState State { get; set; }
-
-        private InputSystem _inputSystem = new InputSystem(typeof(InputControls));
-        public InputSystem InputSystem
-        {
-            get { return _inputSystem; }
-            set { _inputSystem = value; }
-
-        }
-
-        private ITheme _theme = new Theme();
-        public ITheme Theme
-        {
-            get { return _theme; }
-            set { _theme = value; }
-        }
+        public InputSystem InputSystem { get; set; }
+        public ITheme Theme { get; set; }
 
         public event Action Repaint;
         public void OnRepaint() { Repaint.SafeInvoke(); }
+
+        public NodeCanvas()
+        {
+            State = new State(this);
+            InputSystem = new InputSystem(typeof(InputControls));
+            Theme = new Theme();
+        }
 
         public virtual void OnGUI() { }
 
@@ -117,13 +111,13 @@ namespace Ashode
             OnRepaint();
         }
 
-        private void DrawConnections()
+        protected void DrawConnections()
         {
             foreach (var connection in State.Connections)
                 connection.DrawConnectionWindow();
         }
 
-        private void DrawNodes()
+        protected void DrawNodes()
         {
             // Make sure the top node is the selected one
             if (Event.current.type == EventType.Layout && State.SelectedNode != null)
