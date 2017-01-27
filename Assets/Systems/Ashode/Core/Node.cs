@@ -16,6 +16,7 @@ namespace Ashode
         Rect Rect { get; set; }
         Vector2 MinSize { get; }
         bool CanResize { get; }
+        bool Removable { get; }
 
         string Title { get; }
 
@@ -63,6 +64,13 @@ namespace Ashode
         {
             get { return _canResize; }
             set { _canResize = value; }
+        }
+
+        private bool _removable = true;
+        public virtual bool Removable
+        {
+            get { return _removable; }
+            set { _removable = value; }
         }
 
         private string _title = "Window";

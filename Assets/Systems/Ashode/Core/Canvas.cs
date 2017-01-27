@@ -2,9 +2,40 @@ using System;
 using UnityEditor;
 using UnityEngine;
 using Ashode.CoreExtensions;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Ashode
 {
+    [AttributeUsage(AttributeTargets.Class, AllowMultiple = true)]
+    public class NodeBelongsToAttribute : Attribute
+    {
+        public Type CanvasType { get; set; }
+        public string Name { get; set; }
+        public bool Hidden { get; set; }
+
+        public NodeBelongsToAttribute(Type canvasType)
+        {
+            this.CanvasType = canvasType;
+        }
+    }
+
+    public class NodeBelongsToAttributeInfo
+    {
+        public Type CanvasType { get; }
+        public string Name { get; }
+        public bool Hidden { get; } 
+        public Type NodeType { get; }
+        
+        public NodeBelongsToAttributeInfo(Type x, NodeBelongsToAttribute y) 
+        {
+            this.NodeType = x;
+            this.CanvasType = y.CanvasType;
+            this.Name = y.Name;
+            this.Hidden = y.Hidden;
+        }
+    }
+
     public interface IControl
     {
         bool HitTest(Vector2 loc, out IControl hit);
@@ -29,6 +60,7 @@ namespace Ashode
 
         IControl FindControlAt(Vector2 loc);
         Vector2 ScreenToCanvasSpace(Vector2 screenPos);
+        List<NodeBelongsToAttributeInfo> NodeTypes();
     }
 
     public class NodeCanvas : INodeCanvas
@@ -152,6 +184,24 @@ namespace Ashode
         public Vector2 ScreenToCanvasSpace(Vector2 screenPos)
         {
             return (screenPos - State.PanOffset);
+        }
+
+        protected List<NodeBelongsToAttributeInfo> _nodeInfo = null;
+        public List<NodeBelongsToAttributeInfo> NodeTypes()
+        {
+            if (_nodeInfo != null)
+                return _nodeInfo;
+
+            return _nodeInfo = AppDomain.CurrentDomain.GetAssemblies()
+                .SelectMany(assembly => assembly.GetTypes())
+                .Where(type => type.IsClass && !type.IsAbstract && type.GetInterfaces().Contains(typeof(Ashode.INode)))
+                .SelectMany(x =>
+                {
+                    return x.GetCustomAttributes(typeof(NodeBelongsToAttribute), false)
+                        .Select(y => (NodeBelongsToAttribute)y)
+                        .Where(y => y.CanvasType == this.GetType())
+                        .Select(y => new NodeBelongsToAttributeInfo(x, y));
+                }).ToList();
         }
     }
 }

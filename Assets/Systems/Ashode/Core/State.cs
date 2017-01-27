@@ -103,6 +103,9 @@ namespace Ashode
             if (!typeof(INode).IsAssignableFrom(type))
                 return null;
 
+            if(!Parent.NodeTypes().Any(x => x.NodeType == type))
+                return null;
+
             INode node = (INode)Activator.CreateInstance(type, this.Parent, pos);
 
             Nodes.Add(node);
@@ -112,6 +115,9 @@ namespace Ashode
 
         public void RemoveNode(INode node)
         {
+            if(!node.Removable)
+                return;
+
             if (FocusedNode == node)
                 FocusedNode = null;
 

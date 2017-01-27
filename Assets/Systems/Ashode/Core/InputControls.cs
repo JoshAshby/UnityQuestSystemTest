@@ -158,6 +158,9 @@ namespace Ashode
         {
             INode node = inputEvent.Control as INode;
 
+            if(!node.Removable)
+                return;
+
             GenericMenu menu = new GenericMenu();
             menu.AddItem(new GUIContent("Remove Node"), false, RemoveNodeCallback, inputEvent);
             menu.ShowAsContext();
