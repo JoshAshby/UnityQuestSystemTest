@@ -2,10 +2,121 @@ using UnityEditor;
 using UnityEngine;
 using Ashode;
 using Ashogue.Data;
+using Ashogue.Extensions;
 using System;
 using System.Linq;
 using System.Collections.Generic;
 using System.Reflection;
+
+public static class MetadataEditor
+{
+    public static List<Type> AllSubTypes<T>()
+    {
+        return AppDomain.CurrentDomain.GetAssemblies()
+            .SelectMany(assembly => assembly.GetTypes())
+            .Where(type => type.IsClass && !type.IsAbstract && type.IsSubclassOf(typeof(T)))
+            .OrderBy(x => x.Name)
+            .ToList();
+    }
+
+    public static List<Type> AllImplementTypes<T>()
+    {
+        return AppDomain.CurrentDomain.GetAssemblies()
+            .SelectMany(assembly => assembly.GetTypes())
+            .Where(type => type.IsClass && !type.IsAbstract && type.GetInterfaces().Contains(typeof(T)))
+            .OrderBy(x => x.Name)
+            .ToList();
+    }
+
+    public static List<Type> metadataTypes = AllImplementTypes<IMetadata>();
+
+    public static string ChoiceSelector(string[] options, string selected, Action<string> callback)
+    {
+        int choiceIndex = Array.IndexOf(options, selected);
+        if (choiceIndex == -1)
+            choiceIndex = 0;
+
+        EditorGUI.BeginChangeCheck();
+        choiceIndex = EditorGUILayout.Popup(choiceIndex, options);
+        if (EditorGUI.EndChangeCheck())
+        {
+            string newSelection = options[choiceIndex];
+            callback(newSelection);
+            return newSelection;
+        }
+
+        return selected;
+    }
+
+    private static Dictionary<string, string> nodeTypeChoice = new Dictionary<string, string>();
+    public static string TypeField(List<Type> options, string buttonText, Action<string> callback)
+    {
+        if (!options.Any())
+            return null;
+
+        string[] optionNames = options.Select(x => x.Name).OrderBy(x => x).ToArray();
+        if (!nodeTypeChoice.ContainsKey(buttonText))
+            nodeTypeChoice.Add(buttonText, optionNames.First());
+
+        ChoiceSelector(
+            optionNames,
+            nodeTypeChoice[buttonText],
+            (newTypeName) => { nodeTypeChoice[buttonText] = newTypeName; }
+        );
+
+        if (GUILayout.Button(buttonText))
+            callback(nodeTypeChoice[buttonText]);
+
+        return nodeTypeChoice[buttonText];
+    }
+
+    public static void Editor(Ashogue.Data.INode Target)
+    {
+        GUILayout.BeginHorizontal();
+        TypeField(
+            metadataTypes,
+            "Add Metadata",
+            (newTypeName) => { Target.AddMetadata(metadataTypes.Find(type => type.Name == newTypeName)); }
+        );
+        GUILayout.EndHorizontal();
+
+        IMetadata removalMetadata = null;
+
+        foreach (IMetadata metadata in Target.Metadata.Values)
+        {
+            GUILayout.BeginHorizontal();
+            GUILayout.Label("Key");
+            metadata.ID = EditorGUILayout.TextField(metadata.ID);
+
+            if (metadata.Type == typeof(bool))
+            {
+                IMetadata<bool> handle = metadata.OfType<bool>();
+                handle.Value = GUILayout.Toggle(handle.Value, "");
+            }
+            else if (metadata.Type == typeof(float))
+            {
+                IMetadata<float> handle = metadata.OfType<float>();
+                handle.Value = EditorGUILayout.FloatField(handle.Value);
+            }
+            else if (metadata.Type == typeof(string))
+            {
+                IMetadata<string> handle = metadata.OfType<string>();
+                handle.Value = EditorGUILayout.TextField(handle.Value);
+            }
+
+            GUILayout.FlexibleSpace();
+
+            if (GUILayout.Button("X"))
+                if (EditorUtility.DisplayDialog("Are you sure?", "Are you sure you want to remove this metadata?", "Yup", "NO!"))
+                    removalMetadata = metadata;
+
+            GUILayout.EndHorizontal();
+        }
+
+        if (removalMetadata != null)
+            Target.RemoveMetadata(removalMetadata.ID);
+    }
+}
 
 class CallbackEvent<T>
 {
@@ -41,8 +152,11 @@ static class ContextMenuHanders
             return;
 
         GenericMenu menu = new GenericMenu();
-        foreach(var attr in inputEvent.Canvas.NodeTypes())
+        foreach (var attr in inputEvent.Canvas.NodeTypes())
         {
+            if (attr.Hidden)
+                continue;
+
             menu.AddItem(new GUIContent(String.Format("Add/{0}", attr.Name)), false, AddNodeCallback, new CallbackEvent<Type>(inputEvent, attr.NodeType));
         }
         menu.ShowAsContext();
@@ -53,7 +167,10 @@ static class ContextMenuHanders
 
 class DialogueCanvas : NodeCanvas
 {
-    public DialogueCanvas() : base() { }
+    public DialogueCanvas() : base()
+    {
+        State.AddNode(typeof(StartNodeCanvasNode), new Vector2(10, 10));
+    }
 }
 
 [NodeBelongsTo(typeof(DialogueCanvas), Hidden = true)]
@@ -87,15 +204,18 @@ class TextNodeCanvasNode : Node
 
     public override string Title { get { return "Text Node"; } }
 
-    public TextNodeCanvasNode(INodeCanvas parent, Vector2 pos) : base(parent, pos) { }
+    public TextNode Target { get; }
+
+    public TextNodeCanvasNode(INodeCanvas parent, Vector2 pos) : base(parent, pos)
+    {
+        Target = new TextNode();
+        Target.Text = "";
+    }
 
     public override void SetupKnobs()
     {
         AddKnob("in", NodeSide.Left, 0, Direction.Input, typeof(string)).Removable = false;
     }
-
-    Dictionary<string, string> _KnobDisplayText = new Dictionary<string, string>();
-    string _Text = "";
 
     private string _RemoveKnob = null;
     public override void OnGUI()
@@ -103,30 +223,37 @@ class TextNodeCanvasNode : Node
         DrawKnob("in", 20);
 
         GUILayout.BeginVertical();
-        _Text = GUILayout.TextArea(_Text, GUILayout.Height(100));
+        Target.Text = GUILayout.TextArea(Target.Text, GUILayout.Height(100));
 
         if (GUILayout.Button("Add Branch"))
         {
             IKnob knob = AddKnob(Guid.NewGuid().ToString(), NodeSide.Right, 1, Direction.Output, typeof(string));
-            _KnobDisplayText.Add(knob.ID, "");
+            Target.AddBranch<SimpleBranch>(ID = knob.ID);
+            IBranch branch = Target.Branches[knob.ID];
+            branch.Text = "";
         }
 
         foreach (var knob in Knobs.Where(x => x.Value.Direction == Direction.Output))
         {
             GUILayout.BeginHorizontal();
-            _KnobDisplayText[knob.Key] = GUILayout.TextField(_KnobDisplayText[knob.Key]);
+            Target.Branches[knob.Key].Text = GUILayout.TextField(Target.Branches[knob.Key].Text);
             DrawKnob(knob.Key);
             if (GUILayout.Button("X", GUILayout.ExpandWidth(false)))
-                _RemoveKnob = knob.Key;
+                if (EditorUtility.DisplayDialog("Are you sure?", "Are you sure you want to remove this branch?", "Yup", "NO!"))
+                    _RemoveKnob = knob.Key;
             GUILayout.EndHorizontal();
         }
 
         if (!string.IsNullOrEmpty(_RemoveKnob))
         {
             RemoveKnob(_RemoveKnob);
-            _KnobDisplayText.Remove(_RemoveKnob);
+            Target.RemoveBranch(_RemoveKnob);
             _RemoveKnob = null;
         }
+
+        GUILayout.Space(20);
+
+        MetadataEditor.Editor(Target);
 
         GUILayout.EndVertical();
     }
@@ -135,12 +262,18 @@ class TextNodeCanvasNode : Node
 [NodeBelongsTo(typeof(DialogueCanvas), Name = "Event Node")]
 class EventNodeCanvasNode : Node
 {
-    public override Vector2 MinSize { get { return new Vector2(100, 40); } }
+    public override Vector2 MinSize { get { return new Vector2(200, 40); } }
     public override bool CanResize { get { return true; } }
 
     public override string Title { get { return "Event Node"; } }
 
-    public EventNodeCanvasNode(INodeCanvas parent, Vector2 pos) : base(parent, pos) { }
+    public EventNode Target { get; }
+
+    public EventNodeCanvasNode(INodeCanvas parent, Vector2 pos) : base(parent, pos)
+    {
+        Target = new EventNode();
+        Target.Message = "";
+    }
 
     public override void SetupKnobs()
     {
@@ -148,26 +281,35 @@ class EventNodeCanvasNode : Node
         AddKnob("out", NodeSide.Right, 1, Direction.Output, typeof(string)).Removable = false;
     }
 
-    string _Msg = "";
     public override void OnGUI()
     {
 
         DrawKnob("in", 20);
         DrawKnob("out", 20);
 
-        _Msg = GUILayout.TextField(_Msg);
+        Target.Message = GUILayout.TextField(Target.Message);
+
+        GUILayout.Space(20);
+
+        MetadataEditor.Editor(Target);
     }
 }
 
 [NodeBelongsTo(typeof(DialogueCanvas), Name = "Wait Node")]
 class WaitNodeCanvasNode : Node
 {
-    public override Vector2 MinSize { get { return new Vector2(100, 40); } }
+    public override Vector2 MinSize { get { return new Vector2(200, 40); } }
     public override bool CanResize { get { return true; } }
 
     public override string Title { get { return "Wait Node"; } }
 
-    public WaitNodeCanvasNode(INodeCanvas parent, Vector2 pos) : base(parent, pos) { }
+    public WaitNode Target { get; }
+
+    public WaitNodeCanvasNode(INodeCanvas parent, Vector2 pos) : base(parent, pos)
+    {
+        Target = new WaitNode();
+        Target.Seconds = 0f;
+    }
 
     public override void SetupKnobs()
     {
@@ -175,25 +317,33 @@ class WaitNodeCanvasNode : Node
         AddKnob("out", NodeSide.Right, 1, Direction.Output, typeof(string)).Removable = false;
     }
 
-    int Wait = 0;
     public override void OnGUI()
     {
         DrawKnob("in", 20);
         DrawKnob("out", 20);
 
-        Wait = EditorGUILayout.IntField(Wait);
+        Target.Seconds = EditorGUILayout.FloatField(Target.Seconds);
+
+        GUILayout.Space(20);
+
+        MetadataEditor.Editor(Target);
     }
 }
 
 [NodeBelongsTo(typeof(DialogueCanvas), Name = "End Node")]
 class EndNodeCanvasNode : Node
 {
-    public override Vector2 MinSize { get { return new Vector2(100, 40); } }
-    public override bool CanResize { get { return false; } }
+    public override Vector2 MinSize { get { return new Vector2(200, 40); } }
+    public override bool CanResize { get { return true; } }
 
-    public override string Title { get { return "End Node"; } }
+    public override string Title { get { return "End Node"; } } 
 
-    public EndNodeCanvasNode(INodeCanvas parent, Vector2 pos) : base(parent, pos) { }
+    public EndNode Target { get; }
+    
+    public EndNodeCanvasNode(INodeCanvas parent, Vector2 pos) : base(parent, pos)
+    {
+        Target = new EndNode();
+    }
 
     public override void SetupKnobs()
     {
@@ -203,6 +353,7 @@ class EndNodeCanvasNode : Node
     public override void OnGUI()
     {
         DrawKnob("in", 20);
+        MetadataEditor.Editor(Target);
     }
 }
 
@@ -229,8 +380,6 @@ public class NodeDialogueEditor : EditorWindow
         Canvas.Repaint += Repaint;
 
         Canvas.InputSystem.AddHandlersFrom(typeof(ContextMenuHanders));
-
-        Canvas.State.AddNode(typeof(StartNodeCanvasNode), new Vector2(10, 10));
     }
 
     private void OnDestroy()
@@ -243,7 +392,7 @@ public class NodeDialogueEditor : EditorWindow
         if (Canvas == null)
             Setup();
 
-        int sideWindowWidth = 200;
+        int sideWindowWidth = 300;
 
         Rect sideWindowRect = new Rect(0, 0, sideWindowWidth, position.height);
 

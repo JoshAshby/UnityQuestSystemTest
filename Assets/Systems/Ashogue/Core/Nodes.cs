@@ -14,12 +14,12 @@ namespace Ashogue
             Dictionary<string, IMetadata> Metadata { get; set; }
         }
 
-        public interface IBranchedNode
+        public interface IBranchedNode : INode
         {
             Dictionary<string, IBranch> Branches { get; set; }
         }
 
-        public interface INextNode
+        public interface INextNode : INode
         {
             string NextNodeID { get; set; }
         }
