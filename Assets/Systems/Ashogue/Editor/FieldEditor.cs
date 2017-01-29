@@ -19,8 +19,7 @@ static class FieldEditor
     public static void DeclaredFieldsEditor(object obj)
     {
         List<PropertyInfo> properties = obj.GetType()
-            .GetProperties(BindingFlags.Public)
-            .Where(x => x.GetCustomAttributes(typeof(CustomDataAttribute), true).Any())
+            .GetProperties(BindingFlags.Public | BindingFlags.DeclaredOnly)
             .ToList();
 
         GUILayout.BeginVertical();

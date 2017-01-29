@@ -6,7 +6,6 @@ using System;
 using System.Linq;
 using Ashogue;
 using Ashogue.Data;
-using Ashogue.Extensions;
 
 public class OldDialogueEditor : EditorWindow
 {
@@ -336,18 +335,18 @@ public class OldDialogueEditor : EditorWindow
 
     private void ChainEditor()
     {
-        if (!(currentNode is INextNode))
+        if (!(currentNode is IBranchedNode))
             return;
 
-        INextNode node = (INextNode)currentNode;
+        IBranchedNode node = (IBranchedNode)currentNode;
 
         GUILayout.BeginHorizontal();
 
         GUILayout.Label("Next Node ID");
         ChoiceSelector(
             currentNodeIDs,
-            node.NextNodeID,
-            (newID) => { node.NextNodeID = newID; }
+            node.Branches.First().Value.NextNodeID,
+            (newID) => { node.Branches.First().Value.NextNodeID = newID; }
         );
 
         GUILayout.EndHorizontal();

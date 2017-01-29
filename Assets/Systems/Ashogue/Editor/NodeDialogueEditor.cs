@@ -2,126 +2,15 @@ using UnityEditor;
 using UnityEngine;
 using Ashode;
 using Ashogue.Data;
-using Ashogue.Extensions;
 using System;
 using System.Linq;
 using System.Collections.Generic;
-using System.Reflection;
+using System.IO;
 
 namespace Ashogue
 {
     namespace Editor
     {
-        public static class MetadataEditor
-        {
-            public static List<Type> AllSubTypes<T>()
-            {
-                return AppDomain.CurrentDomain.GetAssemblies()
-                    .SelectMany(assembly => assembly.GetTypes())
-                    .Where(type => type.IsClass && !type.IsAbstract && type.IsSubclassOf(typeof(T)))
-                    .OrderBy(x => x.Name)
-                    .ToList();
-            }
-
-            public static List<Type> AllImplementTypes<T>()
-            {
-                return AppDomain.CurrentDomain.GetAssemblies()
-                    .SelectMany(assembly => assembly.GetTypes())
-                    .Where(type => type.IsClass && !type.IsAbstract && type.GetInterfaces().Contains(typeof(T)))
-                    .OrderBy(x => x.Name)
-                    .ToList();
-            }
-
-            public static List<Type> metadataTypes = AllImplementTypes<IMetadata>();
-
-            public static string ChoiceSelector(string[] options, string selected, Action<string> callback)
-            {
-                int choiceIndex = Array.IndexOf(options, selected);
-                if (choiceIndex == -1)
-                    choiceIndex = 0;
-
-                EditorGUI.BeginChangeCheck();
-                choiceIndex = EditorGUILayout.Popup(choiceIndex, options);
-                if (EditorGUI.EndChangeCheck())
-                {
-                    string newSelection = options[choiceIndex];
-                    callback(newSelection);
-                    return newSelection;
-                }
-
-                return selected;
-            }
-
-            private static Dictionary<string, string> nodeTypeChoice = new Dictionary<string, string>();
-            public static string TypeField(List<Type> options, string buttonText, Action<string> callback)
-            {
-                if (!options.Any())
-                    return null;
-
-                string[] optionNames = options.Select(x => x.Name).OrderBy(x => x).ToArray();
-                if (!nodeTypeChoice.ContainsKey(buttonText))
-                    nodeTypeChoice.Add(buttonText, optionNames.First());
-
-                ChoiceSelector(
-                    optionNames,
-                    nodeTypeChoice[buttonText],
-                    (newTypeName) => { nodeTypeChoice[buttonText] = newTypeName; }
-                );
-
-                if (GUILayout.Button(buttonText))
-                    callback(nodeTypeChoice[buttonText]);
-
-                return nodeTypeChoice[buttonText];
-            }
-
-            public static void Editor(Ashogue.Data.INode Target)
-            {
-                GUILayout.BeginHorizontal();
-                TypeField(
-                    metadataTypes,
-                    "Add Metadata",
-                    (newTypeName) => { Target.AddMetadata(metadataTypes.Find(type => type.Name == newTypeName)); }
-                );
-                GUILayout.EndHorizontal();
-
-                IMetadata removalMetadata = null;
-
-                foreach (IMetadata metadata in Target.Metadata.Values)
-                {
-                    GUILayout.BeginHorizontal();
-                    GUILayout.Label("Key");
-                    metadata.ID = EditorGUILayout.TextField(metadata.ID);
-
-                    if (metadata.Type == typeof(bool))
-                    {
-                        IMetadata<bool> handle = metadata.OfType<bool>();
-                        handle.Value = GUILayout.Toggle(handle.Value, "");
-                    }
-                    else if (metadata.Type == typeof(float))
-                    {
-                        IMetadata<float> handle = metadata.OfType<float>();
-                        handle.Value = EditorGUILayout.FloatField(handle.Value);
-                    }
-                    else if (metadata.Type == typeof(string))
-                    {
-                        IMetadata<string> handle = metadata.OfType<string>();
-                        handle.Value = EditorGUILayout.TextField(handle.Value);
-                    }
-
-                    GUILayout.FlexibleSpace();
-
-                    if (GUILayout.Button("X"))
-                        if (EditorUtility.DisplayDialog("Are you sure?", "Are you sure you want to remove this metadata?", "Yup", "NO!"))
-                            removalMetadata = metadata;
-
-                    GUILayout.EndHorizontal();
-                }
-
-                if (removalMetadata != null)
-                    Target.RemoveMetadata(removalMetadata.ID);
-            }
-        }
-
         class DialogueCanvas : NodeCanvas
         {
             public DialogueCanvas() : base()
@@ -130,195 +19,16 @@ namespace Ashogue
             }
         }
 
-        [NodeBelongsTo(typeof(DialogueCanvas), Hidden = true)]
-        class StartNodeCanvasNode : Node
-        {
-            public override Vector2 MinSize { get { return new Vector2(100, 40); } }
-            public override bool CanResize { get { return false; } }
-
-            public override string Title { get { return "Start Node"; } }
-
-            public override bool Removable { get { return false; } }
-
-            public StartNodeCanvasNode(INodeCanvas parent, Vector2 pos) : base(parent, pos) { }
-
-            public override void SetupKnobs()
-            {
-                AddKnob("start", NodeSide.Right, 1, Direction.Output, typeof(string)).Removable = false;
-            }
-
-            public override void OnGUI()
-            {
-                DrawKnob("start", Rect.size.y / 2);
-            }
-        }
-
-        [NodeBelongsTo(typeof(DialogueCanvas), Name = "Text Node")]
-        class TextNodeCanvasNode : Node
-        {
-            public override Vector2 MinSize { get { return new Vector2(200, 300); } }
-            public override bool CanResize { get { return true; } }
-
-            public override string Title { get { return "Text Node"; } }
-
-            public TextNode Target { get; }
-
-            public TextNodeCanvasNode(INodeCanvas parent, Vector2 pos) : base(parent, pos)
-            {
-                Target = new TextNode();
-                Target.Text = "";
-            }
-
-            public override void SetupKnobs()
-            {
-                AddKnob("in", NodeSide.Left, 0, Direction.Input, typeof(string)).Removable = false;
-            }
-
-            private string _RemoveKnob = null;
-            public override void OnGUI()
-            {
-                DrawKnob("in", 20);
-
-                GUILayout.BeginVertical();
-                Target.Text = GUILayout.TextArea(Target.Text, GUILayout.Height(100));
-
-                if (GUILayout.Button("Add Branch"))
-                {
-                    IKnob knob = AddKnob(Guid.NewGuid().ToString(), NodeSide.Right, 1, Direction.Output, typeof(string));
-                    Target.AddBranch<SimpleBranch>(ID = knob.ID);
-                    IBranch branch = Target.Branches[knob.ID];
-                    branch.Text = "";
-                }
-
-                foreach (var knob in Knobs.Where(x => x.Value.Direction == Direction.Output))
-                {
-                    GUILayout.BeginHorizontal();
-                    Target.Branches[knob.Key].Text = GUILayout.TextField(Target.Branches[knob.Key].Text);
-                    DrawKnob(knob.Key);
-                    if (GUILayout.Button("X", GUILayout.ExpandWidth(false)))
-                        if (EditorUtility.DisplayDialog("Are you sure?", "Are you sure you want to remove this branch?", "Yup", "NO!"))
-                            _RemoveKnob = knob.Key;
-                    GUILayout.EndHorizontal();
-                }
-
-                if (!string.IsNullOrEmpty(_RemoveKnob))
-                {
-                    RemoveKnob(_RemoveKnob);
-                    Target.RemoveBranch(_RemoveKnob);
-                    _RemoveKnob = null;
-                }
-
-                GUILayout.Space(20);
-
-                MetadataEditor.Editor(Target);
-
-                GUILayout.EndVertical();
-            }
-        }
-
-        [NodeBelongsTo(typeof(DialogueCanvas), Name = "Event Node")]
-        class EventNodeCanvasNode : Node
-        {
-            public override Vector2 MinSize { get { return new Vector2(200, 40); } }
-            public override bool CanResize { get { return true; } }
-
-            public override string Title { get { return "Event Node"; } }
-
-            public EventNode Target { get; }
-
-            public EventNodeCanvasNode(INodeCanvas parent, Vector2 pos) : base(parent, pos)
-            {
-                Target = new EventNode();
-                Target.Message = "";
-            }
-
-            public override void SetupKnobs()
-            {
-                AddKnob("in", NodeSide.Left, 0, Direction.Input, typeof(string)).Removable = false;
-                AddKnob("out", NodeSide.Right, 1, Direction.Output, typeof(string)).Removable = false;
-            }
-
-            public override void OnGUI()
-            {
-
-                DrawKnob("in", 20);
-                DrawKnob("out", 20);
-
-                Target.Message = GUILayout.TextField(Target.Message);
-
-                GUILayout.Space(20);
-
-                MetadataEditor.Editor(Target);
-            }
-        }
-
-        [NodeBelongsTo(typeof(DialogueCanvas), Name = "Wait Node")]
-        class WaitNodeCanvasNode : Node
-        {
-            public override Vector2 MinSize { get { return new Vector2(200, 40); } }
-            public override bool CanResize { get { return true; } }
-
-            public override string Title { get { return "Wait Node"; } }
-
-            public WaitNode Target { get; }
-
-            public WaitNodeCanvasNode(INodeCanvas parent, Vector2 pos) : base(parent, pos)
-            {
-                Target = new WaitNode();
-                Target.Seconds = 0f;
-            }
-
-            public override void SetupKnobs()
-            {
-                AddKnob("in", NodeSide.Left, 0, Direction.Input, typeof(string)).Removable = false;
-                AddKnob("out", NodeSide.Right, 1, Direction.Output, typeof(string)).Removable = false;
-            }
-
-            public override void OnGUI()
-            {
-                DrawKnob("in", 20);
-                DrawKnob("out", 20);
-
-                Target.Seconds = EditorGUILayout.FloatField(Target.Seconds);
-
-                GUILayout.Space(20);
-
-                MetadataEditor.Editor(Target);
-            }
-        }
-
-        [NodeBelongsTo(typeof(DialogueCanvas), Name = "End Node")]
-        class EndNodeCanvasNode : Node
-        {
-            public override Vector2 MinSize { get { return new Vector2(200, 40); } }
-            public override bool CanResize { get { return true; } }
-
-            public override string Title { get { return "End Node"; } }
-
-            public EndNode Target { get; }
-
-            public EndNodeCanvasNode(INodeCanvas parent, Vector2 pos) : base(parent, pos)
-            {
-                Target = new EndNode();
-            }
-
-            public override void SetupKnobs()
-            {
-                AddKnob("in", NodeSide.Left, 0, Direction.Input, typeof(string)).Removable = false;
-            }
-
-            public override void OnGUI()
-            {
-                DrawKnob("in", 20);
-                MetadataEditor.Editor(Target);
-            }
-        }
-
         public class NodeDialogueEditor : EditorWindow
         {
             private static NodeDialogueEditor _editor;
             public static NodeDialogueEditor editor { get { AssureEditor(); return _editor; } }
             public static void AssureEditor() { if (_editor == null) OpenEditor(); }
+
+            private DialogueContainer database;
+            private string path;
+
+            private string currentDialogue = "test";
 
             private DialogueCanvas Canvas;
 
@@ -331,10 +41,108 @@ namespace Ashogue
                 return _editor;
             }
 
+            private void EnsureDatabase()
+            {
+                if (database != null)
+                    return;
+
+                path = Path.Combine(Application.dataPath, DialogueController.DatabaseLocation);
+
+                if (File.Exists(path))
+                    LoadDatabase();
+                else
+                    CreateDatabase();
+            }
+
+            private void CreateDatabase()
+            {
+                Debug.Log("Dialogue database doesn't exist, creating");
+                Directory.CreateDirectory(Path.GetDirectoryName(path));
+
+                database = new DialogueContainer();
+                database.Save(path);
+            }
+
+            private void LoadDatabase()
+            {
+                database = DialogueContainer.Load(path);
+            }
+
+            private void ReloadDatabase()
+            {
+                if (EditorUtility.DisplayDialog("Are you sure?", "Are you sure you want to reload the database? This will lose any unsaved work", "Yup", "NO!"))
+                {
+                    LoadDatabase();
+                }
+            }
+
             private void Setup()
             {
+                EnsureDatabase();
+
                 Canvas = new DialogueCanvas();
                 Canvas.Repaint += Repaint;
+
+                Ashode.INode startNode = Canvas.State.Nodes.First();
+
+                IDialogueNode firstNode = null;
+                foreach (var node in database.Dialogues[currentDialogue].Nodes.Values)
+                {
+                    Vector2 pos = new Vector2();
+                    IDialogueNode nnode = null;
+
+                    if (typeof(TextNode).IsAssignableFrom(node.GetType()))
+                        nnode = Canvas.State.AddNode<TextNodeCanvasNode>(pos);
+
+                    else if (typeof(EventNode).IsAssignableFrom(node.GetType()))
+                        nnode = Canvas.State.AddNode<EventNodeCanvasNode>(pos);
+
+                    else if (typeof(WaitNode).IsAssignableFrom(node.GetType()))
+                        nnode = Canvas.State.AddNode<WaitNodeCanvasNode>(pos);
+
+                    else if (typeof(EndNode).IsAssignableFrom(node.GetType()))
+                        nnode = Canvas.State.AddNode<EndNodeCanvasNode>(pos);
+
+                    nnode.Target = node;
+
+                    if (node.ID == database.Dialogues[currentDialogue].FirstNodeID)
+                        firstNode = nnode;
+                }
+
+                Canvas.State.AddConnection(startNode.Knobs["start"], firstNode.Knobs["in"]);
+
+                foreach (var _node in Canvas.State.Nodes)
+                {
+                    if (!typeof(IDialogueNode).IsAssignableFrom(_node.GetType()))
+                        continue;
+
+                    IDialogueNode node = (IDialogueNode)_node;
+
+
+                }
+
+                Canvas.EventSystem.AddNodeEvent += AddNodeHandler;
+                Canvas.EventSystem.RemoveNodeEvent += RemoveNodeHandler;
+            }
+
+            void AddNodeHandler(object sender, NodeEventArgs<Ashode.INode> e)
+            {
+                Type nodeType = e.Target.GetType();
+
+                if (typeof(TextNodeCanvasNode).IsAssignableFrom(nodeType))
+                {
+                    ((TextNodeCanvasNode)e.Target).Target = database.Dialogues[currentDialogue].AddNode<TextNode>();
+                }
+            }
+
+            void RemoveNodeHandler(object sender, NodeEventArgs<Ashode.INode> e)
+            {
+                Type nodeType = e.Target.GetType();
+
+                if (typeof(TextNodeCanvasNode).IsAssignableFrom(nodeType))
+                {
+                    database.Dialogues[currentDialogue].RemoveNode(((TextNodeCanvasNode)e.Target).Target.ID);
+                }
             }
 
             private void OnDestroy()

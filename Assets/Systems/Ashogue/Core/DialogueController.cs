@@ -134,7 +134,7 @@ namespace Ashogue
 
         public static void Initialize()
         {
-            dialogues = XmlContainer<DialogueContainer>.Load(Path.Combine(Application.dataPath, DatabaseLocation));
+            dialogues = DialogueContainer.Load(Path.Combine(Application.dataPath, DatabaseLocation));
         }
 
         public static void StartDialogue(string ID)
@@ -182,7 +182,7 @@ namespace Ashogue
         {
             INode interNode = currentNode;
 
-            while (!(interNode is IBranchedNode))
+            while (!(interNode is TextNode))
             {
                 Events.OnNode(currentDialogue, interNode);
 
@@ -192,15 +192,15 @@ namespace Ashogue
                 else if (interNode is WaitNode)
                     HandleWaitNode((WaitNode)interNode);
 
-                else if ((interNode is EndNode) || !(interNode is INextNode))
+                else if ((interNode is EndNode) || !(interNode is IBranchedNode))
                 {
-                    bool suddenly = !(interNode is EndNode) && (interNode is INextNode);
+                    bool suddenly = !(interNode is EndNode) && (interNode is IBranchedNode);
 
                     EndDialogue(interNode, suddenly);
                     return;
                 }
 
-                interNode = currentDialogue.Nodes[((INextNode)interNode).NextNodeID];
+                interNode = currentDialogue.Nodes[((IBranchedNode)interNode).Branches.First().Value.NextNodeID];
             }
 
             TextNode node = (TextNode)interNode;

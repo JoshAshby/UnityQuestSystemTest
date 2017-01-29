@@ -14,6 +14,10 @@ namespace Ashogue
             string FirstNodeID { get; set; }
 
             Dictionary<string, INode> Nodes { get; set; }
+            TNode AddNode<TNode>(string ID = null) where TNode : INode, new();
+            INode AddNode(Type TNode, string ID = null);
+            void RenameNode(string fromID, string toID);
+            void RemoveNode(string ID);
         }
 
         public class Dialogue : IDialogue
@@ -45,6 +49,44 @@ namespace Ashogue
             {
                 get { return Nodes.Values.ToArray(); }
                 set { Nodes = value.ToDictionary(i => i.ID, i => i); }
+            }
+
+            public TNode AddNode<TNode>(string ID = null) where TNode : INode, new()
+            {
+                if (String.IsNullOrEmpty(ID))
+                    ID = Guid.NewGuid().ToString();
+
+                TNode node = new TNode { ID = ID };
+                Nodes.Add(ID, node);
+
+                return node;
+            }
+
+            public INode AddNode(Type TNode, string ID = null)
+            {
+                if (String.IsNullOrEmpty(ID))
+                    ID = Guid.NewGuid().ToString();
+
+                INode node = (INode)Activator.CreateInstance(TNode);
+
+                node.ID = ID;
+                Nodes.Add(ID, node);
+
+                return node;
+            }
+
+            public void RenameNode(string fromID, string toID)
+            {
+                INode node = Nodes[fromID];
+
+                Nodes.Remove(fromID);
+                node.ID = toID;
+                Nodes.Add(toID, node);
+            }
+
+            public void RemoveNode(string ID)
+            {
+                Nodes.Remove(ID);
             }
         }
     }

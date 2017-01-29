@@ -11,17 +11,21 @@ namespace Ashogue
         public interface INode
         {
             string ID { get; set; }
+
             Dictionary<string, IMetadata> Metadata { get; set; }
+            TMetadata AddMetadata<TMetadata>(string ID = null) where TMetadata : IMetadata, new();
+            IMetadata AddMetadata(Type TMetadata, string ID = null);
+            void RenameMetadata(string FromID, string ToID);
+            void RemoveMetadata(string ID);
         }
 
-        public interface IBranchedNode : INode
+        public interface IBranchedNode
         {
             Dictionary<string, IBranch> Branches { get; set; }
-        }
-
-        public interface INextNode : INode
-        {
-            string NextNodeID { get; set; }
+            TBranch AddBranch<TBranch>(string ID = null) where TBranch : IBranch, new();
+            IBranch AddBranch(Type TBranch, string ID = null);
+            void RenameBranch(string FromID, string ToID);
+            void RemoveBranch(string ID);
         }
 
         public abstract class ANode : INode
@@ -51,20 +55,48 @@ namespace Ashogue
                 get { return Metadata.Values.ToArray(); }
                 set { Metadata = value.ToDictionary(i => i.ID, i => i); }
             }
+
+            public virtual TMetadata AddMetadata<TMetadata>(string ID = null) where TMetadata : IMetadata, new()
+            {
+                if (String.IsNullOrEmpty(ID))
+                    ID = Guid.NewGuid().ToString();
+
+                TMetadata metadata = new TMetadata { ID = ID };
+                Metadata.Add(ID, metadata);
+
+                return metadata;
+            }
+
+            public virtual IMetadata AddMetadata(Type TMetadata, string ID = null)
+            {
+                if (String.IsNullOrEmpty(ID))
+                    ID = Guid.NewGuid().ToString();
+
+                IMetadata metadata = (IMetadata)Activator.CreateInstance(TMetadata);
+
+                metadata.ID = ID;
+                Metadata.Add(ID, metadata);
+
+                return metadata;
+            }
+
+            public virtual void RenameMetadata(string fromID, string toID)
+            {
+                IMetadata metadata = Metadata[fromID];
+
+                Metadata.Remove(fromID);
+                metadata.ID = toID;
+                Metadata.Add(toID, metadata);
+            }
+
+            public virtual void RemoveMetadata(string ID)
+            {
+                Metadata.Remove(ID);
+            }
         }
 
-        [AttributeUsage(AttributeTargets.Property)]
-        public class CustomDataAttribute : Attribute
+        public abstract class ABranchedNode : ANode, IBranchedNode
         {
-            public string Name { get; set; }
-            public string Tip { get; set; }
-        }
-
-        public class TextNode : ANode, IBranchedNode
-        {
-            [CustomData(Name = "Displayed Text", Tip = "Text that will be passed along during a Dialogue event")]
-            public string Text { get; set; }
-
             private Dictionary<string, IBranch> _branches = new Dictionary<string, IBranch>();
             [XmlIgnore]
             public Dictionary<string, IBranch> Branches
@@ -80,22 +112,62 @@ namespace Ashogue
                 get { return Branches.Values.ToArray(); }
                 set { Branches = value.ToDictionary(i => i.ID, i => i); }
             }
+
+            public virtual TBranch AddBranch<TBranch>(string ID = null) where TBranch : IBranch, new()
+            {
+                if (String.IsNullOrEmpty(ID))
+                    ID = Guid.NewGuid().ToString();
+
+                TBranch branch = new TBranch { ID = ID };
+                Branches.Add(ID, branch);
+
+                return branch;
+            }
+
+            public virtual IBranch AddBranch(Type TBranch, string ID = null)
+            {
+                if (String.IsNullOrEmpty(ID))
+                    ID = Guid.NewGuid().ToString();
+
+                IBranch Branch = (IBranch)Activator.CreateInstance(TBranch);
+
+                Branch.ID = ID;
+                Branches.Add(ID, Branch);
+
+                return Branch;
+            }
+
+            public virtual void RenameBranch(string fromID, string toID)
+            {
+                IBranch Branch = Branches[fromID];
+
+                Branches.Remove(fromID);
+                Branch.ID = toID;
+                Branches.Add(toID, Branch);
+            }
+
+            public virtual void RemoveBranch(string ID)
+            {
+                Branches.Remove(ID);
+            }
         }
 
-        public class WaitNode : ANode, INextNode
+        public class TextNode : ABranchedNode
         {
-            [CustomData(Name = "Seconds to wait")]
-            public float Seconds { get; set; }
-
-            public string NextNodeID { get; set; }
+            private string _text = "";
+            public string Text { get { return _text; } set { _text = value; } }
         }
 
-        public class EventNode : ANode, INextNode
+        public class WaitNode : ABranchedNode
         {
-            [CustomData(Name = "Event Message", Tip = "Message to pass along to the Message event")]
-            public string Message { get; set; }
+            private float _seconds = 0f;
+            public float Seconds { get { return _seconds; } set { _seconds = value; } }
+        }
 
-            public string NextNodeID { get; set; }
+        public class EventNode : ABranchedNode
+        {
+            private string _message = "";
+            public string Message { get { return _message; } set { _message = value; } }
         }
 
         public class EndNode : ANode { }
