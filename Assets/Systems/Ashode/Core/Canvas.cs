@@ -46,6 +46,7 @@ namespace Ashode
         IState State { get; set; }
         InputSystem InputSystem { get; set; }
         ITheme Theme { get; set; }
+        EventSystem EventSystem { get; set; }
 
         // This is an Action instead of an EventHandler because it
         // makes it quick to subscribe the EditorWindow.Repaint action
@@ -68,6 +69,7 @@ namespace Ashode
         public IState State { get; set; }
         public InputSystem InputSystem { get; set; }
         public ITheme Theme { get; set; }
+        public EventSystem EventSystem { get; set; }
 
         public event Action Repaint;
         public void OnRepaint() { Repaint.SafeInvoke(); }
@@ -77,6 +79,7 @@ namespace Ashode
             State = new State(this);
             InputSystem = new InputSystem(typeof(InputControls));
             Theme = new Theme();
+            EventSystem = new EventSystem();
         }
 
         public virtual void OnGUI() { }

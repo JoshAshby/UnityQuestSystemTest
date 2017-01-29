@@ -9,11 +9,13 @@ namespace Ashode
     {
         NodeCanvas Parent { get; }
 
+        TNode AddNode<TNode>(Vector2 pos) where TNode : INode;
         INode AddNode(Type type, Vector2 pos);
         void RemoveNode(INode node);
         void RemoveNode(string id);
 
         IConnection AddConnection(IKnob FromKnob, IKnob ToKnob);
+        TConnection AddConnection<TConnection>(IKnob FromKnob, IKnob ToKnob) where TConnection : IConnection;
         IConnection AddConnection(Type type, IKnob FromKnob, IKnob ToKnob);
         void RemoveConnection(IConnection conn);
         void RemoveConnection(string id);
@@ -50,20 +52,20 @@ namespace Ashode
 
         // These should probably be properties because they are the exposed API but meh, fuck it
         private List<INode> _nodes = new List<INode>();
-        public List<INode> Nodes { get { return _nodes; } }
+        public virtual List<INode> Nodes { get { return _nodes; } }
 
         private List<IConnection> _connections = new List<IConnection>();
-        public List<IConnection> Connections { get { return _connections; } }
+        public virtual List<IConnection> Connections { get { return _connections; } }
 
-        public INode FocusedNode { get; set; }
-        public INode SelectedNode { get; set; }
+        public virtual INode FocusedNode { get; set; }
+        public virtual INode SelectedNode { get; set; }
 
-        public IKnob FocusedKnob { get; set; }
-        public IKnob SelectedKnob { get; set; }
-        public IKnob ExpandedKnob { get; set; }
-        public IKnob ConnectedFromKnob { get; set; }
+        public virtual IKnob FocusedKnob { get; set; }
+        public virtual IKnob SelectedKnob { get; set; }
+        public virtual IKnob ExpandedKnob { get; set; }
+        public virtual IKnob ConnectedFromKnob { get; set; }
 
-        public IConnection FocusedConnection { get; set; }
+        public virtual IConnection FocusedConnection { get; set; }
 
         // Draggin, panning, connecting and maybe eventually zoommmmmmz
         public bool Panning { get; set; }
@@ -98,12 +100,17 @@ namespace Ashode
             this.Parent = canvas;
         }
 
+        public TNode AddNode<TNode>(Vector2 pos) where TNode : INode
+        {
+            return (TNode)AddNode(typeof(TNode), pos);
+        }
+
         public INode AddNode(Type type, Vector2 pos)
         {
             if (!typeof(INode).IsAssignableFrom(type))
                 return null;
 
-            if(!Parent.NodeTypes().Any(x => x.NodeType == type))
+            if (!Parent.NodeTypes().Any(x => x.NodeType == type))
                 return null;
 
             INode node = (INode)Activator.CreateInstance(type, this.Parent, pos);
@@ -115,7 +122,7 @@ namespace Ashode
 
         public void RemoveNode(INode node)
         {
-            if(!node.Removable)
+            if (!node.Removable)
                 return;
 
             if (FocusedNode == node)
@@ -144,6 +151,11 @@ namespace Ashode
             Connections.Add(connection);
 
             return connection;
+        }
+
+        public TConnection AddConnection<TConnection>(IKnob FromKnob, IKnob ToKnob) where TConnection : IConnection
+        {
+            return (TConnection)AddConnection(typeof(TConnection), FromKnob, ToKnob);
         }
 
         public IConnection AddConnection(Type type, IKnob FromKnob, IKnob ToKnob)
