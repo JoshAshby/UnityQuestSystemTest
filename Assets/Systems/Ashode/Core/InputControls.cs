@@ -1,9 +1,27 @@
 using System;
+using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 
 namespace Ashode
 {
+    public class GenericMenuCallbackData<T>
+    {
+        public InputEvent InputEvent { get; }
+        public T Object { get; }
+
+        public Vector2 CanvasSpaceMouse
+        {
+            get { return InputEvent.Canvas.ScreenToCanvasSpace((InputEvent.Event.mousePosition)) - InputEvent.State.GlobalCanvasSize.position; }
+        }
+
+        public GenericMenuCallbackData(InputEvent inputEvent, T action)
+        {
+            this.InputEvent = inputEvent;
+            this.Object = action;
+        }
+    }
+
     // Default, example input event handlers
     public static class InputControls
     {
@@ -143,6 +161,35 @@ namespace Ashode
             inputEvent.State.ConnectedFromKnob = null;
 
             inputEvent.Canvas.OnRepaint();
+        }
+
+        private static void AddNodeCallback(object obj)
+        {
+            GenericMenuCallbackData<Type> callbackEvent = obj as GenericMenuCallbackData<Type>;
+
+            callbackEvent.InputEvent.State.AddNode(callbackEvent.Object, callbackEvent.CanvasSpaceMouse);
+        }
+
+        // Right click on canvas
+        [MouseEventHandler(MouseButtons.Right, Priority = 2)]
+        public static void HandleCanvasRightClick(InputEvent inputEvent)
+        {
+            if (inputEvent.Control != null)
+                return;
+
+            List<NodeBelongsToAttributeInfo> info = inputEvent.Canvas.NodeTypes();
+
+            GenericMenu menu = new GenericMenu();
+            foreach (var attr in info)
+            {
+                if (attr.Hidden)
+                    continue;
+
+                menu.AddItem(new GUIContent(String.Format("Add/{0}", attr.Name)), false, AddNodeCallback, new GenericMenuCallbackData<Type>(inputEvent, attr.NodeType));
+            }
+            menu.ShowAsContext();
+
+            inputEvent.Event.Use();
         }
 
         private static void RemoveNodeCallback(object obj)

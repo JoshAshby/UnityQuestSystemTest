@@ -24,10 +24,10 @@ namespace Ashode
     {
         public Type CanvasType { get; }
         public string Name { get; }
-        public bool Hidden { get; } 
+        public bool Hidden { get; }
         public Type NodeType { get; }
-        
-        public NodeBelongsToAttributeInfo(Type x, NodeBelongsToAttribute y) 
+
+        public NodeBelongsToAttributeInfo(Type x, NodeBelongsToAttribute y)
         {
             this.NodeType = x;
             this.CanvasType = y.CanvasType;
@@ -167,7 +167,7 @@ namespace Ashode
         {
             IControl hit = null;
 
-            for(int i = State.Nodes.Count-1; i >= 0; i--)
+            for (int i = State.Nodes.Count - 1; i >= 0; i--)
             {
                 var node = State.Nodes[i];
                 if (node.HitTest(loc, out hit))

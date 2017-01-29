@@ -182,7 +182,7 @@ namespace Ashode
 
         public InputSystem(params Type[] controlContainers)
         {
-            foreach(var controlContainer in controlContainers)
+            foreach (var controlContainer in controlContainers)
                 AddHandlersFrom(controlContainer);
         }
 
