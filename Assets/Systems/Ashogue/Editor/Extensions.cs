@@ -7,15 +7,18 @@ namespace Ashogue
     {
         static class MetadataWrapper
         {
-            public static void AddMetadata<TMetadata>(this INode node, string ID = null) where TMetadata : IMetadata, new()
+            public static IMetadata AddMetadata<TMetadata>(this INode node, string ID = null) where TMetadata : IMetadata, new()
             {
                 if (String.IsNullOrEmpty(ID))
                     ID = Guid.NewGuid().ToString();
 
-                node.Metadata.Add(ID, new TMetadata { ID = ID });
+                IMetadata metadata = new TMetadata { ID = ID };
+                node.Metadata.Add(ID, metadata);
+
+                return metadata;
             }
 
-            public static void AddMetadata(this INode node, Type TMetadata, string ID = null)
+            public static IMetadata AddMetadata(this INode node, Type TMetadata, string ID = null)
             {
                 if (String.IsNullOrEmpty(ID))
                     ID = Guid.NewGuid().ToString();
@@ -24,11 +27,8 @@ namespace Ashogue
 
                 metadata.ID = ID;
                 node.Metadata.Add(ID, metadata);
-            }
 
-            public static void AddMetadata(this INode node, IMetadata metadata)
-            {
-                node.Metadata.Add(metadata.ID, metadata);
+                return metadata;
             }
 
             public static void RenameMetadata(this INode node, string fromID, string toID)
@@ -48,15 +48,18 @@ namespace Ashogue
 
         static class BranchWrapper
         {
-            public static void AddBranch<TBranch>(this IBranchedNode node, string ID = null) where TBranch : IBranch, new()
+            public static IBranch AddBranch<TBranch>(this IBranchedNode node, string ID = null) where TBranch : IBranch, new()
             {
                 if (String.IsNullOrEmpty(ID))
                     ID = Guid.NewGuid().ToString();
 
-                node.Branches.Add(ID, new TBranch { ID = ID });
+                IBranch branch = new TBranch { ID = ID };
+                node.Branches.Add(ID, branch);
+
+                return branch;
             }
 
-            public static void AddBranch(this IBranchedNode node, Type TBranch, string ID = null)
+            public static IBranch AddBranch(this IBranchedNode node, Type TBranch, string ID = null)
             {
                 if (String.IsNullOrEmpty(ID))
                     ID = Guid.NewGuid().ToString();
@@ -65,11 +68,8 @@ namespace Ashogue
 
                 Branch.ID = ID;
                 node.Branches.Add(ID, Branch);
-            }
 
-            public static void AddBranch(this IBranchedNode node, IBranch Branch)
-            {
-                node.Branches.Add(Branch.ID, Branch);
+                return Branch;
             }
 
             public static void RenameBranch(this IBranchedNode node, string fromID, string toID)
@@ -89,15 +89,18 @@ namespace Ashogue
 
         static class NodeWrapper
         {
-            public static void AddNode<TNode>(this IDialogue dialogue, string ID = null) where TNode : INode, new()
+            public static INode AddNode<TNode>(this IDialogue dialogue, string ID = null) where TNode : INode, new()
             {
                 if (String.IsNullOrEmpty(ID))
                     ID = Guid.NewGuid().ToString();
 
-                dialogue.Nodes.Add(ID, new TNode { ID = ID });
+                INode node = new TNode { ID = ID };
+                dialogue.Nodes.Add(ID, node);
+
+                return node;
             }
 
-            public static void AddNode(this IDialogue dialogue, Type TNode, string ID = null)
+            public static INode AddNode(this IDialogue dialogue, Type TNode, string ID = null)
             {
                 if (String.IsNullOrEmpty(ID))
                     ID = Guid.NewGuid().ToString();
@@ -106,11 +109,8 @@ namespace Ashogue
 
                 node.ID = ID;
                 dialogue.Nodes.Add(ID, node);
-            }
 
-            public static void AddNode(this IDialogue dialogue, INode node)
-            {
-                dialogue.Nodes.Add(node.ID, node);
+                return node;
             }
 
             public static void RenameNode(this IDialogue dialogue, string fromID, string toID)
@@ -130,12 +130,15 @@ namespace Ashogue
 
         static class DialogueContainerWrapper
         {
-            public static void AddDialogue(this DialogueContainer container, string ID = null)
+            public static IDialogue AddDialogue(this DialogueContainer container, string ID = null)
             {
                 if (String.IsNullOrEmpty(ID))
                     ID = Guid.NewGuid().ToString();
 
-                container.Dialogues.Add(ID, new Dialogue { ID = ID });
+                IDialogue dialogue = new Dialogue { ID = ID };
+                container.Dialogues.Add(ID, dialogue);
+
+                return dialogue;
             }
 
             public static void RenameDialogue(this DialogueContainer container, string fromID, string toID)
