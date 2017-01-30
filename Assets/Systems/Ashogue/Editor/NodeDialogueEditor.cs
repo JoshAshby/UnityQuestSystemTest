@@ -86,39 +86,57 @@ namespace Ashogue
                 Ashode.INode startNode = Canvas.State.Nodes.First();
 
                 IDialogueNode firstNode = null;
-                foreach (var node in database.Dialogues[currentDialogue].Nodes.Values)
+                foreach (var dialogueNode in database.Dialogues[currentDialogue].Nodes.Values)
                 {
                     Vector2 pos = new Vector2();
-                    IDialogueNode nnode = null;
+                    IDialogueNode canvasNode = null;
 
-                    if (typeof(TextNode).IsAssignableFrom(node.GetType()))
-                        nnode = Canvas.State.AddNode<TextNodeCanvasNode>(pos);
+                    if (typeof(TextNode).IsAssignableFrom(dialogueNode.GetType()))
+                        canvasNode = Canvas.State.AddNode<TextNodeCanvasNode>(pos);
 
-                    else if (typeof(EventNode).IsAssignableFrom(node.GetType()))
-                        nnode = Canvas.State.AddNode<EventNodeCanvasNode>(pos);
+                    else if (typeof(EventNode).IsAssignableFrom(dialogueNode.GetType()))
+                        canvasNode = Canvas.State.AddNode<EventNodeCanvasNode>(pos);
 
-                    else if (typeof(WaitNode).IsAssignableFrom(node.GetType()))
-                        nnode = Canvas.State.AddNode<WaitNodeCanvasNode>(pos);
+                    else if (typeof(WaitNode).IsAssignableFrom(dialogueNode.GetType()))
+                        canvasNode = Canvas.State.AddNode<WaitNodeCanvasNode>(pos);
 
-                    else if (typeof(EndNode).IsAssignableFrom(node.GetType()))
-                        nnode = Canvas.State.AddNode<EndNodeCanvasNode>(pos);
+                    else if (typeof(EndNode).IsAssignableFrom(dialogueNode.GetType()))
+                        canvasNode = Canvas.State.AddNode<EndNodeCanvasNode>(pos);
 
-                    nnode.Target = node;
+                    canvasNode.Target = dialogueNode;
 
-                    if (node.ID == database.Dialogues[currentDialogue].FirstNodeID)
-                        firstNode = nnode;
+                    if (dialogueNode.ID == database.Dialogues[currentDialogue].FirstNodeID)
+                        firstNode = canvasNode;
+
+                    if(!typeof(IBranchedNode).IsAssignableFrom(dialogueNode.GetType()))
+                        continue;
+
+                    IBranchedNode branchedNode = (IBranchedNode)dialogueNode;
+
+                    foreach(var branch in branchedNode.Branches.Values)
+                    {
+                        canvasNode.AddKnob(branch.ID, NodeSide.Right, 1, Direction.Output, typeof(string));
+                    }
                 }
 
                 Canvas.State.AddConnection(startNode.Knobs["start"], firstNode.Knobs["in"]);
 
-                foreach (var _node in Canvas.State.Nodes)
+                foreach (var _node in database.Dialogues[currentDialogue].Nodes.Values)
                 {
-                    if (!typeof(IDialogueNode).IsAssignableFrom(_node.GetType()))
+                    if (!typeof(IBranchedNode).IsAssignableFrom(_node.GetType()))
                         continue;
 
-                    IDialogueNode node = (IDialogueNode)_node;
+                    IBranchedNode node = (IBranchedNode)_node;
 
+                    IDialogueNode FromNode = (IDialogueNode)Canvas.State.Nodes.Where(x => typeof(IDialogueNode).IsAssignableFrom(x.GetType())).ToList().Find(x => ((IDialogueNode)x).Target.ID == node.ID);
+                    foreach(var branch in node.Branches.Values)
+                    {
+                        IKnob FromKnob = FromNode.Knobs[branch.ID];
+                        IDialogueNode ToNode = (IDialogueNode)Canvas.State.Nodes.Where(x => typeof(IDialogueNode).IsAssignableFrom(x.GetType())).ToList().Find(x => ((IDialogueNode)x).Target.ID == branch.NextNodeID);
+                        IKnob ToKnob = ToNode.Knobs["in"];
 
+                        Canvas.State.AddConnection(FromKnob, ToKnob);
+                    }
                 }
 
                 Canvas.EventSystem.AddNodeEvent += AddNodeHandler;
@@ -131,7 +149,7 @@ namespace Ashogue
 
                 if (typeof(TextNodeCanvasNode).IsAssignableFrom(nodeType))
                 {
-                    ((TextNodeCanvasNode)e.Target).Target = database.Dialogues[currentDialogue].AddNode<TextNode>();
+                    ((IDialogueNode)e.Target).Target = database.Dialogues[currentDialogue].AddNode<TextNode>();
                 }
             }
 
@@ -141,7 +159,7 @@ namespace Ashogue
 
                 if (typeof(TextNodeCanvasNode).IsAssignableFrom(nodeType))
                 {
-                    database.Dialogues[currentDialogue].RemoveNode(((TextNodeCanvasNode)e.Target).Target.ID);
+                    database.Dialogues[currentDialogue].RemoveNode(((IDialogueNode)e.Target).Target.ID);
                 }
             }
 

@@ -41,7 +41,12 @@
         <EventNode id="event node">
           <Metadata />
           <Message>testing</Message>
-          <NextNodeID>fin</NextNodeID>
+          <Branches>
+            <SimpleBranch id="Untitled Branch 0">
+              <Text>two</Text>
+              <NextNodeID>fin</NextNodeID>
+            </SimpleBranch>
+          </Branches>
         </EventNode>
         <EndNode id="fin">
           <Metadata />
@@ -58,7 +63,12 @@
         </TextNode>
         <EventNode id="thing">
           <Metadata />
-          <NextNodeID>Secondsies</NextNodeID>
+          <Branches>
+            <SimpleBranch id="Untitled Branch 0">
+              <Text>two</Text>
+              <NextNodeID>Secondsies</NextNodeID>
+            </SimpleBranch>
+          </Branches>
         </EventNode>
       </Nodes>
     </Dialogue>

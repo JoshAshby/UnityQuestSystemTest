@@ -19,7 +19,7 @@ namespace Ashogue
             void RemoveMetadata(string ID);
         }
 
-        public interface IBranchedNode
+        public interface IBranchedNode : INode
         {
             Dictionary<string, IBranch> Branches { get; set; }
             TBranch AddBranch<TBranch>(string ID = null) where TBranch : IBranch, new();
