@@ -68,52 +68,61 @@ namespace Ashogue
                 database = DialogueContainer.Load(path);
             }
 
-            private void ReloadDatabase()
-            {
-                if (EditorUtility.DisplayDialog("Are you sure?", "Are you sure you want to reload the database? This will lose any unsaved work", "Yup", "NO!"))
-                {
-                    LoadDatabase();
-                }
-            }
-
             private void Setup()
             {
                 EnsureDatabase();
+                SelectDialogue(currentDialogue);
+            }
+
+            private void SelectDialogue(string id)
+            {
+                if (Canvas != null)
+                {
+                    Canvas.EventSystem.AddNode -= AddNodeHandler;
+                    Canvas.EventSystem.RemoveNode -= RemoveNodeHandler;
+                    Canvas.EventSystem.AddConnection -= AddConnectionHandler;
+                    Canvas.EventSystem.RemoveConnection -= RemoveConnectionHandler;
+
+                    Canvas.Repaint -= Repaint;
+                }
 
                 Canvas = new DialogueCanvas();
                 Canvas.Repaint += Repaint;
 
+                IDialogue dialogue = database.Dialogues[id];
+
                 Ashode.INode startNode = Canvas.State.Nodes.First();
 
                 IDialogueNode firstNode = null;
-                foreach (var dialogueNode in database.Dialogues[currentDialogue].Nodes.Values)
+                foreach (var dialogueNode in dialogue.Nodes.Values)
                 {
-                    Vector2 pos = new Vector2();
+                    Vector2 pos = dialogueNode.Position;
                     IDialogueNode canvasNode = null;
 
-                    if (typeof(TextNode).IsAssignableFrom(dialogueNode.GetType()))
+                    Type dialogueNodeType = dialogueNode.GetType();
+
+                    if (typeof(TextNode).IsAssignableFrom(dialogueNodeType))
                         canvasNode = Canvas.State.AddNode<TextNodeCanvasNode>(pos);
 
-                    else if (typeof(EventNode).IsAssignableFrom(dialogueNode.GetType()))
+                    else if (typeof(EventNode).IsAssignableFrom(dialogueNodeType))
                         canvasNode = Canvas.State.AddNode<EventNodeCanvasNode>(pos);
 
-                    else if (typeof(WaitNode).IsAssignableFrom(dialogueNode.GetType()))
+                    else if (typeof(WaitNode).IsAssignableFrom(dialogueNodeType))
                         canvasNode = Canvas.State.AddNode<WaitNodeCanvasNode>(pos);
 
-                    else if (typeof(EndNode).IsAssignableFrom(dialogueNode.GetType()))
+                    else if (typeof(EndNode).IsAssignableFrom(dialogueNodeType))
                         canvasNode = Canvas.State.AddNode<EndNodeCanvasNode>(pos);
 
                     canvasNode.Target = dialogueNode;
 
-                    if (dialogueNode.ID == database.Dialogues[currentDialogue].FirstNodeID)
+                    if (dialogueNode.ID == dialogue.FirstNodeID)
                         firstNode = canvasNode;
 
-                    if(!typeof(IBranchedNode).IsAssignableFrom(dialogueNode.GetType()))
+                    if (!typeof(IBranchedNode).IsAssignableFrom(dialogueNode.GetType()))
                         continue;
 
                     IBranchedNode branchedNode = (IBranchedNode)dialogueNode;
-
-                    foreach(var branch in branchedNode.Branches.Values)
+                    foreach (var branch in branchedNode.Branches.Values)
                     {
                         canvasNode.AddKnob(branch.ID, NodeSide.Right, 1, Direction.Output, typeof(string));
                     }
@@ -121,7 +130,7 @@ namespace Ashogue
 
                 Canvas.State.AddConnection(startNode.Knobs["start"], firstNode.Knobs["in"]);
 
-                foreach (var _node in database.Dialogues[currentDialogue].Nodes.Values)
+                foreach (var _node in dialogue.Nodes.Values)
                 {
                     if (!typeof(IBranchedNode).IsAssignableFrom(_node.GetType()))
                         continue;
@@ -129,7 +138,7 @@ namespace Ashogue
                     IBranchedNode node = (IBranchedNode)_node;
 
                     IDialogueNode FromNode = (IDialogueNode)Canvas.State.Nodes.Where(x => typeof(IDialogueNode).IsAssignableFrom(x.GetType())).ToList().Find(x => ((IDialogueNode)x).Target.ID == node.ID);
-                    foreach(var branch in node.Branches.Values)
+                    foreach (var branch in node.Branches.Values)
                     {
                         IKnob FromKnob = FromNode.Knobs[branch.ID];
                         IDialogueNode ToNode = (IDialogueNode)Canvas.State.Nodes.Where(x => typeof(IDialogueNode).IsAssignableFrom(x.GetType())).ToList().Find(x => ((IDialogueNode)x).Target.ID == branch.NextNodeID);
@@ -139,54 +148,127 @@ namespace Ashogue
                     }
                 }
 
-                Canvas.EventSystem.AddNodeEvent += AddNodeHandler;
-                Canvas.EventSystem.RemoveNodeEvent += RemoveNodeHandler;
+                Canvas.EventSystem.AddNode += AddNodeHandler;
+                Canvas.EventSystem.RemoveNode += RemoveNodeHandler;
+                Canvas.EventSystem.AddConnection += AddConnectionHandler;
+                Canvas.EventSystem.RemoveConnection += RemoveConnectionHandler;
+
+                Canvas.Repaint += Repaint;
             }
 
-            void AddNodeHandler(object sender, NodeEventArgs<Ashode.INode> e)
+            private void AddNodeHandler(object sender, TargetEventArgs<Ashode.INode> e)
             {
+                IDialogue dialogue = database.Dialogues[currentDialogue];
+                IDialogueNode node = (IDialogueNode)e.Target;
                 Type nodeType = e.Target.GetType();
 
                 if (typeof(TextNodeCanvasNode).IsAssignableFrom(nodeType))
-                {
-                    ((IDialogueNode)e.Target).Target = database.Dialogues[currentDialogue].AddNode<TextNode>();
-                }
+                    node.Target = dialogue.AddNode<TextNode>();
+
+                else if (typeof(EventNodeCanvasNode).IsAssignableFrom(nodeType))
+                    node.Target = dialogue.AddNode<EventNode>();
+
+                else if (typeof(WaitNodeCanvasNode).IsAssignableFrom(nodeType))
+                    node.Target = dialogue.AddNode<WaitNode>();
+
+                else if (typeof(EndNodeCanvasNode).IsAssignableFrom(nodeType))
+                    node.Target = dialogue.AddNode<EndNode>();
             }
 
-            void RemoveNodeHandler(object sender, NodeEventArgs<Ashode.INode> e)
+            private void RemoveNodeHandler(object sender, TargetEventArgs<Ashode.INode> e)
             {
+                IDialogue dialogue = database.Dialogues[currentDialogue];
+                IDialogueNode node = (IDialogueNode)e.Target;
                 Type nodeType = e.Target.GetType();
 
-                if (typeof(TextNodeCanvasNode).IsAssignableFrom(nodeType))
-                {
-                    database.Dialogues[currentDialogue].RemoveNode(((IDialogueNode)e.Target).Target.ID);
-                }
+                dialogue.RemoveNode(node.Target.ID);
+            }
+
+            private void AddConnectionHandler(object sender, TargetEventArgs<Ashode.IConnection> e)
+            {
+                IConnection conn = e.Target;
+                IDialogue dialogue = database.Dialogues[currentDialogue];
+                IDialogueNode FromNode = (IDialogueNode)e.Target.FromNode;
+                IDialogueNode ToNode = (IDialogueNode)e.Target.ToNode;
+
+                ((IBranchedNode)dialogue.Nodes[FromNode.Target.ID]).AddBranch<SimpleBranch>(conn.ID).NextNodeID = ToNode.Target.ID;
+            }
+
+            private void RemoveConnectionHandler(object sender, TargetEventArgs<Ashode.IConnection> e)
+            {
+                IConnection conn = e.Target;
+                IDialogue dialogue = database.Dialogues[currentDialogue];
+                IDialogueNode FromNode = (IDialogueNode)e.Target.FromNode;
+                IDialogueNode ToNode = (IDialogueNode)e.Target.ToNode;
+
+                IBranch branch = FromNode.OfTargetType<IBranchedNode>().Target.Branches.First(x => x.Value.NextNodeID == ToNode.ID).Value;
+
+                ((IBranchedNode)dialogue.Nodes[FromNode.Target.ID]).RemoveBranch(branch.ID);
             }
 
             private void OnDestroy()
             {
+                Canvas.EventSystem.AddNode -= AddNodeHandler;
+                Canvas.EventSystem.RemoveNode -= RemoveNodeHandler;
+
+                Canvas.EventSystem.AddConnection -= AddConnectionHandler;
+                Canvas.EventSystem.RemoveConnection -= RemoveConnectionHandler;
+
                 Canvas.Repaint -= Repaint;
             }
 
+            float toolbarHeight = 0;
+            int sideWindowWidth = 300;
             private void OnGUI()
             {
                 if (Canvas == null)
                     Setup();
 
-                int sideWindowWidth = 300;
+                GUILayout.BeginHorizontal(EditorStyles.toolbar);
+                if (GUILayout.Button("Add Dialogue", EditorStyles.toolbarButton))
+                    database.AddDialogue();
 
-                Rect sideWindowRect = new Rect(0, 0, sideWindowWidth, position.height);
+                if (GUILayout.Button("Save Database", EditorStyles.toolbarButton))
+                    database.Save(path);
+
+                GUILayout.FlexibleSpace();
+
+                if (GUILayout.Button("Reload Database", EditorStyles.toolbarButton))
+                    ReloadDatabase();
+                GUILayout.EndHorizontal();
+
+                if(Event.current.type == EventType.Repaint)
+                    toolbarHeight = GUILayoutUtility.GetLastRect().yMax;
+
+                Rect sideWindowRect = new Rect(0, toolbarHeight, sideWindowWidth, position.height);
 
                 GUILayout.BeginArea(sideWindowRect, GUI.skin.box);
                 if (GUILayout.Button("Save"))
                     SaveState();
+
+                foreach(var dialogue in database.Dialogues.Values)
+                {
+                    if(GUILayout.Button(dialogue.ID))
+                        SelectDialogue(dialogue.ID);
+                }
                 GUILayout.EndArea();
 
-                Rect canvasRect = new Rect(sideWindowWidth, 0, position.width - sideWindowWidth, position.height);
+                Rect canvasRect = new Rect(sideWindowWidth, toolbarHeight, position.width - sideWindowWidth, position.height);
                 Canvas.Draw(canvasRect);
             }
 
-            private void SaveState() { }
+            private void SaveState()
+            {
+                database.Save(path);
+            }
+
+            private void ReloadDatabase()
+            {
+                if (EditorUtility.DisplayDialog("Are you sure?", "Are you sure you want to reload the database? This will lose any unsaved work", "Yup", "NO!"))
+                {
+                    LoadDatabase();
+                }
+            }
         }
     }
 }

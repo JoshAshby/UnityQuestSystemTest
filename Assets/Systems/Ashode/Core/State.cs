@@ -7,7 +7,8 @@ namespace Ashode
 {
     public interface IState
     {
-        NodeCanvas Parent { get; }
+        INodeCanvas Parent { get; }
+        INodeCanvas Canvas { get; }
 
         TNode AddNode<TNode>(Vector2 pos) where TNode : INode;
         INode AddNode(Type type, Vector2 pos);
@@ -48,7 +49,8 @@ namespace Ashode
 
     public class State : IState
     {
-        public NodeCanvas Parent { get; internal set; }
+        public INodeCanvas Parent { get; internal set; }
+        public INodeCanvas Canvas { get { return Parent; } }
 
         // These should probably be properties because they are the exposed API but meh, fuck it
         private List<INode> _nodes = new List<INode>();
@@ -116,6 +118,7 @@ namespace Ashode
             INode node = (INode)Activator.CreateInstance(type, this.Parent, pos);
 
             Nodes.Add(node);
+            Canvas.EventSystem.OnAddNode(node);
 
             return node;
         }
@@ -134,8 +137,26 @@ namespace Ashode
             List<IKnob> knobs = node.Knobs.Values.ToList();
 
             foreach (var knob in knobs)
-                node.RemoveKnob(knob.ID);
+            {
+                if (FocusedKnob == knob)
+                    FocusedKnob = null;
 
+                if (SelectedKnob == knob)
+                    SelectedNode = null;
+
+                if (ExpandedKnob == knob)
+                    ExpandedKnob = null;
+
+                if (ConnectedFromKnob == knob)
+                    ConnectedFromKnob = null;
+
+                foreach (var conn in knob.Connections)
+                    RemoveConnection(conn);
+
+                node.Knobs.Remove(knob.ID);
+            }
+
+            Canvas.EventSystem.OnRemoveNode(node);
             Nodes.Remove(node);
         }
 
@@ -149,6 +170,7 @@ namespace Ashode
             IConnection connection = new Connection(this.Parent, FromKnob, ToKnob);
 
             Connections.Add(connection);
+            Canvas.EventSystem.OnAddConnection(connection);
 
             return connection;
         }
@@ -166,12 +188,14 @@ namespace Ashode
             IConnection connection = (IConnection)Activator.CreateInstance(type, this.Parent, FromKnob, ToKnob);
 
             Connections.Add(connection);
+            Canvas.EventSystem.OnAddConnection(connection);
 
             return connection;
         }
 
         public void RemoveConnection(IConnection conn)
         {
+            Canvas.EventSystem.OnRemoveConnection(conn);
             Connections.Remove(conn);
         }
 

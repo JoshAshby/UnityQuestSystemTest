@@ -73,7 +73,7 @@ namespace Ashode
 
         public Type Type { get; }
 
-        public Connection(NodeCanvas canvas, IKnob FromKnob, IKnob ToKnob)
+        public Connection(INodeCanvas canvas, IKnob FromKnob, IKnob ToKnob)
         {
             this.Parent = canvas;
 

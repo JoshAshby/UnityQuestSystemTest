@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Xml;
 using System.Xml.Serialization;
+using UnityEngine;
 
 namespace Ashogue
 {
@@ -11,6 +12,9 @@ namespace Ashogue
         public interface INode
         {
             string ID { get; set; }
+            Vector2 Position { get; set; }
+
+            string Name { get; set; }
 
             Dictionary<string, IMetadata> Metadata { get; set; }
             TMetadata AddMetadata<TMetadata>(string ID = null) where TMetadata : IMetadata, new();
@@ -30,12 +34,26 @@ namespace Ashogue
 
         public abstract class ANode : INode
         {
+            private Vector2 _position = new Vector2();
+            public Vector2 Position
+            {
+                get { return _position; }
+                set { _position = value; }
+            }
+
             private string _id = Guid.NewGuid().ToString();
             [XmlAttribute("id")]
             public string ID
             {
                 get { return _id; }
                 set { _id = value; }
+            }
+
+            private string _name = "";
+            public string Name
+            {
+                get { return _name; }
+                set { _name = value; }
             }
 
             private Dictionary<string, IMetadata> _metadata = new Dictionary<string, IMetadata>();

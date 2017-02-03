@@ -10,6 +10,8 @@ namespace Ashogue
         {
             string ID { get; set; }
 
+            string Name { get; set; }
+
             Type Type { get; }
             object Value { get; }
 
@@ -19,6 +21,8 @@ namespace Ashogue
         public interface IMetadata<T>
         {
             string ID { get; set; }
+
+            string Name { get; set; }
 
             T Value { get; set; }
         }
@@ -33,8 +37,15 @@ namespace Ashogue
                 set { _id = value; }
             }
 
+            private string _name = "";
+            public string Name
+            {
+                get { return _name; }
+                set { _name = value; }
+            }
+
             public Type Type { get { return typeof(T); } }
-            private T _value;
+            private T _value = default(T);
             public object Value
             {
                 get { return (object)_value; }

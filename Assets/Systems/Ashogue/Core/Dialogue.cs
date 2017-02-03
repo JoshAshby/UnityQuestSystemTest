@@ -11,6 +11,8 @@ namespace Ashogue
         public interface IDialogue
         {
             string ID { get; set; }
+
+            string Name { get; set; }
             string FirstNodeID { get; set; }
 
             Dictionary<string, INode> Nodes { get; set; }
@@ -30,7 +32,19 @@ namespace Ashogue
                 set { _id = value; }
             }
 
-            public string FirstNodeID { get; set; }
+            private string _name = "";
+            public string Name
+            {
+                get { return _name; }
+                set { _name = value; }
+            }
+
+            private string _firstNodeID = "";
+            public string FirstNodeID
+            {
+                get { return _firstNodeID; }
+                set { _firstNodeID = value; }
+            }
 
             private Dictionary<string, INode> _nodes = new Dictionary<string, INode>();
             [XmlIgnore]

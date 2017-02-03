@@ -22,7 +22,7 @@ namespace Ashogue
             TNode Target { get; set; }
         }
 
-        public abstract class DialogueNode<TNode> : Node, IDialogueNode, IDialogueNode<TNode>
+        public abstract class DialogueNode<TNode> : Node, IDialogueNode, IDialogueNode<TNode> where TNode : Ashogue.Data.INode
         {
             public DialogueNode(INodeCanvas parent, Vector2 pos) : base(parent, pos) { }
 
@@ -54,6 +54,11 @@ namespace Ashogue
                 else
                     return null;
             }
+
+            public override void Update()
+            {
+                Target.Position = Rect.position;
+            }
         }
 
         [NodeBelongsTo(typeof(DialogueCanvas), Hidden = true)]
@@ -82,7 +87,7 @@ namespace Ashogue
         [NodeBelongsTo(typeof(DialogueCanvas), Name = "Text Node")]
         class TextNodeCanvasNode : DialogueNode<TextNode>
         {
-            public override Vector2 MinSize { get { return new Vector2(200, 300); } }
+            public override Vector2 MinSize { get { return new Vector2(200, 100); } }
             public override bool CanResize { get { return true; } }
 
             public override string Title { get { return "Text Node"; } }
@@ -94,7 +99,7 @@ namespace Ashogue
                 AddKnob("in", NodeSide.Left, 0, Direction.Input, typeof(string)).Removable = false;
             }
 
-            private string _RemoveKnob = null;
+            private string _RemoveKnobID = null;
             public override void OnGUI()
             {
                 DrawKnob("in", 20);
@@ -107,7 +112,6 @@ namespace Ashogue
                     IKnob knob = AddKnob(Guid.NewGuid().ToString(), NodeSide.Right, 1, Direction.Output, typeof(string));
                     Target.AddBranch<SimpleBranch>(ID = knob.ID);
                     IBranch branch = Target.Branches[knob.ID];
-                    branch.Text = "";
                 }
 
                 foreach (var knob in Knobs.Where(x => x.Value.Direction == Direction.Output))
@@ -117,15 +121,15 @@ namespace Ashogue
                     DrawKnob(knob.Key);
                     if (GUILayout.Button("X", GUILayout.ExpandWidth(false)))
                         if (EditorUtility.DisplayDialog("Are you sure?", "Are you sure you want to remove this branch?", "Yup", "NO!"))
-                            _RemoveKnob = knob.Key;
+                            _RemoveKnobID = knob.Key;
                     GUILayout.EndHorizontal();
                 }
 
-                if (!string.IsNullOrEmpty(_RemoveKnob))
+                if (!string.IsNullOrEmpty(_RemoveKnobID))
                 {
-                    RemoveKnob(_RemoveKnob);
-                    Target.RemoveBranch(_RemoveKnob);
-                    _RemoveKnob = null;
+                    RemoveKnob(_RemoveKnobID);
+                    Target.RemoveBranch(_RemoveKnobID);
+                    _RemoveKnobID = null;
                 }
 
                 GUILayout.Space(20);

@@ -2,74 +2,112 @@
 <DialogueCollection xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
   <Dialogues>
     <Dialogue id="test">
+      <Name />
       <FirstNodeID>first!</FirstNodeID>
       <Nodes>
         <TextNode id="first!">
+          <Position>
+            <x>189</x>
+            <y>37</y>
+          </Position>
+          <Name />
           <Metadata>
             <StringMetadata id="text">
+              <Name />
               <Value xsi:type="xsd:string">tesatasdfadsf</Value>
             </StringMetadata>
             <BoolMetadata id="bool">
+              <Name />
               <Value xsi:type="xsd:boolean">true</Value>
             </BoolMetadata>
             <FloatMetadata id="float">
+              <Name />
               <Value xsi:type="xsd:float">5.8756</Value>
             </FloatMetadata>
           </Metadata>
-          <Text>Hey there look at me I'm a first node!</Text>
           <Branches>
             <SimpleBranch id="Untitled Branch 0">
+              <Name />
               <Text>one</Text>
               <NextNodeID>Secondsies</NextNodeID>
             </SimpleBranch>
             <SimpleBranch id="Untitled Branch 1">
+              <Name />
               <Text>three</Text>
               <NextNodeID>Untitled Node 4</NextNodeID>
             </SimpleBranch>
           </Branches>
+          <Text>Hey there look at me I'm a first node!</Text>
         </TextNode>
         <TextNode id="Secondsies">
+          <Position>
+            <x>472</x>
+            <y>36</y>
+          </Position>
+          <Name />
           <Metadata />
-          <Text>and now a second node!</Text>
           <Branches>
             <SimpleBranch id="Untitled Branch 0">
+              <Name />
               <Text>two</Text>
               <NextNodeID>event node</NextNodeID>
             </SimpleBranch>
           </Branches>
+          <Text>and now a second node!</Text>
         </TextNode>
         <EventNode id="event node">
+          <Position>
+            <x>767</x>
+            <y>169</y>
+          </Position>
+          <Name />
           <Metadata />
-          <Message>testing</Message>
           <Branches>
             <SimpleBranch id="Untitled Branch 0">
+              <Name />
               <Text>two</Text>
               <NextNodeID>fin</NextNodeID>
             </SimpleBranch>
           </Branches>
+          <Message>testing</Message>
         </EventNode>
         <EndNode id="fin">
+          <Position>
+            <x>1186</x>
+            <y>186</y>
+          </Position>
+          <Name />
           <Metadata />
         </EndNode>
         <TextNode id="Untitled Node 4">
+          <Position>
+            <x>472</x>
+            <y>430</y>
+          </Position>
+          <Name />
           <Metadata />
+          <Branches>
+            <SimpleBranch id="43dbed19-8287-4c17-a0f1-6a4ab3f9136f">
+              <Name />
+              <Text>test</Text>
+              <NextNodeID>8e1533fd-316f-4eee-a037-2a14b2432118</NextNodeID>
+            </SimpleBranch>
+          </Branches>
           <Text>wat wat</Text>
-          <Branches>
-            <SimpleBranch id="Untitled Branch 0">
-              <Text />
-              <NextNodeID>thing</NextNodeID>
-            </SimpleBranch>
-          </Branches>
         </TextNode>
-        <EventNode id="thing">
-          <Metadata />
-          <Branches>
-            <SimpleBranch id="Untitled Branch 0">
-              <Text>two</Text>
-              <NextNodeID>Secondsies</NextNodeID>
-            </SimpleBranch>
-          </Branches>
-        </EventNode>
+        <EndNode id="8e1533fd-316f-4eee-a037-2a14b2432118">
+          <Position>
+            <x>864</x>
+            <y>491</y>
+          </Position>
+          <Name />
+          <Metadata>
+            <BoolMetadata id="testing">
+              <Name />
+              <Value xsi:type="xsd:boolean">true</Value>
+            </BoolMetadata>
+          </Metadata>
+        </EndNode>
       </Nodes>
     </Dialogue>
   </Dialogues>

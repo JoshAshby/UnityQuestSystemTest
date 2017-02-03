@@ -21,10 +21,12 @@ namespace Ashode
         string Title { get; }
 
         void DrawNodeWindow();
-        void ResizeWindow(Vector2 lastPosition, Vector2 contentOffset);
+        void ResizeWindow(Vector2 lastPosition);
 
         void SetupKnobs();
         void OnGUI();
+
+        void Update();
 
         Dictionary<string, IKnob> Knobs { get; set; }
 
@@ -112,7 +114,7 @@ namespace Ashode
             GUI.Box(headerRect, "", GUI.skin.box);
             GUI.Label(headerRect, Title, Canvas.State.SelectedNode == this ? EditorStyles.boldLabel : EditorStyles.label);
 
-            Rect bodyRect = new Rect(nodeRect.x, nodeRect.y + contentOffset.y, nodeRect.width, nodeRect.height - contentOffset.y);
+            Rect bodyRect = new Rect(nodeRect.x, nodeRect.y + contentOffset.y, nodeRect.width, nodeRect.height - (contentOffset.y*2));
             GUI.BeginGroup(bodyRect, GUI.skin.box);
             bodyRect.position = Vector2.zero;
             GUILayout.BeginArea(bodyRect, GUI.skin.box);
@@ -123,16 +125,20 @@ namespace Ashode
             // https://docs.unity3d.com/ScriptReference/GUILayoutUtility.GetLastRect.html
             // GetLastRect only works during repaint events
             if (Event.current.type == EventType.Repaint && CanResize)
-                lastPosition = GUILayoutUtility.GetLastRect().max + contentOffset;
+                lastPosition = GUILayoutUtility.GetLastRect().max + (contentOffset*3);
 
             GUILayout.EndArea();
             GUI.EndGroup();
 
             DrawKnobWindows();
-            ResizeWindow(lastPosition, contentOffset);
+            ResizeWindow(lastPosition);
+             
+            Update();
         }
 
-        public virtual void ResizeWindow(Vector2 lastPosition, Vector2 contentOffset)
+        public virtual void Update() { }
+
+        public virtual void ResizeWindow(Vector2 lastPosition)
         {
             if (Event.current.type != EventType.Repaint)
                 return;
@@ -142,7 +148,9 @@ namespace Ashode
 
             Rect nodeRect = Rect;
 
-            Vector2 maxSize = lastPosition + contentOffset;
+            Vector2 maxSize = new Vector2();
+ 
+ 			maxSize.y = Math.Max(lastPosition.y, MinSize.y);
 
             // TODO: Think about handling manual resizes too
             List<IKnob> topBottomKnobs = Knobs.Values.Where(x => x.Side == NodeSide.Bottom || x.Side == NodeSide.Top).ToList();
@@ -151,7 +159,7 @@ namespace Ashode
                 float knobSize = topBottomKnobs.Max(x => x.Rect.xMax - nodeRect.xMin);
                 float minWidth = MinSize.x;
 
-                maxSize.x = new List<float> { knobSize, minWidth }.Max();
+                maxSize.x = Math.Max(knobSize, minWidth);
             }
             else
             {
@@ -218,6 +226,14 @@ namespace Ashode
             }
 
             knob.Rect = knobRect;
+        }
+
+        public TKnob AddKnob<TKnob>(string id, NodeSide side, int limit, Direction direction, Type TAccept) where TKnob : IKnob, new()
+        {
+            TKnob knob = (TKnob)Activator.CreateInstance(typeof(TKnob), this, id, limit, side, direction, TAccept);
+
+            Knobs.Add(id, knob);
+            return knob;
         }
 
         public IKnob AddKnob(string id, NodeSide side, int limit, Direction direction, Type TAccept)

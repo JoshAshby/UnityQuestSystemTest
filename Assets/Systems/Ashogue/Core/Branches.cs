@@ -10,6 +10,8 @@ namespace Ashogue
         {
             string ID { get; set; }
 
+            string Name { get; set; }
+
             string Text { get; set; }
             string NextNodeID { get; set; }
         }
@@ -24,8 +26,26 @@ namespace Ashogue
                 set { _id = value; }
             }
 
-            public string Text { get; set; }
-            public string NextNodeID { get; set; }
+            private string _name = "";
+            public string Name
+            {
+                get { return _name; }
+                set { _name = value; }
+            }
+
+            private string _text = "";
+            public string Text
+            {
+                get { return _text; }
+                set { _text = value; }
+            }
+
+            private string _nextNodeID = "";
+            public string NextNodeID
+            {
+                get { return _nextNodeID; }
+                set { _nextNodeID = value; }
+            }
         }
     }
 }
