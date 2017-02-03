@@ -114,7 +114,7 @@ namespace Ashode
             GUI.Box(headerRect, "", GUI.skin.box);
             GUI.Label(headerRect, Title, Canvas.State.SelectedNode == this ? EditorStyles.boldLabel : EditorStyles.label);
 
-            Rect bodyRect = new Rect(nodeRect.x, nodeRect.y + contentOffset.y, nodeRect.width, nodeRect.height - (contentOffset.y*2));
+            Rect bodyRect = new Rect(nodeRect.x, nodeRect.y + contentOffset.y, nodeRect.width, nodeRect.height - (contentOffset.y * 2));
             GUI.BeginGroup(bodyRect, GUI.skin.box);
             bodyRect.position = Vector2.zero;
             GUILayout.BeginArea(bodyRect, GUI.skin.box);
@@ -125,14 +125,14 @@ namespace Ashode
             // https://docs.unity3d.com/ScriptReference/GUILayoutUtility.GetLastRect.html
             // GetLastRect only works during repaint events
             if (Event.current.type == EventType.Repaint && CanResize)
-                lastPosition = GUILayoutUtility.GetLastRect().max + (contentOffset*3);
+                lastPosition = GUILayoutUtility.GetLastRect().max + (contentOffset * 3); // why is this 3 and not two?
 
             GUILayout.EndArea();
             GUI.EndGroup();
 
             DrawKnobWindows();
             ResizeWindow(lastPosition);
-             
+
             Update();
         }
 
@@ -149,8 +149,8 @@ namespace Ashode
             Rect nodeRect = Rect;
 
             Vector2 maxSize = new Vector2();
- 
- 			maxSize.y = Math.Max(lastPosition.y, MinSize.y);
+
+            maxSize.y = Math.Max(lastPosition.y, MinSize.y);
 
             // TODO: Think about handling manual resizes too
             List<IKnob> topBottomKnobs = Knobs.Values.Where(x => x.Side == NodeSide.Bottom || x.Side == NodeSide.Top).ToList();

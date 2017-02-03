@@ -58,7 +58,7 @@ namespace Ashogue
 
             private Dictionary<string, IMetadata> _metadata = new Dictionary<string, IMetadata>();
             [XmlIgnore]
-            public Dictionary<string, IMetadata> Metadata
+            public virtual Dictionary<string, IMetadata> Metadata
             {
                 get { return _metadata; }
                 set { _metadata = value; }
@@ -117,7 +117,7 @@ namespace Ashogue
         {
             private Dictionary<string, IBranch> _branches = new Dictionary<string, IBranch>();
             [XmlIgnore]
-            public Dictionary<string, IBranch> Branches
+            public virtual Dictionary<string, IBranch> Branches
             {
                 get { return _branches; }
                 set { _branches = value; }
@@ -178,12 +178,34 @@ namespace Ashogue
 
         public class WaitNode : ABranchedNode
         {
+            private Dictionary<string, IBranch> _branches = new Dictionary<string, IBranch>
+            {
+                { "out", new SimpleBranch() }
+            };
+            [XmlIgnore]
+            public override Dictionary<string, IBranch> Branches
+            {
+                get { return _branches; }
+                set { _branches = value; }
+            }
+
             private float _seconds = 0f;
             public float Seconds { get { return _seconds; } set { _seconds = value; } }
         }
 
         public class EventNode : ABranchedNode
         {
+            private Dictionary<string, IBranch> _branches = new Dictionary<string, IBranch>
+            {
+                { "out", new SimpleBranch() }
+            };
+            [XmlIgnore]
+            public override Dictionary<string, IBranch> Branches
+            {
+                get { return _branches; }
+                set { _branches = value; }
+            }
+
             private string _message = "";
             public string Message { get { return _message; } set { _message = value; } }
         }

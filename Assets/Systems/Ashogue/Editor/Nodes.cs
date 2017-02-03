@@ -165,9 +165,7 @@ namespace Ashogue
                 GUILayout.Space(20);
 
                 foreach (var knob in Knobs.Where(x => x.Value.Direction == Direction.Output))
-                {
                     DrawKnob(knob.Key);
-                }
 
                 MetadataEditor.Editor(Target);
             }
@@ -196,9 +194,7 @@ namespace Ashogue
 
                 GUILayout.Space(20);
                 foreach (var knob in Knobs.Where(x => x.Value.Direction == Direction.Output))
-                {
                     DrawKnob(knob.Key);
-                }
 
                 MetadataEditor.Editor(Target);
             }

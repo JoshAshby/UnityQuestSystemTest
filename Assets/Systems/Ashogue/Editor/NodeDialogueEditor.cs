@@ -68,9 +68,19 @@ namespace Ashogue
                 database = DialogueContainer.Load(path);
             }
 
+            private void ReloadDatabase()
+            {
+                if (EditorUtility.DisplayDialog("Are you sure?", "Are you sure you want to reload the database? This will lose any unsaved work", "Yup", "NO!"))
+                {
+                    LoadDatabase();
+                    SelectDialogue(database.Dialogues.Keys.First());
+                }
+            }
+
             private void Setup()
             {
                 EnsureDatabase();
+
                 SelectDialogue(currentDialogue);
             }
 
@@ -80,6 +90,7 @@ namespace Ashogue
                 {
                     Canvas.EventSystem.AddNode -= AddNodeHandler;
                     Canvas.EventSystem.RemoveNode -= RemoveNodeHandler;
+
                     Canvas.EventSystem.AddConnection -= AddConnectionHandler;
                     Canvas.EventSystem.RemoveConnection -= RemoveConnectionHandler;
 
@@ -87,7 +98,6 @@ namespace Ashogue
                 }
 
                 Canvas = new DialogueCanvas();
-                Canvas.Repaint += Repaint;
 
                 IDialogue dialogue = database.Dialogues[id];
 
@@ -123,9 +133,7 @@ namespace Ashogue
 
                     IBranchedNode branchedNode = (IBranchedNode)dialogueNode;
                     foreach (var branch in branchedNode.Branches.Values)
-                    {
                         canvasNode.AddKnob(branch.ID, NodeSide.Right, 1, Direction.Output, typeof(string));
-                    }
                 }
 
                 Canvas.State.AddConnection(startNode.Knobs["start"], firstNode.Knobs["in"]);
@@ -140,6 +148,9 @@ namespace Ashogue
                     IDialogueNode FromNode = (IDialogueNode)Canvas.State.Nodes.Where(x => typeof(IDialogueNode).IsAssignableFrom(x.GetType())).ToList().Find(x => ((IDialogueNode)x).Target.ID == node.ID);
                     foreach (var branch in node.Branches.Values)
                     {
+                        if(String.IsNullOrEmpty(branch.NextNodeID))
+                            continue;
+
                         IKnob FromKnob = FromNode.Knobs[branch.ID];
                         IDialogueNode ToNode = (IDialogueNode)Canvas.State.Nodes.Where(x => typeof(IDialogueNode).IsAssignableFrom(x.GetType())).ToList().Find(x => ((IDialogueNode)x).Target.ID == branch.NextNodeID);
                         IKnob ToKnob = ToNode.Knobs["in"];
@@ -150,6 +161,7 @@ namespace Ashogue
 
                 Canvas.EventSystem.AddNode += AddNodeHandler;
                 Canvas.EventSystem.RemoveNode += RemoveNodeHandler;
+
                 Canvas.EventSystem.AddConnection += AddConnectionHandler;
                 Canvas.EventSystem.RemoveConnection += RemoveConnectionHandler;
 
@@ -191,7 +203,7 @@ namespace Ashogue
                 IDialogueNode FromNode = (IDialogueNode)e.Target.FromNode;
                 IDialogueNode ToNode = (IDialogueNode)e.Target.ToNode;
 
-                ((IBranchedNode)dialogue.Nodes[FromNode.Target.ID]).AddBranch<SimpleBranch>(conn.ID).NextNodeID = ToNode.Target.ID;
+                ((IBranchedNode)dialogue.Nodes[FromNode.Target.ID]).Branches[e.Target.FromKnob.ID].NextNodeID = ToNode.Target.ID;
             }
 
             private void RemoveConnectionHandler(object sender, TargetEventArgs<Ashode.IConnection> e)
@@ -199,11 +211,8 @@ namespace Ashogue
                 IConnection conn = e.Target;
                 IDialogue dialogue = database.Dialogues[currentDialogue];
                 IDialogueNode FromNode = (IDialogueNode)e.Target.FromNode;
-                IDialogueNode ToNode = (IDialogueNode)e.Target.ToNode;
 
-                IBranch branch = FromNode.OfTargetType<IBranchedNode>().Target.Branches.First(x => x.Value.NextNodeID == ToNode.ID).Value;
-
-                ((IBranchedNode)dialogue.Nodes[FromNode.Target.ID]).RemoveBranch(branch.ID);
+                ((IBranchedNode)dialogue.Nodes[FromNode.Target.ID]).Branches[e.Target.FromKnob.ID].NextNodeID = "";
             }
 
             private void OnDestroy()
@@ -237,7 +246,7 @@ namespace Ashogue
                     ReloadDatabase();
                 GUILayout.EndHorizontal();
 
-                if(Event.current.type == EventType.Repaint)
+                if (Event.current.type == EventType.Repaint)
                     toolbarHeight = GUILayoutUtility.GetLastRect().yMax;
 
                 Rect sideWindowRect = new Rect(0, toolbarHeight, sideWindowWidth, position.height);
@@ -246,11 +255,10 @@ namespace Ashogue
                 if (GUILayout.Button("Save"))
                     SaveState();
 
-                foreach(var dialogue in database.Dialogues.Values)
-                {
-                    if(GUILayout.Button(dialogue.ID))
+                foreach (var dialogue in database.Dialogues.Values)
+                    if (GUILayout.Button(dialogue.ID))
                         SelectDialogue(dialogue.ID);
-                }
+
                 GUILayout.EndArea();
 
                 Rect canvasRect = new Rect(sideWindowWidth, toolbarHeight, position.width - sideWindowWidth, position.height);
@@ -260,14 +268,6 @@ namespace Ashogue
             private void SaveState()
             {
                 database.Save(path);
-            }
-
-            private void ReloadDatabase()
-            {
-                if (EditorUtility.DisplayDialog("Are you sure?", "Are you sure you want to reload the database? This will lose any unsaved work", "Yup", "NO!"))
-                {
-                    LoadDatabase();
-                }
             }
         }
     }

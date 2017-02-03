@@ -41,8 +41,8 @@
         </TextNode>
         <TextNode id="Secondsies">
           <Position>
-            <x>472</x>
-            <y>36</y>
+            <x>450</x>
+            <y>43</y>
           </Position>
           <Name />
           <Metadata />
@@ -90,15 +90,15 @@
             <SimpleBranch id="43dbed19-8287-4c17-a0f1-6a4ab3f9136f">
               <Name />
               <Text>test</Text>
-              <NextNodeID>8e1533fd-316f-4eee-a037-2a14b2432118</NextNodeID>
+              <NextNodeID>2678d6a9-4dfb-479b-9ddb-50779877fe4b</NextNodeID>
             </SimpleBranch>
           </Branches>
           <Text>wat wat</Text>
         </TextNode>
         <EndNode id="8e1533fd-316f-4eee-a037-2a14b2432118">
           <Position>
-            <x>864</x>
-            <y>491</y>
+            <x>1545</x>
+            <y>442</y>
           </Position>
           <Name />
           <Metadata>
@@ -108,6 +108,38 @@
             </BoolMetadata>
           </Metadata>
         </EndNode>
+        <WaitNode id="2678d6a9-4dfb-479b-9ddb-50779877fe4b">
+          <Position>
+            <x>784</x>
+            <y>394</y>
+          </Position>
+          <Name />
+          <Metadata />
+          <Branches>
+            <SimpleBranch id="9f43adfb-1596-4d3b-84ea-5ff6621ab589">
+              <Name />
+              <Text />
+              <NextNodeID />
+            </SimpleBranch>
+          </Branches>
+          <Seconds>0</Seconds>
+        </WaitNode>
+        <EventNode id="c811b18d-d4c0-42ce-bac3-99550011354b">
+          <Position>
+            <x>1159</x>
+            <y>392</y>
+          </Position>
+          <Name />
+          <Metadata />
+          <Branches>
+            <SimpleBranch id="63af0c26-3c0f-404b-8760-29cafa0838fe">
+              <Name />
+              <Text />
+              <NextNodeID />
+            </SimpleBranch>
+          </Branches>
+          <Message />
+        </EventNode>
       </Nodes>
     </Dialogue>
   </Dialogues>

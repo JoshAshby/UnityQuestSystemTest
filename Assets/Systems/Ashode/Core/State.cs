@@ -21,6 +21,8 @@ namespace Ashode
         void RemoveConnection(IConnection conn);
         void RemoveConnection(string id);
 
+        void Reset();
+
         List<INode> Nodes { get; }
         List<IConnection> Connections { get; }
 
@@ -100,6 +102,30 @@ namespace Ashode
         public State(NodeCanvas canvas)
         {
             this.Parent = canvas;
+        }
+
+        public void Reset()
+        {
+            FocusedNode = null;
+            FocusedKnob = null;
+            FocusedConnection = null;
+
+            SelectedNode = null;
+            SelectedKnob = null;
+
+            ExpandedKnob = null;
+            ConnectedFromKnob = null;
+
+            Panning = false;
+            Dragging = false;
+
+            DraggingStart = Vector2.zero;
+            DragPosition = Vector2.zero;
+            DragOffset = Vector2.zero;
+            PanOffset = Vector2.zero;
+
+            _nodes = new List<INode>();
+            _connections = new List<IConnection>();
         }
 
         public TNode AddNode<TNode>(Vector2 pos) where TNode : INode

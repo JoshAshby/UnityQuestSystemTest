@@ -86,8 +86,8 @@ namespace Ashogue
                 foreach (IMetadata metadata in Target.Metadata.Values)
                 {
                     GUILayout.BeginHorizontal();
-                    GUILayout.Label("Key");
-                    metadata.ID = EditorGUILayout.TextField(metadata.ID);
+                    GUILayout.Label("Name");
+                    metadata.Name = EditorGUILayout.TextField(metadata.Name);
 
                     if (metadata.Type == typeof(bool))
                     {
