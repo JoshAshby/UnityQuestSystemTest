@@ -86,6 +86,8 @@ namespace Ashogue
 
             private void SelectDialogue(string id)
             {
+                currentDialogue = id;
+
                 if (Canvas != null)
                 {
                     Canvas.EventSystem.AddNode -= AddNodeHandler;
@@ -280,7 +282,7 @@ namespace Ashogue
                     database.AddDialogue();
 
                 if (GUILayout.Button("Save Database", EditorStyles.toolbarButton))
-                    database.Save(path);
+                    SaveState();
 
                 GUILayout.FlexibleSpace();
 
@@ -292,10 +294,7 @@ namespace Ashogue
                     toolbarHeight = GUILayoutUtility.GetLastRect().yMax;
 
                 Rect sideWindowRect = new Rect(0, toolbarHeight, sideWindowWidth, position.height);
-
                 GUILayout.BeginArea(sideWindowRect, GUI.skin.box);
-                if (GUILayout.Button("Save"))
-                    SaveState();
 
                 foreach (var dialogue in database.Dialogues.Values)
                     if (GUILayout.Button(dialogue.ID))

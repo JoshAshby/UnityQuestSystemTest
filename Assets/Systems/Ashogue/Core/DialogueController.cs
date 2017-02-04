@@ -26,7 +26,7 @@ namespace Ashogue
         public string NodeID { get; internal set; }
 
         public string Text { get; internal set; }
-        public List<string> Branches { get; internal set; }
+        public Dictionary<string, string> Branches { get; internal set; }
 
         public Dictionary<string, IMetadata> Metadata { get; internal set; }
     }
@@ -84,12 +84,13 @@ namespace Ashogue
             {
                 var n = Dialogue;
                 if (n != null)
+
                     n(null, new DialogueEventArgs
                     {
                         DialogueID = dialogue.ID,
                         NodeID = node.ID,
                         Text = node.Text,
-                        Branches = node.Branches.Keys.OrderBy(x => x).ToList(),
+                        Branches = node.Branches.ToDictionary(k => k.Key, v => v.Value.Text),
                         Metadata = node.Metadata
                     });
             }
@@ -154,7 +155,13 @@ namespace Ashogue
 
         public static void ContinueDialogue()
         {
-            string nId = ((IBranchedNode)currentNode).Branches.First().Value.NextNodeID;
+            string nId = null;
+            if(currentNode is IBranchedNode)
+                nId = ((IBranchedNode)currentNode).Branches.First().Value.NextNodeID;
+
+            if(currentNode is INextedNode)
+                nId = ((INextedNode)currentNode).NextNodeID;
+
             currentNode = currentDialogue.Nodes[nId];
 
             Progress();
@@ -170,11 +177,11 @@ namespace Ashogue
 
         public static void EndDialogue(INode node, bool suddenly = false)
         {
+            Events.OnEnded(currentDialogue, node, suddenly);
             currentDialogue = null;
             currentNode = null;
 
             currentCallback.Invoke();
-            Events.OnEnded(currentDialogue, node, suddenly);
             currentCallback = null;
         }
 
@@ -200,12 +207,12 @@ namespace Ashogue
                     return;
                 }
 
-                interNode = currentDialogue.Nodes[((IBranchedNode)interNode).Branches.First().Value.NextNodeID];
+                interNode = currentDialogue.Nodes[((INextedNode)interNode).NextNodeID];
             }
 
             TextNode node = (TextNode)interNode;
 
-            Events.OnNode(currentDialogue, interNode);
+            Events.OnDialogue(currentDialogue, node);
             currentNode = interNode;
         }
 

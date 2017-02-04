@@ -7,7 +7,7 @@ public class DialogueUI : MonoBehaviour
 {
     private bool _visible = false;
     private string _displayText = "";
-    private List<string> _displayBranches;
+    private Dictionary<string, string> _displayBranches;
 
     private void Awake()
     {
@@ -32,13 +32,20 @@ public class DialogueUI : MonoBehaviour
         if (!_visible)
             return;
 
-        GUI.Box(new Rect(10, 10, 200, 150), _displayText);
+        Rect displayRect = new Rect(10, 10, 800, 600);
 
-        for (int i = 0; i < _displayBranches.Count; i++)
+        GUI.Box(displayRect, _displayText);
+
+        if(_displayBranches == null)
+            return;
+
+        int count = 0;
+        foreach(var branch in _displayBranches)
         {
-            string text = _displayBranches[i];
-            if (GUI.Button(new Rect(10, 220 + (40 * i), 200, 30), text))
-                DialogueController.ContinueDialogue(text);
+            if (GUI.Button(new Rect(10, displayRect.yMax + (40 * count), displayRect.width, 30), branch.Value))
+                DialogueController.ContinueDialogue(branch.Key);
+
+            count++;
         }
     }
 
