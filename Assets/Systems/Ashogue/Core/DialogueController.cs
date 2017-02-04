@@ -182,7 +182,7 @@ namespace Ashogue
         {
             INode interNode = currentNode;
 
-            while (!(interNode is TextNode))
+            while (!(interNode is IBranchedNode))
             {
                 Events.OnNode(currentDialogue, interNode);
 

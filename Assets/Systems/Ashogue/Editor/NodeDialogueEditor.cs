@@ -111,16 +111,16 @@ namespace Ashogue
 
                     Type dialogueNodeType = dialogueNode.GetType();
 
-                    if (typeof(TextNode).IsAssignableFrom(dialogueNodeType))
+                    if (dialogueNode is TextNode)
                         canvasNode = Canvas.State.AddNode<TextNodeCanvasNode>(pos);
 
-                    else if (typeof(EventNode).IsAssignableFrom(dialogueNodeType))
+                    else if (dialogueNode is EventNode)
                         canvasNode = Canvas.State.AddNode<EventNodeCanvasNode>(pos);
 
-                    else if (typeof(WaitNode).IsAssignableFrom(dialogueNodeType))
+                    else if (dialogueNode is WaitNode)
                         canvasNode = Canvas.State.AddNode<WaitNodeCanvasNode>(pos);
 
-                    else if (typeof(EndNode).IsAssignableFrom(dialogueNodeType))
+                    else if (dialogueNode is EndNode)
                         canvasNode = Canvas.State.AddNode<EndNodeCanvasNode>(pos);
 
                     canvasNode.Target = dialogueNode;
@@ -128,31 +128,43 @@ namespace Ashogue
                     if (dialogueNode.ID == dialogue.FirstNodeID)
                         firstNode = canvasNode;
 
-                    if (!typeof(IBranchedNode).IsAssignableFrom(dialogueNode.GetType()))
+                    if (!(dialogueNode is IBranchedNode))
                         continue;
 
                     IBranchedNode branchedNode = (IBranchedNode)dialogueNode;
                     foreach (var branch in branchedNode.Branches.Values)
-                        canvasNode.AddKnob(branch.ID, NodeSide.Right, 1, Direction.Output, typeof(string));
+                    canvasNode.AddKnob(branch.ID, NodeSide.Right, 1, Direction.Output, typeof(string));
                 }
 
                 Canvas.State.AddConnection(startNode.Knobs["start"], firstNode.Knobs["in"]);
 
                 foreach (var _node in dialogue.Nodes.Values)
                 {
-                    if (!typeof(IBranchedNode).IsAssignableFrom(_node.GetType()))
-                        continue;
-
-                    IBranchedNode node = (IBranchedNode)_node;
-
-                    IDialogueNode FromNode = (IDialogueNode)Canvas.State.Nodes.Where(x => typeof(IDialogueNode).IsAssignableFrom(x.GetType())).ToList().Find(x => ((IDialogueNode)x).Target.ID == node.ID);
-                    foreach (var branch in node.Branches.Values)
+                    if (_node is IBranchedNode)
                     {
-                        if(String.IsNullOrEmpty(branch.NextNodeID))
-                            continue;
+                        IBranchedNode node = (IBranchedNode)_node;
 
-                        IKnob FromKnob = FromNode.Knobs[branch.ID];
-                        IDialogueNode ToNode = (IDialogueNode)Canvas.State.Nodes.Where(x => typeof(IDialogueNode).IsAssignableFrom(x.GetType())).ToList().Find(x => ((IDialogueNode)x).Target.ID == branch.NextNodeID);
+                        IDialogueNode FromNode = (IDialogueNode)Canvas.State.Nodes.Where(x => x is IDialogueNode).ToList().Find(x => ((IDialogueNode)x).Target.ID == node.ID);
+                        foreach (var branch in node.Branches.Values)
+                        {
+                            if(String.IsNullOrEmpty(branch.NextNodeID))
+                                continue;
+
+                            IKnob FromKnob = FromNode.Knobs[branch.ID];
+                            IDialogueNode ToNode = (IDialogueNode)Canvas.State.Nodes.Where(x => x is IDialogueNode).ToList().Find(x => ((IDialogueNode)x).Target.ID == branch.NextNodeID);
+                            IKnob ToKnob = ToNode.Knobs["in"];
+
+                            Canvas.State.AddConnection(FromKnob, ToKnob);
+                        }
+                    }
+                    else if (_node is INextedNode)
+                    {
+                        INextedNode node = (INextedNode)_node;
+
+                        IDialogueNode FromNode = (IDialogueNode)Canvas.State.Nodes.Where(x => x is IDialogueNode).ToList().Find(x => ((IDialogueNode)x).Target.ID == node.ID);
+                        IDialogueNode ToNode = (IDialogueNode)Canvas.State.Nodes.Where(x => x is IDialogueNode).ToList().Find(x => ((IDialogueNode)x).Target.ID == node.NextNodeID);
+
+                        IKnob FromKnob = FromNode.Knobs["out"];
                         IKnob ToKnob = ToNode.Knobs["in"];
 
                         Canvas.State.AddConnection(FromKnob, ToKnob);
@@ -200,19 +212,48 @@ namespace Ashogue
             {
                 IConnection conn = e.Target;
                 IDialogue dialogue = database.Dialogues[currentDialogue];
-                IDialogueNode FromNode = (IDialogueNode)e.Target.FromNode;
                 IDialogueNode ToNode = (IDialogueNode)e.Target.ToNode;
 
-                ((IBranchedNode)dialogue.Nodes[FromNode.Target.ID]).Branches[e.Target.FromKnob.ID].NextNodeID = ToNode.Target.ID;
+                if(e.Target.FromNode is StartNodeCanvasNode)
+                {
+                    dialogue.FirstNodeID = ToNode.Target.ID;
+                }
+                else if(e.Target.FromNode is TextNodeCanvasNode)
+                {
+                    IDialogueNode FromNode = (IDialogueNode)e.Target.FromNode;
+
+                    IBranchedNode dialogueNode = (IBranchedNode)dialogue.Nodes[FromNode.Target.ID];
+
+                    dialogueNode.Branches[e.Target.FromKnob.ID].NextNodeID = ToNode.Target.ID;
+                }
+                else if(e.Target.FromNode is EventNodeCanvasNode || e.Target.FromNode is WaitNodeCanvasNode)
+                {
+                    IDialogueNode FromNode = (IDialogueNode)e.Target.FromNode;
+
+                    INextedNode dialogueNode = (INextedNode)dialogue.Nodes[FromNode.Target.ID];
+
+                    dialogueNode.NextNodeID = ToNode.Target.ID;
+                }
             }
 
             private void RemoveConnectionHandler(object sender, TargetEventArgs<Ashode.IConnection> e)
             {
                 IConnection conn = e.Target;
                 IDialogue dialogue = database.Dialogues[currentDialogue];
+
+                if(e.Target is StartNodeCanvasNode)
+                {
+                    dialogue.FirstNodeID = "";
+                    return;
+                }
+
                 IDialogueNode FromNode = (IDialogueNode)e.Target.FromNode;
 
-                ((IBranchedNode)dialogue.Nodes[FromNode.Target.ID]).Branches[e.Target.FromKnob.ID].NextNodeID = "";
+                if(FromNode.TargetType is IBranchedNode)
+                    ((IBranchedNode)dialogue.Nodes[FromNode.Target.ID]).Branches[e.Target.FromKnob.ID].NextNodeID = "";
+
+                if(FromNode.TargetType is INextedNode)
+                    ((INextedNode)dialogue.Nodes[FromNode.Target.ID]).NextNodeID = "";
             }
 
             private void OnDestroy()

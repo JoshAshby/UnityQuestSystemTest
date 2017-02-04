@@ -32,6 +32,11 @@ namespace Ashogue
             void RemoveBranch(string ID);
         }
 
+        public interface INextedNode : INode
+        {
+            string NextNodeID { get; set; }
+        } 
+
         public abstract class ANode : INode
         {
             private Vector2 _position = new Vector2();
@@ -170,42 +175,30 @@ namespace Ashogue
             }
         }
 
+        public abstract class ANextedNode : ANode, INextedNode
+        {
+            private string _nextNodeID = "";
+            public string NextNodeID
+            {
+                get { return _nextNodeID; }
+                set { _nextNodeID = value; }
+            }
+        }
+
         public class TextNode : ABranchedNode
         {
             private string _text = "";
             public string Text { get { return _text; } set { _text = value; } }
         }
 
-        public class WaitNode : ABranchedNode
+        public class WaitNode : ANextedNode
         {
-            private Dictionary<string, IBranch> _branches = new Dictionary<string, IBranch>
-            {
-                { "out", new SimpleBranch() }
-            };
-            [XmlIgnore]
-            public override Dictionary<string, IBranch> Branches
-            {
-                get { return _branches; }
-                set { _branches = value; }
-            }
-
             private float _seconds = 0f;
             public float Seconds { get { return _seconds; } set { _seconds = value; } }
         }
 
-        public class EventNode : ABranchedNode
+        public class EventNode : ANextedNode
         {
-            private Dictionary<string, IBranch> _branches = new Dictionary<string, IBranch>
-            {
-                { "out", new SimpleBranch() }
-            };
-            [XmlIgnore]
-            public override Dictionary<string, IBranch> Branches
-            {
-                get { return _branches; }
-                set { _branches = value; }
-            }
-
             private string _message = "";
             public string Message { get { return _message; } set { _message = value; } }
         }

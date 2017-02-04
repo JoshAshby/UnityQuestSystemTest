@@ -153,19 +153,18 @@ namespace Ashogue
             public override void SetupKnobs()
             {
                 AddKnob("in", NodeSide.Left, 0, Direction.Input, typeof(string)).Removable = false;
+                AddKnob("out", NodeSide.Right, 0, Direction.Output, typeof(string)).Removable = false;
             }
 
             public override void OnGUI()
             {
 
                 DrawKnob("in", 20);
+                DrawKnob("out", 20);
 
                 Target.Message = GUILayout.TextField(Target.Message);
 
                 GUILayout.Space(20);
-
-                foreach (var knob in Knobs.Where(x => x.Value.Direction == Direction.Output))
-                    DrawKnob(knob.Key);
 
                 MetadataEditor.Editor(Target);
             }
@@ -184,17 +183,17 @@ namespace Ashogue
             public override void SetupKnobs()
             {
                 AddKnob("in", NodeSide.Left, 0, Direction.Input, typeof(string)).Removable = false;
+                AddKnob("out", NodeSide.Right, 0, Direction.Output, typeof(string)).Removable = false;
             }
 
             public override void OnGUI()
             {
                 DrawKnob("in", 20);
+                DrawKnob("out", 20);
 
                 Target.Seconds = EditorGUILayout.FloatField(Target.Seconds);
 
                 GUILayout.Space(20);
-                foreach (var knob in Knobs.Where(x => x.Value.Direction == Direction.Output))
-                    DrawKnob(knob.Key);
 
                 MetadataEditor.Editor(Target);
             }

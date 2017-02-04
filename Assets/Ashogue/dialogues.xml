@@ -62,13 +62,7 @@
           </Position>
           <Name />
           <Metadata />
-          <Branches>
-            <SimpleBranch id="Untitled Branch 0">
-              <Name />
-              <Text>two</Text>
-              <NextNodeID>fin</NextNodeID>
-            </SimpleBranch>
-          </Branches>
+          <NextNodeID>fin</NextNodeID>
           <Message>testing</Message>
         </EventNode>
         <EndNode id="fin">
@@ -87,7 +81,7 @@
           <Name />
           <Metadata />
           <Branches>
-            <SimpleBranch id="43dbed19-8287-4c17-a0f1-6a4ab3f9136f">
+            <SimpleBranch id="45f8dcae-2f45-426b-87ad-f985b1c63e1f">
               <Name />
               <Text>test</Text>
               <NextNodeID>2678d6a9-4dfb-479b-9ddb-50779877fe4b</NextNodeID>
@@ -115,13 +109,7 @@
           </Position>
           <Name />
           <Metadata />
-          <Branches>
-            <SimpleBranch id="9f43adfb-1596-4d3b-84ea-5ff6621ab589">
-              <Name />
-              <Text />
-              <NextNodeID />
-            </SimpleBranch>
-          </Branches>
+          <NextNodeID>c811b18d-d4c0-42ce-bac3-99550011354b</NextNodeID>
           <Seconds>0</Seconds>
         </WaitNode>
         <EventNode id="c811b18d-d4c0-42ce-bac3-99550011354b">
@@ -131,13 +119,7 @@
           </Position>
           <Name />
           <Metadata />
-          <Branches>
-            <SimpleBranch id="63af0c26-3c0f-404b-8760-29cafa0838fe">
-              <Name />
-              <Text />
-              <NextNodeID />
-            </SimpleBranch>
-          </Branches>
+          <NextNodeID>8e1533fd-316f-4eee-a037-2a14b2432118</NextNodeID>
           <Message />
         </EventNode>
       </Nodes>
