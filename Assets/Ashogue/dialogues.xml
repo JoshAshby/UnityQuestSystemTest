@@ -86,6 +86,11 @@
               <Text>test</Text>
               <NextNodeID>2678d6a9-4dfb-479b-9ddb-50779877fe4b</NextNodeID>
             </SimpleBranch>
+            <SimpleBranch id="462a2d63-3abd-4976-9796-5ad7f3686a5d">
+              <Name />
+              <Text>watawtwat</Text>
+              <NextNodeID>78e981ee-3f89-4753-967e-a014b6a78376</NextNodeID>
+            </SimpleBranch>
           </Branches>
           <Text>wat wat</Text>
         </TextNode>
@@ -97,7 +102,7 @@
           <Name />
           <Metadata>
             <BoolMetadata id="testing">
-              <Name />
+              <Name>enable?</Name>
               <Value xsi:type="xsd:boolean">true</Value>
             </BoolMetadata>
           </Metadata>
@@ -116,6 +121,16 @@
           <Position>
             <x>1159</x>
             <y>392</y>
+          </Position>
+          <Name />
+          <Metadata />
+          <NextNodeID>8e1533fd-316f-4eee-a037-2a14b2432118</NextNodeID>
+          <Message />
+        </EventNode>
+        <EventNode id="78e981ee-3f89-4753-967e-a014b6a78376">
+          <Position>
+            <x>929</x>
+            <y>613</y>
           </Position>
           <Name />
           <Metadata />

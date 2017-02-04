@@ -136,7 +136,8 @@ namespace Ashogue
                     canvasNode.AddKnob(branch.ID, NodeSide.Right, 1, Direction.Output, typeof(string));
                 }
 
-                Canvas.State.AddConnection(startNode.Knobs["start"], firstNode.Knobs["in"]);
+                if (firstNode != null)
+                    Canvas.State.AddConnection(startNode.Knobs["start"], firstNode.Knobs["in"]);
 
                 foreach (var _node in dialogue.Nodes.Values)
                 {
@@ -186,16 +187,16 @@ namespace Ashogue
                 IDialogueNode node = (IDialogueNode)e.Target;
                 Type nodeType = e.Target.GetType();
 
-                if (typeof(TextNodeCanvasNode).IsAssignableFrom(nodeType))
+                if (node is TextNodeCanvasNode)
                     node.Target = dialogue.AddNode<TextNode>();
 
-                else if (typeof(EventNodeCanvasNode).IsAssignableFrom(nodeType))
+                else if (node is EventNodeCanvasNode)
                     node.Target = dialogue.AddNode<EventNode>();
 
-                else if (typeof(WaitNodeCanvasNode).IsAssignableFrom(nodeType))
+                else if (node is WaitNodeCanvasNode)
                     node.Target = dialogue.AddNode<WaitNode>();
 
-                else if (typeof(EndNodeCanvasNode).IsAssignableFrom(nodeType))
+                else if (node is EndNodeCanvasNode)
                     node.Target = dialogue.AddNode<EndNode>();
             }
 
@@ -203,7 +204,6 @@ namespace Ashogue
             {
                 IDialogue dialogue = database.Dialogues[currentDialogue];
                 IDialogueNode node = (IDialogueNode)e.Target;
-                Type nodeType = e.Target.GetType();
 
                 dialogue.RemoveNode(node.Target.ID);
             }
@@ -212,23 +212,24 @@ namespace Ashogue
             {
                 IConnection conn = e.Target;
                 IDialogue dialogue = database.Dialogues[currentDialogue];
-                IDialogueNode ToNode = (IDialogueNode)e.Target.ToNode;
 
-                if(e.Target.FromNode is StartNodeCanvasNode)
+                IDialogueNode ToNode = (IDialogueNode)conn.ToNode;
+
+                if(conn.FromNode is StartNodeCanvasNode)
                 {
                     dialogue.FirstNodeID = ToNode.Target.ID;
                 }
-                else if(e.Target.FromNode is TextNodeCanvasNode)
+                else if(conn.FromNode is TextNodeCanvasNode)
                 {
-                    IDialogueNode FromNode = (IDialogueNode)e.Target.FromNode;
+                    IDialogueNode FromNode = (IDialogueNode)conn.FromNode;
 
                     IBranchedNode dialogueNode = (IBranchedNode)dialogue.Nodes[FromNode.Target.ID];
 
-                    dialogueNode.Branches[e.Target.FromKnob.ID].NextNodeID = ToNode.Target.ID;
+                    dialogueNode.Branches[conn.FromKnob.ID].NextNodeID = ToNode.Target.ID;
                 }
-                else if(e.Target.FromNode is EventNodeCanvasNode || e.Target.FromNode is WaitNodeCanvasNode)
+                else if(conn.FromNode is EventNodeCanvasNode || conn.FromNode is WaitNodeCanvasNode)
                 {
-                    IDialogueNode FromNode = (IDialogueNode)e.Target.FromNode;
+                    IDialogueNode FromNode = (IDialogueNode)conn.FromNode;
 
                     INextedNode dialogueNode = (INextedNode)dialogue.Nodes[FromNode.Target.ID];
 
@@ -241,16 +242,16 @@ namespace Ashogue
                 IConnection conn = e.Target;
                 IDialogue dialogue = database.Dialogues[currentDialogue];
 
-                if(e.Target is StartNodeCanvasNode)
+                if(conn.FromNode is StartNodeCanvasNode)
                 {
                     dialogue.FirstNodeID = "";
                     return;
                 }
 
-                IDialogueNode FromNode = (IDialogueNode)e.Target.FromNode;
+                IDialogueNode FromNode = (IDialogueNode)conn.FromNode;
 
                 if(FromNode.TargetType is IBranchedNode)
-                    ((IBranchedNode)dialogue.Nodes[FromNode.Target.ID]).Branches[e.Target.FromKnob.ID].NextNodeID = "";
+                    ((IBranchedNode)dialogue.Nodes[FromNode.Target.ID]).Branches[conn.FromKnob.ID].NextNodeID = "";
 
                 if(FromNode.TargetType is INextedNode)
                     ((INextedNode)dialogue.Nodes[FromNode.Target.ID]).NextNodeID = "";
