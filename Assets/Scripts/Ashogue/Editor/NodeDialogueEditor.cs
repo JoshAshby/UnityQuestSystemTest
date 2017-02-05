@@ -4,7 +4,6 @@ using Ashode;
 using Ashogue.Data;
 using System;
 using System.Linq;
-using System.Collections.Generic;
 using System.IO;
 
 namespace Ashogue
@@ -28,7 +27,8 @@ namespace Ashogue
             private DialogueContainer database;
             private string path;
 
-            private string currentDialogue = "test";
+            private string currentDialogueID = "";
+            private IDialogue CurrentDialogue { get { return database.Dialogues[currentDialogueID]; } }
 
             private DialogueCanvas Canvas;
 
@@ -80,13 +80,14 @@ namespace Ashogue
             private void Setup()
             {
                 EnsureDatabase();
+                currentDialogueID = database.Dialogues.Keys.First();
 
-                SelectDialogue(currentDialogue);
+                SelectDialogue(currentDialogueID);
             }
 
             private void SelectDialogue(string id)
             {
-                currentDialogue = id;
+                currentDialogueID = id;
 
                 if (Canvas != null)
                 {
@@ -101,12 +102,10 @@ namespace Ashogue
 
                 Canvas = new DialogueCanvas();
 
-                IDialogue dialogue = database.Dialogues[id];
-
                 Ashode.INode startNode = Canvas.State.Nodes.First();
 
                 IDialogueNode firstNode = null;
-                foreach (var dialogueNode in dialogue.Nodes.Values)
+                foreach (var dialogueNode in CurrentDialogue.Nodes.Values)
                 {
                     Vector2 pos = dialogueNode.Position;
                     IDialogueNode canvasNode = null;
@@ -127,7 +126,7 @@ namespace Ashogue
 
                     canvasNode.Target = dialogueNode;
 
-                    if (dialogueNode.ID == dialogue.FirstNodeID)
+                    if (dialogueNode.ID == CurrentDialogue.FirstNodeID)
                         firstNode = canvasNode;
 
                     if (!(dialogueNode is IBranchedNode))
@@ -141,7 +140,7 @@ namespace Ashogue
                 if (firstNode != null)
                     Canvas.State.AddConnection(startNode.Knobs["start"], firstNode.Knobs["in"]);
 
-                foreach (var _node in dialogue.Nodes.Values)
+                foreach (var _node in CurrentDialogue.Nodes.Values)
                 {
                     if (_node is IBranchedNode)
                     {
@@ -185,47 +184,44 @@ namespace Ashogue
 
             private void AddNodeHandler(object sender, TargetEventArgs<Ashode.INode> e)
             {
-                IDialogue dialogue = database.Dialogues[currentDialogue];
                 IDialogueNode node = (IDialogueNode)e.Target;
                 Type nodeType = e.Target.GetType();
 
                 if (node is TextNodeCanvasNode)
-                    node.Target = dialogue.AddNode<TextNode>();
+                    node.Target = CurrentDialogue.AddNode<TextNode>();
 
                 else if (node is EventNodeCanvasNode)
-                    node.Target = dialogue.AddNode<EventNode>();
+                    node.Target = CurrentDialogue.AddNode<EventNode>();
 
                 else if (node is WaitNodeCanvasNode)
-                    node.Target = dialogue.AddNode<WaitNode>();
+                    node.Target = CurrentDialogue.AddNode<WaitNode>();
 
                 else if (node is EndNodeCanvasNode)
-                    node.Target = dialogue.AddNode<EndNode>();
+                    node.Target = CurrentDialogue.AddNode<EndNode>();
             }
 
             private void RemoveNodeHandler(object sender, TargetEventArgs<Ashode.INode> e)
             {
-                IDialogue dialogue = database.Dialogues[currentDialogue];
                 IDialogueNode node = (IDialogueNode)e.Target;
 
-                dialogue.RemoveNode(node.Target.ID);
+                CurrentDialogue.RemoveNode(node.Target.ID);
             }
 
             private void AddConnectionHandler(object sender, TargetEventArgs<Ashode.IConnection> e)
             {
                 IConnection conn = e.Target;
-                IDialogue dialogue = database.Dialogues[currentDialogue];
 
                 IDialogueNode ToNode = (IDialogueNode)conn.ToNode;
 
                 if(conn.FromNode is StartNodeCanvasNode)
                 {
-                    dialogue.FirstNodeID = ToNode.Target.ID;
+                    CurrentDialogue.FirstNodeID = ToNode.Target.ID;
                 }
                 else if(conn.FromNode is TextNodeCanvasNode)
                 {
                     IDialogueNode FromNode = (IDialogueNode)conn.FromNode;
 
-                    IBranchedNode dialogueNode = (IBranchedNode)dialogue.Nodes[FromNode.Target.ID];
+                    IBranchedNode dialogueNode = (IBranchedNode)CurrentDialogue.Nodes[FromNode.Target.ID];
 
                     dialogueNode.Branches[conn.FromKnob.ID].NextNodeID = ToNode.Target.ID;
                 }
@@ -233,7 +229,7 @@ namespace Ashogue
                 {
                     IDialogueNode FromNode = (IDialogueNode)conn.FromNode;
 
-                    INextedNode dialogueNode = (INextedNode)dialogue.Nodes[FromNode.Target.ID];
+                    INextedNode dialogueNode = (INextedNode)CurrentDialogue.Nodes[FromNode.Target.ID];
 
                     dialogueNode.NextNodeID = ToNode.Target.ID;
                 }
@@ -242,21 +238,20 @@ namespace Ashogue
             private void RemoveConnectionHandler(object sender, TargetEventArgs<Ashode.IConnection> e)
             {
                 IConnection conn = e.Target;
-                IDialogue dialogue = database.Dialogues[currentDialogue];
 
                 if(conn.FromNode is StartNodeCanvasNode)
                 {
-                    dialogue.FirstNodeID = "";
+                    CurrentDialogue.FirstNodeID = "";
                     return;
                 }
 
                 IDialogueNode FromNode = (IDialogueNode)conn.FromNode;
 
                 if(FromNode.TargetType is IBranchedNode)
-                    ((IBranchedNode)dialogue.Nodes[FromNode.Target.ID]).Branches[conn.FromKnob.ID].NextNodeID = "";
+                    ((IBranchedNode)CurrentDialogue.Nodes[FromNode.Target.ID]).Branches[conn.FromKnob.ID].NextNodeID = "";
 
                 if(FromNode.TargetType is INextedNode)
-                    ((INextedNode)dialogue.Nodes[FromNode.Target.ID]).NextNodeID = "";
+                    ((INextedNode)CurrentDialogue.Nodes[FromNode.Target.ID]).NextNodeID = "";
             }
 
             private void OnDestroy()
@@ -297,8 +292,18 @@ namespace Ashogue
                 GUILayout.BeginArea(sideWindowRect, GUI.skin.box);
 
                 foreach (var dialogue in database.Dialogues.Values)
-                    if (GUILayout.Button(dialogue.ID))
+                    if (GUILayout.Button(dialogue.Name))
                         SelectDialogue(dialogue.ID);
+
+                if (!String.IsNullOrEmpty(currentDialogueID))
+                {
+                    GUILayout.Box("", GUILayout.ExpandWidth(true), GUILayout.Height(1));
+
+                    GUILayout.BeginHorizontal();
+                    GUILayout.Label("Name", GUILayout.ExpandWidth(false));
+                    CurrentDialogue.Name = GUILayout.TextField(CurrentDialogue.Name, GUILayout.ExpandWidth(true));
+                    GUILayout.EndHorizontal();
+                }
 
                 GUILayout.EndArea();
 

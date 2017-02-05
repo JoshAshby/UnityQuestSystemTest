@@ -19,7 +19,6 @@ namespace Ashogue
             Dictionary<string, IMetadata> Metadata { get; set; }
             TMetadata AddMetadata<TMetadata>(string ID = null) where TMetadata : IMetadata, new();
             IMetadata AddMetadata(Type TMetadata, string ID = null);
-            void RenameMetadata(string FromID, string ToID);
             void RemoveMetadata(string ID);
         }
 
@@ -28,14 +27,13 @@ namespace Ashogue
             Dictionary<string, IBranch> Branches { get; set; }
             TBranch AddBranch<TBranch>(string ID = null) where TBranch : IBranch, new();
             IBranch AddBranch(Type TBranch, string ID = null);
-            void RenameBranch(string FromID, string ToID);
             void RemoveBranch(string ID);
         }
 
         public interface INextedNode : INode
         {
             string NextNodeID { get; set; }
-        } 
+        }
 
         public abstract class ANode : INode
         {
@@ -103,15 +101,6 @@ namespace Ashogue
                 return metadata;
             }
 
-            public virtual void RenameMetadata(string fromID, string toID)
-            {
-                IMetadata metadata = Metadata[fromID];
-
-                Metadata.Remove(fromID);
-                metadata.ID = toID;
-                Metadata.Add(toID, metadata);
-            }
-
             public virtual void RemoveMetadata(string ID)
             {
                 Metadata.Remove(ID);
@@ -158,15 +147,6 @@ namespace Ashogue
                 Branches.Add(ID, Branch);
 
                 return Branch;
-            }
-
-            public virtual void RenameBranch(string fromID, string toID)
-            {
-                IBranch Branch = Branches[fromID];
-
-                Branches.Remove(fromID);
-                Branch.ID = toID;
-                Branches.Add(toID, Branch);
             }
 
             public virtual void RemoveBranch(string ID)

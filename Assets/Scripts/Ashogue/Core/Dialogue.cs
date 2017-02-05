@@ -18,7 +18,6 @@ namespace Ashogue
             Dictionary<string, INode> Nodes { get; set; }
             TNode AddNode<TNode>(string ID = null) where TNode : INode, new();
             INode AddNode(Type TNode, string ID = null);
-            void RenameNode(string fromID, string toID);
             void RemoveNode(string ID);
         }
 
@@ -87,15 +86,6 @@ namespace Ashogue
                 Nodes.Add(ID, node);
 
                 return node;
-            }
-
-            public void RenameNode(string fromID, string toID)
-            {
-                INode node = Nodes[fromID];
-
-                Nodes.Remove(fromID);
-                node.ID = toID;
-                Nodes.Add(toID, node);
             }
 
             public void RemoveNode(string ID)

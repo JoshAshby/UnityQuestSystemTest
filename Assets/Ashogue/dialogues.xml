@@ -2,7 +2,7 @@
 <DialogueCollection xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
   <Dialogues>
     <Dialogue id="test">
-      <Name />
+      <Name>First </Name>
       <FirstNodeID>first!</FirstNodeID>
       <Nodes>
         <TextNode id="first!">
@@ -129,8 +129,8 @@
         </WaitNode>
         <EventNode id="c811b18d-d4c0-42ce-bac3-99550011354b">
           <Position>
-            <x>1062</x>
-            <y>486</y>
+            <x>1061</x>
+            <y>488</y>
           </Position>
           <Name />
           <Metadata />
@@ -175,8 +175,8 @@
         </TextNode>
         <TextNode id="ffcf0e57-7682-4938-afe2-8fbabcb0f740">
           <Position>
-            <x>1065</x>
-            <y>232</y>
+            <x>1062</x>
+            <y>223</y>
           </Position>
           <Name />
           <Metadata />
@@ -207,7 +207,7 @@
       </Nodes>
     </Dialogue>
     <Dialogue id="93799d44-19f7-4f63-a94f-fefb646494a0">
-      <Name />
+      <Name>second</Name>
       <FirstNodeID>c396ac60-eb31-4602-9a43-4cd52628b193</FirstNodeID>
       <Nodes>
         <TextNode id="c396ac60-eb31-4602-9a43-4cd52628b193">

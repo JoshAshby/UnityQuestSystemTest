@@ -30,6 +30,8 @@ namespace Ashode
 
     public class Theme : ITheme
     {
+        private string BasePath = "";
+
         public Texture2D CanvasBackground { get; }
 
         public string InputKnob { get; }
@@ -49,9 +51,11 @@ namespace Ashode
         private Dictionary<string, Texture2D> _textureCache = new Dictionary<string, Texture2D>();
         private Dictionary<string, Color> _colorCache = new Dictionary<string, Color>();
 
-        public Theme()
+        public Theme(string basePath = "Assets/Scripts/Ashode/")
         {
-            CanvasBackground = AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/Systems/Ashode/Resources/Textures/Grid Background@2x.png");
+            BasePath = basePath;
+
+            CanvasBackground = AssetDatabase.LoadAssetAtPath<Texture2D>(BasePath + "Resources/Textures/Grid Background@2x.png");
 
             InputKnob = "Input Knob@2x";
             OutputKnob = "Output Knob@2x";
@@ -60,12 +64,12 @@ namespace Ashode
             AddKnobName = "Add Knob@2x";
             RemoveKnobName = "Remove Knob@2x";
 
-            AddKnob = AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/Systems/Ashode/Resources/Textures/Add Knob@2x.png");
-            RemoveKnob = AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/Systems/Ashode/Resources/Textures/Remove Knob@2x.png");
+            AddKnob = AssetDatabase.LoadAssetAtPath<Texture2D>(BasePath + "Resources/Textures/Add Knob@2x.png");
+            RemoveKnob = AssetDatabase.LoadAssetAtPath<Texture2D>(BasePath + "Resources/Textures/Remove Knob@2x.png");
 
-            ResizeHandle = AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/Systems/Ashode/Resources/Textures/Resize Handle@2x.png");
+            ResizeHandle = AssetDatabase.LoadAssetAtPath<Texture2D>(BasePath + "Resources/Textures/Resize Handle@2x.png");
 
-            Line = AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/Systems/Ashode/Resources/Textures/AA Line@2x.png");
+            Line = AssetDatabase.LoadAssetAtPath<Texture2D>(BasePath + "Resources/Textures/AA Line@2x.png");
         }
 
         public Texture2D GetTexture(string name, int ccrotation, Color color)
@@ -75,7 +79,7 @@ namespace Ashode
             if (_textureCache.ContainsKey(key))
                 return _textureCache[key];
 
-            Texture2D texture = AssetDatabase.LoadAssetAtPath<Texture2D>("Assets/Systems/Ashode/Resources/Textures/" + name + ".png");
+            Texture2D texture = AssetDatabase.LoadAssetAtPath<Texture2D>(BasePath + "Resources/Textures/" + name + ".png");
 
             if (ccrotation != 0)
                 texture = RotateTexture(texture, ccrotation);

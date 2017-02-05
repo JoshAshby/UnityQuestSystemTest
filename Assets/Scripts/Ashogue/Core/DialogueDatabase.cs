@@ -37,15 +37,6 @@ namespace Ashogue
                 return dialogue;
             }
 
-            public void RenameDialogue(string fromID, string toID)
-            {
-                IDialogue dialogue = Dialogues[fromID];
-
-                Dialogues.Remove(fromID);
-                dialogue.ID = toID;
-                Dialogues.Add(toID, dialogue);
-            }
-
             public void RemoveDialogue(string ID)
             {
                 Dialogues.Remove(ID);
