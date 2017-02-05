@@ -1,5 +1,4 @@
 ﻿using UnityEngine;
-using Zenject;
 
 [RequireComponent(typeof(MenuManager))]
 public class InGameMenuManager : MonoBehaviour
@@ -10,7 +9,6 @@ public class InGameMenuManager : MonoBehaviour
 
     private MenuManager _menuManager;
 
-    [Inject]
     private IGameManager _gameManager;
 
     private void Awake()

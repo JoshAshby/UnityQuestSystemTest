@@ -1,5 +1,4 @@
 ﻿using UnityEngine;
-using Zenject;
 
 /// <summary>
 /// This script handles raycasting out from the center of the screen to the
@@ -40,7 +39,6 @@ public class CrosshairSystem : MonoBehaviour
 
     private IInteractiveBehaviour[] CurrentBehaviours = { };
 
-    [Inject]
     private IGameManager _gameManager;
 
     private void Start()

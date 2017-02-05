@@ -2,6 +2,12 @@ using UnityEngine;
 using System.Collections;
 using UnityEngine.UI;
 
+public interface IFader
+{
+    IEnumerator FadeIn();
+    IEnumerator FadeOut();
+}
+
 public class Fader : MonoBehaviour, IFader
 {
     [SerializeField]

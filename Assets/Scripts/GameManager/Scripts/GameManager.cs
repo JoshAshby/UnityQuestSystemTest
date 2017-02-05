@@ -1,8 +1,5 @@
 ﻿using UnityEditor;
 using UnityEngine;
-#if UNITY_EDITOR
-using Zenject;
-#endif
 
 public enum GameStates {
     Playing,
@@ -57,7 +54,7 @@ public interface IGameManager {
     void Quit ();
 }
 
-public class GameManager : IGameManager, ITickable {
+public class GameManager : MonoBehaviour, IGameManager {
     public GameStates State {
         get { return fsm.CurrentState; }
         set { fsm.PerformTransition(value); }
@@ -68,11 +65,11 @@ public class GameManager : IGameManager, ITickable {
         private set;
     }
 
-    public GameManager () {
+    private void Awake () {
         BuildFSM ();
     }
 
-    public void Tick () {
+    private void Update () {
         fsm.Reason ();
     }
 

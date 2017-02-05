@@ -1,5 +1,4 @@
 using UnityEngine;
-using Zenject;
 
 /// <summary>
 /// Handles keeping the HUD objects update to date with whats going on as
@@ -17,7 +16,6 @@ public class HUDManager : MonoBehaviour
     private CanvasGroup _canvasGroup   = null;
     private CrosshairSystem _crosshair = null;
 
-    [Inject]
     private IGameManager _gameManager;
 
     private void Awake()

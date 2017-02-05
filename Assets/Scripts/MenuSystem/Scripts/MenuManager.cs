@@ -1,6 +1,5 @@
 ﻿using UnityEngine;
 using UnityEngine.EventSystems;
-using Zenject;
 
 public class MenuManager : MonoBehaviour
 {
@@ -11,7 +10,6 @@ public class MenuManager : MonoBehaviour
     [SerializeField]
     private EventSystem EventSystem;
 
-    [Inject]
     private ILoadingScreenManager loadingScreenManager;
 
     private void Start()

@@ -134,7 +134,7 @@ namespace Ashogue
 
                     IBranchedNode branchedNode = (IBranchedNode)dialogueNode;
                     foreach (var branch in branchedNode.Branches.Values)
-                    canvasNode.AddKnob(branch.ID, NodeSide.Right, 1, Direction.Output, typeof(string));
+                        canvasNode.AddKnob(branch.ID, NodeSide.Right, 1, Direction.Output, typeof(string));
                 }
 
                 if (firstNode != null)
@@ -149,7 +149,7 @@ namespace Ashogue
                         IDialogueNode FromNode = (IDialogueNode)Canvas.State.Nodes.Where(x => x is IDialogueNode).ToList().Find(x => ((IDialogueNode)x).Target.ID == node.ID);
                         foreach (var branch in node.Branches.Values)
                         {
-                            if(String.IsNullOrEmpty(branch.NextNodeID))
+                            if (String.IsNullOrEmpty(branch.NextNodeID))
                                 continue;
 
                             IKnob FromKnob = FromNode.Knobs[branch.ID];
@@ -213,11 +213,11 @@ namespace Ashogue
 
                 IDialogueNode ToNode = (IDialogueNode)conn.ToNode;
 
-                if(conn.FromNode is StartNodeCanvasNode)
+                if (conn.FromNode is StartNodeCanvasNode)
                 {
                     CurrentDialogue.FirstNodeID = ToNode.Target.ID;
                 }
-                else if(conn.FromNode is TextNodeCanvasNode)
+                else if (conn.FromNode is TextNodeCanvasNode)
                 {
                     IDialogueNode FromNode = (IDialogueNode)conn.FromNode;
 
@@ -225,7 +225,7 @@ namespace Ashogue
 
                     dialogueNode.Branches[conn.FromKnob.ID].NextNodeID = ToNode.Target.ID;
                 }
-                else if(conn.FromNode is EventNodeCanvasNode || conn.FromNode is WaitNodeCanvasNode)
+                else if (conn.FromNode is EventNodeCanvasNode || conn.FromNode is WaitNodeCanvasNode)
                 {
                     IDialogueNode FromNode = (IDialogueNode)conn.FromNode;
 
@@ -239,7 +239,7 @@ namespace Ashogue
             {
                 IConnection conn = e.Target;
 
-                if(conn.FromNode is StartNodeCanvasNode)
+                if (conn.FromNode is StartNodeCanvasNode)
                 {
                     CurrentDialogue.FirstNodeID = "";
                     return;
@@ -247,15 +247,18 @@ namespace Ashogue
 
                 IDialogueNode FromNode = (IDialogueNode)conn.FromNode;
 
-                if(FromNode.TargetType is IBranchedNode)
+                if (FromNode.TargetType is IBranchedNode)
                     ((IBranchedNode)CurrentDialogue.Nodes[FromNode.Target.ID]).Branches[conn.FromKnob.ID].NextNodeID = "";
 
-                if(FromNode.TargetType is INextedNode)
+                if (FromNode.TargetType is INextedNode)
                     ((INextedNode)CurrentDialogue.Nodes[FromNode.Target.ID]).NextNodeID = "";
             }
 
             private void OnDestroy()
             {
+                if (Canvas == null)
+                    return;
+
                 Canvas.EventSystem.AddNode -= AddNodeHandler;
                 Canvas.EventSystem.RemoveNode -= RemoveNodeHandler;
 

@@ -1,7 +1,11 @@
 ﻿using UnityEngine;
 using System.Collections;
 using UnityEngine.SceneManagement;
-using Zenject;
+
+public interface ILoadingScreenManager
+{
+    void LoadScene(string scene);
+}
 
 public class LoadingScreenManager : MonoBehaviour, ILoadingScreenManager
 {
@@ -13,13 +17,17 @@ public class LoadingScreenManager : MonoBehaviour, ILoadingScreenManager
     [SerializeField]
     private LoadSceneMode loadSceneMode = LoadSceneMode.Single;
 
-    [Inject]
-    private IFader fadeOverlay;
-
-    [Inject(Id="LoadingSceneName")]
+    [SerializeField]
     private string loadingSceneName;
 
+    private IFader fadeOverlay;
+
     private IEnumerator operation = null;
+
+    private void Awake()
+    {
+        fadeOverlay = GetComponentInChildren<IFader>();
+    }
 
     public void LoadScene(string levelName)
     {
@@ -34,11 +42,11 @@ public class LoadingScreenManager : MonoBehaviour, ILoadingScreenManager
     {
         yield return fadeOverlay.FadeIn();
 
-		yield return SceneManager.LoadSceneAsync(loadingSceneName);
+        yield return SceneManager.LoadSceneAsync(loadingSceneName);
 
         yield return fadeOverlay.FadeOut();
 
-        if(waitOnLoadEnd != 0)
+        if (waitOnLoadEnd != 0)
             yield return new WaitForSeconds(waitOnLoadEnd);
 
         yield return fadeOverlay.FadeIn();
