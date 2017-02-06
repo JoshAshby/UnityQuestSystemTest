@@ -7,7 +7,8 @@ public interface ILoadingScreenManager
     void LoadScene(string scene);
 }
 
-public class LoadingScreenManager : MonoBehaviour, ILoadingScreenManager
+[Prefab("LoadingSceneManager", true)]
+public class LoadingScreenManager : Singleton<LoadingScreenManager>
 {
     [Header("Timing Settings")]
     [SerializeField]

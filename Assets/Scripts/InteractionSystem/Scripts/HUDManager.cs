@@ -8,33 +8,33 @@ public class HUDManager : MonoBehaviour
 {
     [Header("UI Canvas")]
     [SerializeField]
-    private Reticle ReticleObj         = null;
+    private Reticle ReticleObj = null;
 
     [SerializeField]
     private ReticleInfo ReticleInfoObj = null;
 
-    private CanvasGroup _canvasGroup   = null;
+    private CanvasGroup _canvasGroup = null;
     private CrosshairSystem _crosshair = null;
-
-    private IGameManager _gameManager;
 
     private void Awake()
     {
-        _crosshair   = GetComponentInParent<CrosshairSystem>();
+        _crosshair = GetComponentInParent<CrosshairSystem>();
         _canvasGroup = GetComponent<CanvasGroup>();
 
         _crosshair.OnLookChange += OnLookChange;
-        _crosshair.OnInteract   += OnInteract;
+        _crosshair.OnInteract += OnInteract;
     }
 
-    private void Destroy() {
+    private void Destroy()
+    {
         _crosshair.OnLookChange -= OnLookChange;
-        _crosshair.OnInteract   -= OnInteract;
+        _crosshair.OnInteract -= OnInteract;
     }
 
     private void Update()
     {
-        if(_gameManager.State == GameStates.Menu) {
+        if (GameManager.Instance.State == GameStates.Menu)
+        {
             HideHUD();
             return;
         }
@@ -61,7 +61,8 @@ public class HUDManager : MonoBehaviour
         ReticleInfoObj.ShowInfo(obj);
     }
 
-    public void OnInteract(Transform obj) {
+    public void OnInteract(Transform obj)
+    {
         if (obj != null)
             Debug.LogFormat("Interacting with tranform group {0}", obj.name);
 

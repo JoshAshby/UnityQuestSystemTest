@@ -10,8 +10,6 @@ public class MenuManager : MonoBehaviour
     [SerializeField]
     private EventSystem EventSystem;
 
-    private ILoadingScreenManager loadingScreenManager;
-
     private void Start()
     {
         ShowMenu(CurrentMenu);
@@ -43,6 +41,6 @@ public class MenuManager : MonoBehaviour
 
     public void LoadLevel(string levelName)
     {
-        loadingScreenManager.LoadScene(levelName);
+        LoadingScreenManager.Instance.LoadScene(levelName);
     }
 }

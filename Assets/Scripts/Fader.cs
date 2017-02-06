@@ -23,7 +23,7 @@ public class Fader : MonoBehaviour, IFader
 
     private Image fadeOverlay = null;
 
-    private void Start()
+    private void Awake()
     {
         fadeOverlay = GetComponentInChildren<Image>();
         if (fadeOverlay == null)

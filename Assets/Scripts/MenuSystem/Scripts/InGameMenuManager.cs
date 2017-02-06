@@ -9,17 +9,15 @@ public class InGameMenuManager : MonoBehaviour
 
     private MenuManager _menuManager;
 
-    private IGameManager _gameManager;
-
     private void Awake()
     {
         _menuManager = GetComponent<MenuManager>();
-        _gameManager.fsm.OnStateChange += OnStateChange;
+        GameManager.Instance.fsm.OnStateChange += OnStateChange;
     }
 
     private void Destroy()
     {
-        _gameManager.fsm.OnStateChange -= OnStateChange;
+        GameManager.Instance.fsm.OnStateChange -= OnStateChange;
     }
 
     public void OnStateChange(GameStates state)
@@ -32,11 +30,11 @@ public class InGameMenuManager : MonoBehaviour
 
     public void ResumeGame()
     {
-        _gameManager.State = GameStates.Playing;
+        GameManager.Instance.State = GameStates.Playing;
     }
 
     public void QuitGame()
     {
-        _gameManager.Quit();
+        GameManager.Instance.Quit();
     }
 }

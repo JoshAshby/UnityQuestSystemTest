@@ -39,8 +39,6 @@ public class CrosshairSystem : MonoBehaviour
 
     private IInteractiveBehaviour[] CurrentBehaviours = { };
 
-    private IGameManager _gameManager;
-
     private void Start()
     {
         TargetCamera = transform.GetComponentInChildren<Camera>();
@@ -50,7 +48,7 @@ public class CrosshairSystem : MonoBehaviour
 
     private void Update()
     {
-        if (_gameManager.State == GameStates.Menu)
+        if (GameManager.Instance.State == GameStates.Menu)
         {
             return;
         }
