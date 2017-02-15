@@ -6,11 +6,11 @@ namespace Dialogue
 {
     class Query
     {
-        public Dictionary<int, int> Context;
+        public Dictionary<string, int> Context;
 
         public Query()
         {
-            Context = new Dictionary<int, int>();
+            Context = new Dictionary<string, int>();
         }
     }
 
@@ -32,13 +32,13 @@ namespace Dialogue
 
         public IQueryBuilderAdd Add(string key, string val)
         {
-            _query.Context.Add(key.GetHashCode(), val.GetHashCode());
+            _query.Context.Add(key, val.GetHashCode());
             return this;
         }
 
         public IQueryBuilderAdd Add(string key, int val)
         {
-            _query.Context.Add(key.GetHashCode(), val);
+            _query.Context.Add(key, val);
             return this;
         }
 
@@ -47,22 +47,11 @@ namespace Dialogue
 
     class DatabasePartition
     {
-        protected List<Entry> Entries;
+        public List<Entry> Entries;
 
         public DatabasePartition()
         {
             Entries = new List<Entry>();
-        }
-
-        public DatabasePartition AddEntry(Entry entry)
-        {
-            Entries.Add(entry);
-            return this;
-        }
-
-        public void Optimize()
-        {
-            Entries = Entries.OrderBy(x => x.Length).ToList();
         }
 
         public object Query(Query query)
@@ -78,36 +67,12 @@ namespace Dialogue
 
     class Entry
     {
-        protected List<Criteron> Criteria;
+        public List<Criteron> Criteria;
         public object Payload;
 
         public Entry()
         {
             Criteria = new List<Criteron>();
-        }
-
-        public Entry AddCriteron(string key, string value)
-        {
-            Criteria.Add(new Criteron(key, value));
-            return this;
-        }
-
-        public Entry AddCriteron(string key, int value)
-        {
-            Criteria.Add(new Criteron(key, value));
-            return this;
-        }
-
-        public Entry AddCriteron(string key, int lower, int upper)
-        {
-            Criteria.Add(new Criteron(key, lower, upper));
-            return this;
-        }
-
-        public Entry SetPayload(object payload)
-        {
-            Payload = payload;
-            return this;
         }
 
         public int Length
@@ -163,33 +128,96 @@ namespace Dialogue
         }
     }
 
+    interface IEntryBuilderCriteria
+    {
+        IEntryBuilderCriteria AddCriteron(string key, string val);
+        IEntryBuilderCriteria AddCriteron(string key, int val);
+        IEntryBuilderCriteria AddCriteron(string key, int low, int high);
+    }
+
+    class EntryBuilder : IEntryBuilderCriteria
+    {
+        private Entry _entry;
+
+        public EntryBuilder New()
+        {
+            _entry = new Entry();
+            return this;
+        }
+
+        public IEntryBuilderCriteria SetPayload(object payload)
+        {
+            _entry.Payload = payload;
+            return this;
+        }
+
+        public IEntryBuilderCriteria AddCriteron(string key, string val)
+        {
+            _entry.Criteria.Add(new Criteron(key, val));
+            return this;
+        }
+
+        public IEntryBuilderCriteria AddCriteron(string key, int val)
+        {
+            _entry.Criteria.Add(new Criteron(key, val));
+            return this;
+        }
+
+        public IEntryBuilderCriteria AddCriteron(string key, int low, int high)
+        {
+            _entry.Criteria.Add(new Criteron(key, low, high));
+            return this;
+        }
+    }
+
+    interface IDatabaseBuilderEntry
+    {
+        IDatabaseBuilderEntry New();
+    }
+    
+    class DatabaseBuilder : IDatabaseBuilderEntry
+    {
+        private DatabasePartition _database;
+
+        public IDatabaseBuilderEntry New()
+        {
+            _database = new DatabasePartition();
+            return this;
+        }
+
+        public EntryBuilder AddEntry(object payload)
+        {
+            EntryBuilder entryBuilder = new EntryBuilder();
+            entryBuilder.New().SetPayload(payload);
+
+            return entryBuilder;
+        }
+
+        public DatabasePartition Finalize()
+        {
+            _database.Entries = _database.Entries.OrderBy(x => x.Length).ToList();
+
+            return _database;
+        }
+    }
+
     class Loader
     {
         static public void Build()
         {
-            DatabasePartition testPartition = new DatabasePartition();
-
-            testPartition.AddEntry(
-                new Entry()
-                    .AddCriteron("test1", "alpha")
-                    .SetPayload("wat")
-            ).AddEntry(
-                new Entry()
-                    .AddCriteron("test2", 6)
-                    .SetPayload("bat")
-            ).AddEntry(
-                new Entry()
-                    .AddCriteron("test3", 9, 12)
-                    .SetPayload("mat")
-            ).AddEntry(
-                new Entry()
-                    .AddCriteron("test4", "robin")
-                    .AddCriteron("test5", 19)
-                    .AddCriteron("test6", 0, 6)
-                    .SetPayload("hat")
-            ).Optimize();
-
+            DatabaseBuilder databaseBuilder = new DatabaseBuilder();
             QueryBuilder queryBuilder = new QueryBuilder();
+
+            databaseBuilder.New();
+            databaseBuilder.AddEntry("wat").AddCriteron("test1", "alpha");
+            databaseBuilder.AddEntry("bat").AddCriteron("test2", 6);
+            databaseBuilder.AddEntry("mat").AddCriteron("test3", 9, 12);
+            databaseBuilder.AddEntry("hat")
+                .AddCriteron("test4", "robin")
+                .AddCriteron("test5", 19)
+                .AddCriteron("test6", 0, 6);
+
+            DatabasePartition testPartition = databaseBuilder.Finalize();
 
             queryBuilder.New().Add("test1", "beta");
             Debug.Assert(testPartition.Query(queryBuilder.Query) == null);
