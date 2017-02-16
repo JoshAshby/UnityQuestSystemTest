@@ -206,35 +206,35 @@ namespace Dialogue
 
     class EntryBuilder : IEntryBuilderCriteria
     {
-        private Entry _entry;
+        public Entry Entry { get; set; }
 
         public EntryBuilder New()
         {
-            _entry = new Entry();
+            Entry = new Entry();
             return this;
         }
 
         public IEntryBuilderCriteria SetPayload(object payload)
         {
-            _entry.Payload = payload;
+            Entry.Payload = payload;
             return this;
         }
 
         public IEntryBuilderCriteria AddCriteron(string key, string val)
         {
-            _entry.Criteria.Add(new MatchCriteron<string>(key, val));
+            Entry.Criteria.Add(new MatchCriteron<string>(key, val));
             return this;
         }
 
         public IEntryBuilderCriteria AddCriteron(string key, int val)
         {
-            _entry.Criteria.Add(new MatchCriteron<int>(key, val));
+            Entry.Criteria.Add(new MatchCriteron<int>(key, val));
             return this;
         }
 
         public IEntryBuilderCriteria AddCriteron(string key, int low, int high)
         {
-            _entry.Criteria.Add(new IntRangeCriteron(key, low, high));
+            Entry.Criteria.Add(new IntRangeCriteron(key, low, high));
             return this;
         }
     }
@@ -258,6 +258,8 @@ namespace Dialogue
         {
             EntryBuilder entryBuilder = new EntryBuilder();
             entryBuilder.New().SetPayload(payload);
+
+            _database.Entries.Add(entryBuilder.Entry);
 
             return entryBuilder;
         }
