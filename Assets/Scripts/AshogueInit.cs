@@ -1,7 +1,7 @@
 using UnityEngine;
 using Ashogue;
 
-public class DialogueInit : MonoBehaviour
+public class AshogueInit : MonoBehaviour
 {
     private bool _visible = true;
 
@@ -11,13 +11,13 @@ public class DialogueInit : MonoBehaviour
     private void Awake()
     {
         DialogueController.Initialize();
-        DialogueController.Events.Ended += DialogueInit_Ended;
+        DialogueController.Events.Ended += AshogueInit_Ended;
         Debug.Assert(DialogueController.dialogues.Dialogues.ContainsKey(QuestID), "No good :/");
     }
 
     private void Destroy()
     {
-        DialogueController.Events.Ended -= DialogueInit_Ended;
+        DialogueController.Events.Ended -= AshogueInit_Ended;
     }
 
     private void OnGUI()
@@ -32,7 +32,7 @@ public class DialogueInit : MonoBehaviour
         }
     }
 
-    private void DialogueInit_Ended(object sender, EndedEventArgs e)
+    private void AshogueInit_Ended(object sender, EndedEventArgs e)
     {
         _visible = true;
     }

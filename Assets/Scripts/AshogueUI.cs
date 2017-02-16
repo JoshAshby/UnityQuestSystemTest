@@ -3,7 +3,7 @@ using UnityEngine;
 using Ashogue;
 using System.Collections.Generic;
 
-public class DialogueUI : MonoBehaviour
+public class AshogueUI : MonoBehaviour
 {
     private bool _visible = false;
     private string _displayText = "";
@@ -11,20 +11,20 @@ public class DialogueUI : MonoBehaviour
 
     private void Awake()
     {
-        DialogueController.Events.Started += DialogueUI_Started;
-        DialogueController.Events.Node += DialogueUI_Node;
+        DialogueController.Events.Started += AshogueUI_Started;
+        DialogueController.Events.Node += AshogueUI_Node;
         DialogueController.Events.Dialogue += DialogueUI_Dialogue;
-        DialogueController.Events.Message += DialogueUI_Message;
-        DialogueController.Events.Ended += DialogueUI_Ended;
+        DialogueController.Events.Message += AshogueUI_Message;
+        DialogueController.Events.Ended += AshogueUI_Ended;
     }
 
     private void Destroy()
     {
-        DialogueController.Events.Started -= DialogueUI_Started;
-        DialogueController.Events.Node -= DialogueUI_Node;
+        DialogueController.Events.Started -= AshogueUI_Started;
+        DialogueController.Events.Node -= AshogueUI_Node;
         DialogueController.Events.Dialogue -= DialogueUI_Dialogue;
-        DialogueController.Events.Message -= DialogueUI_Message;
-        DialogueController.Events.Ended -= DialogueUI_Ended;
+        DialogueController.Events.Message -= AshogueUI_Message;
+        DialogueController.Events.Ended -= AshogueUI_Ended;
     }
 
     private void OnGUI()
@@ -49,12 +49,12 @@ public class DialogueUI : MonoBehaviour
         }
     }
 
-    private void DialogueUI_Started(object sender, EventArgs e)
+    private void AshogueUI_Started(object sender, EventArgs e)
     {
         _visible = true;
     }
 
-    private void DialogueUI_Node(object sender, NodeEventArgs e) { }
+    private void AshogueUI_Node(object sender, NodeEventArgs e) { }
 
     private void DialogueUI_Dialogue(object sender, DialogueEventArgs e)
     {
@@ -62,12 +62,12 @@ public class DialogueUI : MonoBehaviour
         _displayBranches = e.Branches;
     }
 
-    private void DialogueUI_Message(object sender, MessageEventArgs e)
+    private void AshogueUI_Message(object sender, MessageEventArgs e)
     {
         Debug.Log(e.Message);
     }
 
-    private void DialogueUI_Ended(object sender, EventArgs e)
+    private void AshogueUI_Ended(object sender, EventArgs e)
     {
         _visible = false;
     }
