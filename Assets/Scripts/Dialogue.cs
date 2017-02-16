@@ -5,64 +5,6 @@ using UnityEngine;
 
 namespace Dialogue
 {
-    public interface IGenericData
-    {
-        Type Type { get; }
-        object Value { get; }
-
-        IGenericData<TResult> OfType<TResult>();
-    }
-
-    public interface IGenericData<T>
-    {
-        T Value { get; set; }
-    }
-
-    public class GenericData<T> : IGenericData, IGenericData<T>
-    {
-        public GenericData(T val)
-        {
-            Value = val;
-        }
-
-        public Type Type { get { return typeof(T); } }
-        private T _value = default(T);
-        public object Value
-        {
-            get { return (object)_value; }
-            set { _value = (T)value; }
-        }
-
-        object IGenericData.Value
-        {
-            get { return (object)Value; }
-        }
-
-        T IGenericData<T>.Value
-        {
-            get { return (T)Value; }
-            set { Value = (object)value; }
-        }
-
-        public IGenericData<TResult> OfType<TResult>()
-        {
-            if (this is IGenericData<TResult>)
-                return (IGenericData<TResult>)this;
-            else
-                return null;
-        }
-    }
-
-    class Query
-    {
-        public Dictionary<string, IGenericData> Context;
-
-        public Query()
-        {
-            Context = new Dictionary<string, IGenericData>();
-        }
-    }
-
     class DatabasePartition
     {
         public List<Entry> Entries;
@@ -165,35 +107,94 @@ namespace Dialogue
         }
     }
 
-    interface IQueryBuilderAdd
+    public interface IGenericData
     {
-        IQueryBuilderAdd Add(string key, string val);
-        IQueryBuilderAdd Add(string key, int val);
+        Type Type { get; }
+        object Value { get; }
+
+        IGenericData<TResult> OfType<TResult>();
     }
 
-    class QueryBuilder : IQueryBuilderAdd
+    public interface IGenericData<T>
     {
-        private Query _query;
+        T Value { get; set; }
+    }
 
-        public IQueryBuilderAdd New()
+    public class GenericData<T> : IGenericData, IGenericData<T>
+    {
+        public GenericData(T val)
         {
-            _query = new Query();
+            Value = val;
+        }
+
+        public Type Type { get { return typeof(T); } }
+        private T _value = default(T);
+
+        public object Value
+        {
+            get { return (object)_value; }
+            set { _value = (T)value; }
+        }
+
+        object IGenericData.Value
+        {
+            get { return (object)Value; }
+        }
+
+        T IGenericData<T>.Value
+        {
+            get { return (T)Value; }
+            set { Value = (object)value; }
+        }
+
+        public IGenericData<TResult> OfType<TResult>()
+        {
+            if (this is IGenericData<TResult>)
+                return (IGenericData<TResult>)this;
+            else
+                return null;
+        }
+    }
+
+    class Query
+    {
+        public Dictionary<string, IGenericData> Context;
+        protected DatabasePartition _databasePartition;
+        protected Type _payloadType = typeof(object);
+
+        public Query(DatabasePartition databasePartition)
+        {
+            Context = new Dictionary<string, IGenericData>();
+            _databasePartition = databasePartition;
+        }
+
+        public static Query From(DatabasePartition databasePartition)
+        {
+            Query query = new Query(databasePartition);
+            return query;
+        }
+
+        public Query Where(string key, string val)
+        {
+            Context.Add(key, new GenericData<string>(val));
             return this;
         }
 
-        public IQueryBuilderAdd Add(string key, string val)
+        public Query Where(string key, int val)
         {
-            _query.Context.Add(key, new GenericData<string>(val));
+            Context.Add(key, new GenericData<int>(val));
             return this;
         }
 
-        public IQueryBuilderAdd Add(string key, int val)
+        public object Select()
         {
-            _query.Context.Add(key, new GenericData<int>(val));
-            return this;
+            return _databasePartition.Query(this);
         }
 
-        public Query Query { get { return _query; } }
+        public TResult SelectAs<TResult>()
+        {
+            return (TResult)Select();
+        }
     }
 
     interface IEntryBuilderCriteria
@@ -274,7 +275,6 @@ namespace Dialogue
         static public void Build()
         {
             DatabaseBuilder databaseBuilder = new DatabaseBuilder();
-            QueryBuilder queryBuilder = new QueryBuilder();
 
             databaseBuilder.New();
             databaseBuilder.AddEntry("wat").AddCriteron("test1", "alpha");
@@ -287,38 +287,29 @@ namespace Dialogue
 
             DatabasePartition testPartition = databaseBuilder.Finalize();
 
-            queryBuilder.New().Add("test1", "beta");
-            Debug.Assert(testPartition.Query(queryBuilder.Query) == null);
+            Debug.Assert(Query.From(testPartition).Where("test1", "beta").SelectAs<string>() == null);
+            Debug.Assert(Query.From(testPartition).Where("test1", "alpha").SelectAs<string>() == "wat");
 
-            queryBuilder.New().Add("test1", "alpha");
-            Debug.Assert((string)testPartition.Query(queryBuilder.Query) == "wat");
+            Debug.Assert(Query.From(testPartition).Where("test2", 5).SelectAs<string>() == null);
+            Debug.Assert(Query.From(testPartition).Where("test2", 6).SelectAs<string>() == "bat");
 
-            queryBuilder.New().Add("test2", 5);
-            Debug.Assert((string)testPartition.Query(queryBuilder.Query) == null);
+            Debug.Assert(Query.From(testPartition).Where("test3", 5).SelectAs<string>() == null);
+            Debug.Assert(Query.From(testPartition).Where("test3", 13).SelectAs<string>() == null);
+            Debug.Assert(Query.From(testPartition).Where("test3", 10).SelectAs<string>() == "mat");
 
-            queryBuilder.New().Add("test2", 6);
-            Debug.Assert((string)testPartition.Query(queryBuilder.Query) == "bat");
+            string res1 = Query.From(testPartition)
+                .Where("test4", "robin")
+                .Where("test5", 19)
+                .Where("test6", 7)
+                .SelectAs<string>();
+            Debug.Assert(res1 == null);
 
-            queryBuilder.New().Add("test3", 5);
-            Debug.Assert((string)testPartition.Query(queryBuilder.Query) == null);
-
-            queryBuilder.New().Add("test3", 13);
-            Debug.Assert((string)testPartition.Query(queryBuilder.Query) == null);
-
-            queryBuilder.New().Add("test3", 10);
-            Debug.Assert((string)testPartition.Query(queryBuilder.Query) == "mat");
-
-            queryBuilder.New()
-                .Add("test4", "robin")
-                .Add("test5", 19)
-                .Add("test6", 7);
-            Debug.Assert((string)testPartition.Query(queryBuilder.Query) == null);
-
-            queryBuilder.New()
-                .Add("test4", "robin")
-                .Add("test5", 19)
-                .Add("test6", 3);
-            Debug.Assert((string)testPartition.Query(queryBuilder.Query) == "hat");
+            string res2 = Query.From(testPartition)
+                .Where("test4", "robin")
+                .Where("test5", 19)
+                .Where("test6", 3)
+                .SelectAs<string>();
+            Debug.Assert(res2 == "hat");
         }
     }
 }
