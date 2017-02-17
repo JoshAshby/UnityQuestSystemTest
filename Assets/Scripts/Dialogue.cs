@@ -1,10 +1,60 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using UnityEngine;
 
-namespace Dialogue
+namespace GrandCentral
 {
+    public interface IGenericData
+    {
+        Type Type { get; }
+        object Value { get; }
+
+        IGenericData<TResult> OfType<TResult>();
+    }
+
+    public interface IGenericData<T>
+    {
+        T Value { get; set; }
+    }
+
+    public class GenericData<T> : IGenericData, IGenericData<T>
+    {
+        public GenericData(T val)
+        {
+            Value = val;
+        }
+
+        public Type Type { get { return typeof(T); } }
+        private T _value = default(T);
+
+        public object Value
+        {
+            get { return (object)_value; }
+            set { _value = (T)value; }
+        }
+
+        object IGenericData.Value
+        {
+            get { return (object)Value; }
+        }
+
+        T IGenericData<T>.Value
+        {
+            get { return (T)Value; }
+            set { Value = (object)value; }
+        }
+
+        public IGenericData<TResult> OfType<TResult>()
+        {
+            if (this is IGenericData<TResult>)
+                return (IGenericData<TResult>)this;
+            else
+                return null;
+        }
+    }
+
+    public class StateShard : Dictionary<string, IGenericData> { }
+
     public class RulesShard
     {
         internal List<Entry> Entries;
@@ -109,60 +159,10 @@ namespace Dialogue
         }
     }
 
-    public interface IGenericData
-    {
-        Type Type { get; }
-        object Value { get; }
-
-        IGenericData<TResult> OfType<TResult>();
-    }
-
-    public interface IGenericData<T>
-    {
-        T Value { get; set; }
-    }
-
-    public class GenericData<T> : IGenericData, IGenericData<T>
-    {
-        public GenericData(T val)
-        {
-            Value = val;
-        }
-
-        public Type Type { get { return typeof(T); } }
-        private T _value = default(T);
-
-        public object Value
-        {
-            get { return (object)_value; }
-            set { _value = (T)value; }
-        }
-
-        object IGenericData.Value
-        {
-            get { return (object)Value; }
-        }
-
-        T IGenericData<T>.Value
-        {
-            get { return (T)Value; }
-            set { Value = (object)value; }
-        }
-
-        public IGenericData<TResult> OfType<TResult>()
-        {
-            if (this is IGenericData<TResult>)
-                return (IGenericData<TResult>)this;
-            else
-                return null;
-        }
-    }
-
-    public class StateShard : Dictionary<string, IGenericData> { }
-
     public class Query
     {
         public StateShard Context;
+
         protected RulesShard _databasePartition;
         protected Type _payloadType = typeof(object);
 
@@ -201,121 +201,91 @@ namespace Dialogue
         }
     }
 
-    public interface IEntryBuilderCriteria
+    public class State : Dictionary<string, StateShard> { }
+
+    public class Rules : Dictionary<string, RulesShard>
     {
-        IEntryBuilderCriteria AddCriteron(string key, string val);
-        IEntryBuilderCriteria AddCriteron(string key, int val);
-        IEntryBuilderCriteria AddCriteron(string key, int low, int high);
-    }
-
-    public class EntryBuilder : IEntryBuilderCriteria
-    {
-        internal Entry Entry { get; set; }
-
-        public EntryBuilder New()
+        public Query From(string key)
         {
-            Entry = new Entry();
-            return this;
-        }
-
-        public IEntryBuilderCriteria SetPayload(object payload)
-        {
-            Entry.Payload = payload;
-            return this;
-        }
-
-        public IEntryBuilderCriteria AddCriteron(string key, string val)
-        {
-            Entry.Criteria.Add(new MatchCriteron<string>(key, val));
-            return this;
-        }
-
-        public IEntryBuilderCriteria AddCriteron(string key, int val)
-        {
-            Entry.Criteria.Add(new MatchCriteron<int>(key, val));
-            return this;
-        }
-
-        public IEntryBuilderCriteria AddCriteron(string key, int low, int high)
-        {
-            Entry.Criteria.Add(new IntRangeCriteron(key, low, high));
-            return this;
+            return Query.From(this[key]);
         }
     }
 
-    public interface IRulesShardBuilderEntry
+    namespace Builders
     {
-        IRulesShardBuilderEntry New();
-    }
-
-    public class RulesShardBuilder : IRulesShardBuilderEntry
-    {
-        private RulesShard _database;
-
-        public IRulesShardBuilderEntry New()
+        public interface IEntryBuilderCriteria
         {
-            _database = new RulesShard();
-            return this;
+            IEntryBuilderCriteria AddCriteron(string key, string val);
+            IEntryBuilderCriteria AddCriteron(string key, int val);
+            IEntryBuilderCriteria AddCriteron(string key, int low, int high);
         }
 
-        public IEntryBuilderCriteria AddEntry(object payload)
+        public class EntryBuilder : IEntryBuilderCriteria
         {
-            EntryBuilder entryBuilder = new EntryBuilder();
-            entryBuilder.New().SetPayload(payload);
+            internal Entry Entry { get; set; }
 
-            _database.Entries.Add(entryBuilder.Entry);
+            public EntryBuilder New()
+            {
+                Entry = new Entry();
+                return this;
+            }
 
-            return entryBuilder;
+            public IEntryBuilderCriteria SetPayload(object payload)
+            {
+                Entry.Payload = payload;
+                return this;
+            }
+
+            public IEntryBuilderCriteria AddCriteron(string key, string val)
+            {
+                Entry.Criteria.Add(new MatchCriteron<string>(key, val));
+                return this;
+            }
+
+            public IEntryBuilderCriteria AddCriteron(string key, int val)
+            {
+                Entry.Criteria.Add(new MatchCriteron<int>(key, val));
+                return this;
+            }
+
+            public IEntryBuilderCriteria AddCriteron(string key, int low, int high)
+            {
+                Entry.Criteria.Add(new IntRangeCriteron(key, low, high));
+                return this;
+            }
         }
 
-        public RulesShard Finalize()
+        public interface IRulesShardBuilderEntry
         {
-            _database.Entries = _database.Entries.OrderBy(x => x.Length).ToList();
-
-            return _database;
+            IRulesShardBuilderEntry New();
         }
-    }
 
-    public class Loader
-    {
-        static public void Build()
+        public class RulesShardBuilder : IRulesShardBuilderEntry
         {
-            RulesShardBuilder databaseBuilder = new RulesShardBuilder();
+            private RulesShard _database;
 
-            databaseBuilder.New();
-            databaseBuilder.AddEntry("wat").AddCriteron("test1", "alpha");
-            databaseBuilder.AddEntry("bat").AddCriteron("test2", 6);
-            databaseBuilder.AddEntry("mat").AddCriteron("test3", 9, 12);
-            databaseBuilder.AddEntry("hat")
-                .AddCriteron("test4", "robin")
-                .AddCriteron("test5", 19)
-                .AddCriteron("test6", 0, 6);
+            public IRulesShardBuilderEntry New()
+            {
+                _database = new RulesShard();
+                return this;
+            }
 
-            RulesShard testPartition = databaseBuilder.Finalize();
+            public IEntryBuilderCriteria AddEntry(object payload)
+            {
+                EntryBuilder entryBuilder = new EntryBuilder();
+                entryBuilder.New().SetPayload(payload);
 
-            Debug.Assert(Query.From(testPartition).Where("test1", "beta").SelectAs<string>() == null);
-            Debug.Assert(Query.From(testPartition).Where("test1", "alpha").SelectAs<string>() == "wat");
+                _database.Entries.Add(entryBuilder.Entry);
 
-            Debug.Assert(Query.From(testPartition).Where("test2", 5).SelectAs<string>() == null);
-            Debug.Assert(Query.From(testPartition).Where("test2", 6).SelectAs<string>() == "bat");
+                return entryBuilder;
+            }
 
-            Debug.Assert(Query.From(testPartition).Where("test3", 5).SelectAs<string>() == null);
-            Debug.Assert(Query.From(testPartition).Where("test3", 13).SelectAs<string>() == null);
-            Debug.Assert(Query.From(testPartition).Where("test3", 10).SelectAs<string>() == "mat");
+            public RulesShard Finalize()
+            {
+                _database.Entries = _database.Entries.OrderBy(x => x.Length).ToList();
 
-            string res1 = Query.From(testPartition)
-                .Where("test4", "robin")
-                .Where("test5", 19)
-                .Where("test6", 7)
-                .SelectAs<string>();
-            Debug.Assert(res1 == null);
-
-            string res2 = Query.From(testPartition)
-                .Where("test4", "robin")
-                .Where("test5", 19)
-                .Where("test6", 3)
-                .SelectAs<string>();
-            Debug.Assert(res2 == "hat");
+                return _database;
+            }
         }
     }
 }
