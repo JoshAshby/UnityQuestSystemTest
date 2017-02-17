@@ -5,11 +5,11 @@ using UnityEngine;
 
 namespace Dialogue
 {
-    class DatabasePartition
+    public class RulesShard
     {
-        public List<Entry> Entries;
+        internal List<Entry> Entries;
 
-        public DatabasePartition()
+        public RulesShard()
         {
             Entries = new List<Entry>();
         }
@@ -25,9 +25,9 @@ namespace Dialogue
         }
     }
 
-    class Entry
+    internal class Entry
     {
-        public List<ICriteron> Criteria;
+        internal List<ICriteron> Criteria;
         public object Payload;
 
         public Entry()
@@ -46,16 +46,17 @@ namespace Dialogue
         }
     }
 
-    interface ICriteron
+    internal interface ICriteron
     {
         string AccessKey { get; }
 
         bool Check(Query query);
     }
 
-    class MatchCriteron<T> : ICriteron
+    internal class MatchCriteron<T> : ICriteron
     {
         public string AccessKey { get; set; }
+
         private T _compareValue;
 
         public MatchCriteron(string key, T val)
@@ -79,9 +80,10 @@ namespace Dialogue
         }
     }
 
-    class IntRangeCriteron : ICriteron
+    internal class IntRangeCriteron : ICriteron
     {
         public string AccessKey { get; set; }
+
         private int _lowCompareValue;
         private int _highCompareValue;
 
@@ -156,19 +158,21 @@ namespace Dialogue
         }
     }
 
-    class Query
+    public class StateShard : Dictionary<string, IGenericData> { }
+
+    public class Query
     {
-        public Dictionary<string, IGenericData> Context;
-        protected DatabasePartition _databasePartition;
+        public StateShard Context;
+        protected RulesShard _databasePartition;
         protected Type _payloadType = typeof(object);
 
-        public Query(DatabasePartition databasePartition)
+        public Query(RulesShard databasePartition)
         {
-            Context = new Dictionary<string, IGenericData>();
+            Context = new StateShard();
             _databasePartition = databasePartition;
         }
 
-        public static Query From(DatabasePartition databasePartition)
+        public static Query From(RulesShard databasePartition)
         {
             Query query = new Query(databasePartition);
             return query;
@@ -197,16 +201,16 @@ namespace Dialogue
         }
     }
 
-    interface IEntryBuilderCriteria
+    public interface IEntryBuilderCriteria
     {
         IEntryBuilderCriteria AddCriteron(string key, string val);
         IEntryBuilderCriteria AddCriteron(string key, int val);
         IEntryBuilderCriteria AddCriteron(string key, int low, int high);
     }
 
-    class EntryBuilder : IEntryBuilderCriteria
+    public class EntryBuilder : IEntryBuilderCriteria
     {
-        public Entry Entry { get; set; }
+        internal Entry Entry { get; set; }
 
         public EntryBuilder New()
         {
@@ -239,18 +243,18 @@ namespace Dialogue
         }
     }
 
-    interface IDatabaseBuilderEntry
+    public interface IRulesShardBuilderEntry
     {
-        IDatabaseBuilderEntry New();
+        IRulesShardBuilderEntry New();
     }
 
-    class DatabaseBuilder : IDatabaseBuilderEntry
+    public class RulesShardBuilder : IRulesShardBuilderEntry
     {
-        private DatabasePartition _database;
+        private RulesShard _database;
 
-        public IDatabaseBuilderEntry New()
+        public IRulesShardBuilderEntry New()
         {
-            _database = new DatabasePartition();
+            _database = new RulesShard();
             return this;
         }
 
@@ -264,7 +268,7 @@ namespace Dialogue
             return entryBuilder;
         }
 
-        public DatabasePartition Finalize()
+        public RulesShard Finalize()
         {
             _database.Entries = _database.Entries.OrderBy(x => x.Length).ToList();
 
@@ -272,11 +276,11 @@ namespace Dialogue
         }
     }
 
-    class Loader
+    public class Loader
     {
         static public void Build()
         {
-            DatabaseBuilder databaseBuilder = new DatabaseBuilder();
+            RulesShardBuilder databaseBuilder = new RulesShardBuilder();
 
             databaseBuilder.New();
             databaseBuilder.AddEntry("wat").AddCriteron("test1", "alpha");
@@ -287,7 +291,7 @@ namespace Dialogue
                 .AddCriteron("test5", 19)
                 .AddCriteron("test6", 0, 6);
 
-            DatabasePartition testPartition = databaseBuilder.Finalize();
+            RulesShard testPartition = databaseBuilder.Finalize();
 
             Debug.Assert(Query.From(testPartition).Where("test1", "beta").SelectAs<string>() == null);
             Debug.Assert(Query.From(testPartition).Where("test1", "alpha").SelectAs<string>() == "wat");
