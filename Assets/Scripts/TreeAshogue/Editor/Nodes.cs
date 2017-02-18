@@ -1,18 +1,18 @@
 using UnityEditor;
 using UnityEngine;
 using Ashode;
-using Ashogue.Data;
+using TreeAshogue.Data;
 using System;
 using System.Linq;
 
-namespace Ashogue
+namespace TreeAshogue
 {
     namespace Editor
     {
         public interface IDialogueNode : Ashode.INode
         {
             Type TargetType { get; }
-            Ashogue.Data.INode Target { get; set; }
+            TreeAshogue.Data.INode Target { get; set; }
 
             IDialogueNode<TNode> OfTargetType<TNode>();
         }
@@ -22,20 +22,20 @@ namespace Ashogue
             TNode Target { get; set; }
         }
 
-        public abstract class DialogueNode<TNode> : Node, IDialogueNode, IDialogueNode<TNode> where TNode : Ashogue.Data.INode
+        public abstract class DialogueNode<TNode> : Node, IDialogueNode, IDialogueNode<TNode> where TNode : TreeAshogue.Data.INode
         {
             public DialogueNode(INodeCanvas parent, Vector2 pos) : base(parent, pos) { }
 
             public Type TargetType { get { return typeof(TNode); } }
 
-            private Ashogue.Data.INode _target;
+            private TreeAshogue.Data.INode _target;
             public TNode Target
             {
                 get { return (TNode)_target; }
-                set { _target = (Ashogue.Data.INode)value; }
+                set { _target = (TreeAshogue.Data.INode)value; }
             }
 
-            Ashogue.Data.INode IDialogueNode.Target
+            TreeAshogue.Data.INode IDialogueNode.Target
             {
                 get { return _target; }
                 set { _target = value; }
@@ -44,7 +44,7 @@ namespace Ashogue
             TNode IDialogueNode<TNode>.Target
             {
                 get { return (TNode)_target; }
-                set { _target = (Ashogue.Data.INode)value; }
+                set { _target = (TreeAshogue.Data.INode)value; }
             }
 
             public IDialogueNode<TResult> OfTargetType<TResult>()

@@ -1,7 +1,7 @@
 using UnityEngine;
-using Ashogue;
+using TreeAshogue;
 
-public class AshogueInit : MonoBehaviour
+public class TreeAshogueInit : MonoBehaviour
 {
     private bool _visible = true;
 

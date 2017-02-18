@@ -2,7 +2,7 @@ using System;
 using System.Xml;
 using System.Xml.Serialization;
 
-namespace Ashogue
+namespace TreeAshogue
 {
     namespace Data
     {

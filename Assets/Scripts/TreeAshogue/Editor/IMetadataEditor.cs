@@ -1,11 +1,11 @@
 using UnityEditor;
 using UnityEngine;
-using Ashogue.Data;
+using TreeAshogue.Data;
 using System;
 using System.Linq;
 using System.Collections.Generic;
 
-namespace Ashogue
+namespace TreeAshogue
 {
     namespace Editor
     {
@@ -71,7 +71,7 @@ namespace Ashogue
                 return nodeTypeChoice[buttonText];
             }
 
-            public static void Editor(Ashogue.Data.INode Target)
+            public static void Editor(TreeAshogue.Data.INode Target)
             {
                 GUILayout.BeginHorizontal();
                 TypeField(

@@ -1,9 +1,9 @@
 using System;
 using UnityEngine;
-using Ashogue;
+using TreeAshogue;
 using System.Collections.Generic;
 
-public class AshogueUI : MonoBehaviour
+public class TreeAshogueUI : MonoBehaviour
 {
     private bool _visible = false;
     private string _displayText = "";
