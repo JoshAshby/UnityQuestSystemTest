@@ -8,6 +8,11 @@ namespace GrandCentral
         private void Awake()
         {
             State = new State();
+
+            StateShard shard = new StateShard();
+            shard.Add("cylinders", new GenericData<int>(0));
+
+            State.Add("test", shard);
         }
     }
 }

@@ -14,13 +14,22 @@ namespace GrandCentral
             RulesShardBuilder builder = new RulesShardBuilder();
 
             builder.New();
-            builder.AddEntry("wat").AddCriteron("test1", "alpha");
-            builder.AddEntry("bat").AddCriteron("test2", 6);
-            builder.AddEntry("mat").AddCriteron("test3", 9, 12);
-            builder.AddEntry("hat")
-                .AddCriteron("test4", "robin")
-                .AddCriteron("test5", 19)
-                .AddCriteron("test6", 0, 6);
+
+            builder.AddEntry("One Robin")
+                .AddCriteron("bird", "robin")
+                .AddCriteron("cylinders-seen", 0);
+
+            builder.AddEntry("Two Robins")
+                .AddCriteron("bird", "robin")
+                .AddCriteron("cylinders-seen", 1);
+
+            builder.AddEntry("Three Robins")
+                .AddCriteron("bird", "robin")
+                .AddCriteron("cylinders-seen", 2);
+
+            builder.AddEntry("Lots of Robins")
+                .AddCriteron("bird", "robin")
+                .AddCriteron("cylinders-seen", 3, 10);
 
             Rules.Add("test", builder.Finalize());
         }
