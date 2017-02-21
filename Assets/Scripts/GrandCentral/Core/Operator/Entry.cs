@@ -6,10 +6,131 @@ namespace GrandCentral
 {
     namespace Operator
     {
+        interface IStateMutation
+        {
+            string Fact { get; }
+            string AccessKey { get; }
+
+            void Mutate();
+        }
+
+        class SetMutation<T> : IStateMutation
+        {
+            public string Fact { get; internal set; }
+            public string AccessKey { get; internal set; }
+
+            protected T _setVal;
+
+            public SetMutation(string fact, string key, T val)
+            {
+                Fact = fact;
+                AccessKey = key;
+
+                _setVal  = val;
+            }
+
+            public void Mutate()
+            {
+                State state = StateController.Instance.State;
+
+                if (!state.ContainsKey(Fact))
+                    state.Add(Fact, new StateShard());
+                
+                if (!state[Fact].ContainsKey(AccessKey))
+                    state[Fact].Add(AccessKey, default(T));
+
+                state[Fact][AccessKey] = _setVal;
+            }
+        }
+
+        class ToggleMutation : IStateMutation
+        {
+            public string Fact { get; internal set; }
+            public string AccessKey { get; internal set; }
+
+            public ToggleMutation(string fact, string key)
+            {
+                Fact = fact;
+                AccessKey = key;
+            }
+
+            public void Mutate()
+            {
+                State state = StateController.Instance.State;
+
+                if (!state.ContainsKey(Fact))
+                    state.Add(Fact, new StateShard());
+                
+                if (!state[Fact].ContainsKey(AccessKey))
+                    state[Fact].Add(AccessKey, default(bool));
+
+                state[Fact][AccessKey] = !(bool)state[Fact][AccessKey];
+            }
+        }
+
+        class DecrementMutation : IStateMutation
+        {
+            public string Fact { get; internal set; }
+            public string AccessKey { get; internal set; }
+
+            protected int _byVal;
+
+            public DecrementMutation(string fact, string key, int val)
+            {
+                Fact = fact;
+                AccessKey = key;
+
+                _byVal  = val;
+            }
+
+            public void Mutate()
+            {
+                State state = StateController.Instance.State;
+
+                if (!state.ContainsKey(Fact))
+                    state.Add(Fact, new StateShard());
+                
+                if (!state[Fact].ContainsKey(AccessKey))
+                    state[Fact].Add(AccessKey, default(int));
+
+                state[Fact][AccessKey] = (int)state[Fact][AccessKey] - _byVal;
+            }
+        }
+
+        class IncrementMutation : IStateMutation
+        {
+            public string Fact { get; internal set; }
+            public string AccessKey { get; internal set; }
+
+            protected int _byVal;
+
+            public IncrementMutation(string fact, string key, int val)
+            {
+                Fact = fact;
+                AccessKey = key;
+
+                _byVal  = val;
+            }
+
+            public void Mutate()
+            {
+                State state = StateController.Instance.State;
+
+                if (!state.ContainsKey(Fact))
+                    state.Add(Fact, new StateShard());
+                
+                if (!state[Fact].ContainsKey(AccessKey))
+                    state[Fact].Add(AccessKey, default(int));
+
+                state[Fact][AccessKey] = (int)state[Fact][AccessKey] + _byVal;
+            }
+        }
+
         internal interface IEntry
         {
-            string Name { get; }
+            string Segment { get; }
             List<ICriteron> Criteria { get; }
+            List<IStateMutation> StateMutations { get; }
 
             string Payload { get; }
             string NextEntry { get; }
@@ -20,16 +141,18 @@ namespace GrandCentral
 
         internal class Entry : IEntry
         {
-            public string Name { get; internal set; }
+            public string Segment { get; internal set; }
             public List<ICriteron> Criteria { get; internal set; }
+            public List<IStateMutation> StateMutations { get; internal set; }
 
             public string Payload { get; internal set; }
             public string NextEntry { get; internal set; }
 
-            public Entry(string name)
+            public Entry(string segment)
             {
-                Name = name;
+                Segment = segment;
                 Criteria = new List<ICriteron>();
+                StateMutations = new List<IStateMutation>();
             }
 
             public int Length
@@ -45,9 +168,11 @@ namespace GrandCentral
                     object val = null;
 
                     if (criterion.FactKey == "query")
+                    {
                         val = query.Context[criterion.AccessKey];
-                    else
+                    } else {
                         val = StateController.Instance.State[criterion.FactKey][criterion.AccessKey];
+                    }
 
                     bool checker = criterion.Check(val);
 
@@ -59,7 +184,7 @@ namespace GrandCentral
 
                 string passFail = check ? "Passed" : "FAILED";
 
-                Debug.LogFormat("Entry {0} {1}: {2}", Name, passFail, log);
+                Debug.LogFormat("Entry {0} {1}: {2}", Segment, passFail, log);
 
                 return check;
             }

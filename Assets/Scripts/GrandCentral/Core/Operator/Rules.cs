@@ -6,9 +6,9 @@ namespace GrandCentral
     {
         public class Rules : Dictionary<string, RulesShard>
         {
-            public IQuery From(string key)
+            public IQuery From(string key, string segment)
             {
-                return Query.From(this[key]);
+                return Query.From(this[key], segment);
             }
         }
     }

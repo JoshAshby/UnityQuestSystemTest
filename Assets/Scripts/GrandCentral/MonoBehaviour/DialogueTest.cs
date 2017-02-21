@@ -10,13 +10,10 @@ namespace GrandCentral
 
         public void OnInteract()
         {
-            int cylinders = (int)StateController.Instance.State["player"]["cylinders-seen"];
-
-            string res2 = DialogueController.Instance.Rules.From("bird-cylinders")
+            string res2 = DialogueController.Instance.Rules.From("bird-cylinders", "seen-robin")
+                .Where("speaker", "protag")
                 .Where("bird", "robin")
                 .Select();
-
-            StateController.Instance.State["player"]["cylinders-seen"] = cylinders + 1;
 
             Debug.Log(res2);
         }

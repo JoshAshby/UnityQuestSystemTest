@@ -16,10 +16,12 @@ namespace GrandCentral
 
             public string Query(IQuery query)
             {
-                IEntry entry = Entries.FirstOrDefault(x => x.Check(query) == true);
+                IEntry entry = Entries.Where(x => x.Segment == query.Segment).FirstOrDefault(x => x.Check(query));
 
                 if (entry == null)
                     return null;
+
+                entry.StateMutations.ForEach(x => x.Mutate());
 
                 return entry.Payload;
             }
