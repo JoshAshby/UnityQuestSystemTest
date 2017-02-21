@@ -10,14 +10,13 @@ namespace GrandCentral
 
         public void OnInteract()
         {
-            int cylinders = StateController.Instance.State["test"]["cylinders"].OfType<int>().Value;
+            int cylinders = StateController.Instance.State["player"]["cylinders-seen"].OfType<int>().Value;
 
-            string res2 = DialogueController.Instance.Rules.From("test")
+            string res2 = DialogueController.Instance.Rules.From("bird-cylinders")
                 .Where("bird", "robin")
-                .Where("cylinders-seen", cylinders)
-                .SelectAs<string>();
+                .Select();
 
-            StateController.Instance.State["test"]["cylinders"].OfType<int>().Value++;
+            StateController.Instance.State["player"]["cylinders-seen"].OfType<int>().Value++;
 
             Debug.Log(res2);
         }

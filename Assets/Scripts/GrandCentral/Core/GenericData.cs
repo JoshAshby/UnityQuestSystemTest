@@ -2,9 +2,9 @@ using System;
 
 namespace GrandCentral
 {
-    public class GenericData<T> : IGenericData, IGenericData<T>
+    public class GenericValue<T> : IGenericValue, IGenericValue<T>
     {
-        public GenericData(T val)
+        public GenericValue(T val)
         {
             Value = val;
         }
@@ -18,21 +18,21 @@ namespace GrandCentral
             set { _value = (T)value; }
         }
 
-        object IGenericData.Value
+        object IGenericValue.Value
         {
-            get { return (object)Value; }
+            get { return (object)_value; }
         }
 
-        T IGenericData<T>.Value
+        T IGenericValue<T>.Value
         {
-            get { return (T)Value; }
-            set { Value = (object)value; }
+            get { return (T)_value; }
+            set { _value = (T)value; }
         }
 
-        public IGenericData<TResult> OfType<TResult>()
+        public IGenericValue<TResult> OfType<TResult>()
         {
-            if (this is IGenericData<TResult>)
-                return (IGenericData<TResult>)this;
+            if (this is IGenericValue<TResult>)
+                return (IGenericValue<TResult>)this;
             else
                 return null;
         }

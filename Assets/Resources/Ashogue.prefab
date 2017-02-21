@@ -49,7 +49,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1696739222464676}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3b14c9753bfc245f4bbff090fe33da7b, type: 3}
+  m_Script: {fileID: 11500000, guid: a17a07ebbdb7441788bb751f4b421e00, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!114 &114820144339115760
@@ -60,7 +60,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1696739222464676}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 777b3c4c522a243c98a7a124772b1ec9, type: 3}
+  m_Script: {fileID: 11500000, guid: 2af2da3abe458497eb3b1924a30a9222, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   QuestID: test

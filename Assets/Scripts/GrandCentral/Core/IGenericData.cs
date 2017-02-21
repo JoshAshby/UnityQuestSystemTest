@@ -2,15 +2,15 @@ using System;
 
 namespace GrandCentral
 {
-    public interface IGenericData
+    public interface IGenericValue
     {
         Type Type { get; }
         object Value { get; }
 
-        IGenericData<TResult> OfType<TResult>();
+        IGenericValue<TResult> OfType<TResult>();
     }
 
-    public interface IGenericData<T>
+    public interface IGenericValue<T>
     {
         T Value { get; set; }
     }

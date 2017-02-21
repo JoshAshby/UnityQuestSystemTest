@@ -1,4 +1,6 @@
-using GrandCentral.Builders;
+using GrandCentral.Operator;
+using GrandCentral.Operator.Builders;
+using UnityEngine;
 
 namespace GrandCentral
 {
@@ -15,23 +17,43 @@ namespace GrandCentral
 
             builder.New();
 
-            builder.AddEntry("One Robin")
-                .AddCriteron("bird", "robin")
-                .AddCriteron("cylinders-seen", 0);
+            builder.AddEntry("one-robin")
+                .AddCriteron("query", "bird", "robin")
+                .AddCriteron("player", "cylinders-seen", 0)
+                .SetPayload("one-robin")
+                .SetNextEntry("seen-one-robin");
 
-            builder.AddEntry("Two Robins")
-                .AddCriteron("bird", "robin")
-                .AddCriteron("cylinders-seen", 1);
+            builder.AddEntry("seen-one-robin")
+                .SetPayload("seen-one-robin");
 
-            builder.AddEntry("Three Robins")
-                .AddCriteron("bird", "robin")
-                .AddCriteron("cylinders-seen", 2);
+            builder.AddEntry("two-robins")
+                .AddCriteron("query", "bird", "robin")
+                .AddCriteron("player", "cylinders-seen", 1)
+                .SetPayload("two-robins")
+                .SetNextEntry("seen-two-robins");
 
-            builder.AddEntry("Lots of Robins")
-                .AddCriteron("bird", "robin")
-                .AddCriteron("cylinders-seen", 3, 10);
+            builder.AddEntry("seen-two-robins")
+                .SetPayload("seen-two-robins");
 
-            Rules.Add("test", builder.Finalize());
+            builder.AddEntry("three-robins")
+                .AddCriteron("query", "bird", "robin")
+                .AddCriteron("player", "cylinders-seen", 2)
+                .SetPayload("three-robins")
+                .SetNextEntry("seen-three-robins");
+            
+            builder.AddEntry("seen-three-robins")
+                .SetPayload("seen-three-robins");
+
+            builder.AddEntry("lots-of-robins")
+                .AddCriteron("query", "bird", "robin")
+                .AddGteCriteron("player", "cylinders-seen", 3)
+                .SetPayload("many-robins")
+                .SetNextEntry("seen-many-robins");
+
+            builder.AddEntry("seen-many-robins")
+                .SetPayload("seen-many-robins");
+
+            Rules.Add("bird-cylinders", builder.Finalize());
         }
     }
 }
