@@ -2,7 +2,7 @@ namespace GrandCentral
 {
     namespace Operator
     {
-        internal interface ICriteron
+        internal interface ICriterion
         {
             string FactKey { get; }
             string AccessKey { get; }

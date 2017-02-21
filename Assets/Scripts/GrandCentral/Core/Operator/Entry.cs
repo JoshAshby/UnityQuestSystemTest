@@ -129,7 +129,7 @@ namespace GrandCentral
         internal interface IEntry
         {
             string Segment { get; }
-            List<ICriteron> Criteria { get; }
+            List<ICriterion> Criteria { get; }
             List<IStateMutation> StateMutations { get; }
 
             string Payload { get; }
@@ -142,7 +142,7 @@ namespace GrandCentral
         internal class Entry : IEntry
         {
             public string Segment { get; internal set; }
-            public List<ICriteron> Criteria { get; internal set; }
+            public List<ICriterion> Criteria { get; internal set; }
             public List<IStateMutation> StateMutations { get; internal set; }
 
             public string Payload { get; internal set; }
@@ -151,7 +151,7 @@ namespace GrandCentral
             public Entry(string segment)
             {
                 Segment = segment;
-                Criteria = new List<ICriteron>();
+                Criteria = new List<ICriterion>();
                 StateMutations = new List<IStateMutation>();
             }
 

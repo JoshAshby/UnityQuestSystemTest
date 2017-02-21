@@ -22,25 +22,25 @@ namespace GrandCentral
 
                 public IEntryBuilderCriteria AddCriteron(string fact, string key, string val)
                 {
-                    Entry.Criteria.Add(new MatchCriteron<string>(fact, key, val));
+                    Entry.Criteria.Add(new MatchCriterion<string>(fact, key, val));
                     return this;
                 }
 
                 public IEntryBuilderCriteria AddCriteron(string fact, string key, int val)
                 {
-                    Entry.Criteria.Add(new MatchCriteron<int>(fact, key, val));
+                    Entry.Criteria.Add(new MatchCriterion<int>(fact, key, val));
                     return this;
                 }
 
                 public IEntryBuilderCriteria AddCriteron(string fact, string key, bool val)
                 {
-                    Entry.Criteria.Add(new MatchCriteron<bool>(fact, key, val));
+                    Entry.Criteria.Add(new MatchCriterion<bool>(fact, key, val));
                     return this;
                 }
 
                 public IEntryBuilderCriteria AddRangeCriteron(string fact, string key, int low, int high)
                 {
-                    Entry.Criteria.Add(new IntRangeCriteron(fact, key, low, high));
+                    Entry.Criteria.Add(new IntRangeCriterion(fact, key, low, high));
                     return this;
                 }
 

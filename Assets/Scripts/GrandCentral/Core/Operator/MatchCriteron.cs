@@ -2,14 +2,14 @@ namespace GrandCentral
 {
     namespace Operator
     {
-        internal class MatchCriteron<T> : ICriteron
+        internal class MatchCriterion<T> : ICriterion
         {
             public string FactKey { get; set; }
             public string AccessKey { get; set; }
 
             private T _compareValue;
 
-            public MatchCriteron(string fact, string key, T val)
+            public MatchCriterion(string fact, string key, T val)
             {
                 FactKey = fact;
                 AccessKey = key;

@@ -19,11 +19,9 @@ namespace GrandCentral
             builder.AddEntry("seen-robin")
                 .AddCriteron("query", "bird", "robin")
                 .AddCriteron("player", "cylinders-seen", 0)
-                .AddCriteron("player", "seen-one-robin-01", false)
                 .SetPayload("one-robin")
                 .FactIncrement("player", "cylinders-seen", 1)
-                .FactSet("player", "seen-one-robin-01", true)
-                .SetNextEntry("seen-one-robin");
+                .SetNextEntry("seen-one-robin-01");
 
             builder.AddEntry("seen-one-robin-01")
                 .SetPayload("seen-one-robin");
@@ -33,7 +31,7 @@ namespace GrandCentral
                 .AddCriteron("player", "cylinders-seen", 1)
                 .SetPayload("two-robins")
                 .FactIncrement("player", "cylinders-seen", 1)
-                .SetNextEntry("seen-two-robins");
+                .SetNextEntry("seen-two-robins-01");
 
             builder.AddEntry("seen-two-robins-01")
                 .SetPayload("seen-two-robins");
@@ -43,7 +41,7 @@ namespace GrandCentral
                 .AddCriteron("player", "cylinders-seen", 2)
                 .SetPayload("three-robins")
                 .FactIncrement("player", "cylinders-seen", 1)
-                .SetNextEntry("seen-three-robins");
+                .SetNextEntry("seen-three-robins-01");
 
             builder.AddEntry("seen-three-robins-01")
                 .SetPayload("seen-three-robins");
@@ -52,7 +50,7 @@ namespace GrandCentral
                 .AddCriteron("query", "bird", "robin")
                 .AddGteCriteron("player", "cylinders-seen", 3)
                 .SetPayload("many-robins")
-                .SetNextEntry("seen-many-robins");
+                .SetNextEntry("seen-many-robins-01");
 
             builder.AddEntry("seen-robin")
                 .AddCriteron("query", "bird", "robin")
@@ -60,10 +58,13 @@ namespace GrandCentral
                 .AddCriteron("query", "speaker", "protag")
                 .SetPayload("many-robins")
                 .FactIncrement("player", "cylinders-seen", 1)
-                .SetNextEntry("seen-many-robins");
+                .SetNextEntry("seen-many-robins-02");
 
             builder.AddEntry("seen-many-robins-01")
                 .SetPayload("seen-many-robins");
+
+            builder.AddEntry("seen-many-robins-02")
+                .SetPayload("seen-many-robins-twice");
 
             Rules.Add("bird-cylinders", builder.Finalize());
         }

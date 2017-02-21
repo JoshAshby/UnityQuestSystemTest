@@ -2,7 +2,7 @@ namespace GrandCentral
 {
     namespace Operator
     {
-        internal class IntRangeCriteron : ICriteron
+        internal class IntRangeCriterion : ICriterion
         {
             public string FactKey { get; set; }
             public string AccessKey { get; set; }
@@ -10,7 +10,7 @@ namespace GrandCentral
             private int _lowCompareValue;
             private int _highCompareValue;
 
-            public IntRangeCriteron(string fact, string key, int low, int high)
+            public IntRangeCriterion(string fact, string key, int low, int high)
             {
                 FactKey = fact;
                 AccessKey = key;
@@ -32,7 +32,7 @@ namespace GrandCentral
             }
         }
 
-        internal class IntGteCriteron : ICriteron
+        internal class IntGteCriteron : ICriterion
         {
             public string FactKey { get; set; }
             public string AccessKey { get; set; }
@@ -60,7 +60,7 @@ namespace GrandCentral
             }
         }
 
-        internal class IntGtCriteron : ICriteron
+        internal class IntGtCriteron : ICriterion
         {
             public string FactKey { get; set; }
             public string AccessKey { get; set; }
@@ -88,7 +88,7 @@ namespace GrandCentral
             }
         }
 
-        internal class IntLteCriteron : ICriteron
+        internal class IntLteCriteron : ICriterion
         {
             public string FactKey { get; set; }
             public string AccessKey { get; set; }
@@ -116,7 +116,7 @@ namespace GrandCentral
             }
         }
 
-        internal class IntLtCriteron : ICriteron
+        internal class IntLtCriteron : ICriterion
         {
             public string FactKey { get; set; }
             public string AccessKey { get; set; }
