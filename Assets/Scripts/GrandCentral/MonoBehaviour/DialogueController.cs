@@ -17,57 +17,58 @@ namespace GrandCentral
             builder.New();
 
             builder.AddEntry("seen-robin")
-                .AddCriteron("query", "bird", "robin")
-                .AddCriteron("player", "cylinders-seen", 0)
+                .AddCriteron<string>("query", "bird", x => x == "robin")
+                .AddCriteron<int>("player", "cylinders-seen", x => x == 0)
                 .SetPayload("one-robin")
-                .FactIncrement("player", "cylinders-seen", 1)
+                .FactMutate<int>("player", "cylinders-seen", x => x + 1)
                 .SetNextEntry("seen-one-robin-01");
 
             builder.AddEntry("seen-one-robin-01")
                 .SetPayload("seen-one-robin");
 
             builder.AddEntry("seen-robin")
-                .AddCriteron("query", "bird", "robin")
-                .AddCriteron("player", "cylinders-seen", 1)
+                .AddCriteron<string>("query", "bird", x => x == "robin")
+                .AddCriteron<int>("player", "cylinders-seen", x => x == 1)
                 .SetPayload("two-robins")
-                .FactIncrement("player", "cylinders-seen", 1)
+                .FactMutate<int>("player", "cylinders-seen", x => x + 1)
                 .SetNextEntry("seen-two-robins-01");
 
             builder.AddEntry("seen-two-robins-01")
                 .SetPayload("seen-two-robins");
 
             builder.AddEntry("seen-robin")
-                .AddCriteron("query", "bird", "robin")
-                .AddCriteron("player", "cylinders-seen", 2)
+                .AddCriteron<string>("query", "bird", x => x == "robin")
+                .AddCriteron<int>("player", "cylinders-seen", x => x == 2)
                 .SetPayload("three-robins")
-                .FactIncrement("player", "cylinders-seen", 1)
+                .FactMutate<int>("player", "cylinders-seen", x => x + 1)
                 .SetNextEntry("seen-three-robins-01");
 
             builder.AddEntry("seen-three-robins-01")
                 .SetPayload("seen-three-robins");
 
             builder.AddEntry("seen-robin")
-                .AddCriteron("query", "speaker", "protag")
-                .AddCriteron("query", "bird", "robin")
-                .AddGteCriteron("player", "cylinders-seen", 3)
-                .AddCriteron("player", "seen-many-robins-01", false)
+                .AddCriteron<string>("query", "speaker", x => x == "protag")
+                .AddCriteron<string>("query", "bird", x => x == "robin")
+                .AddCriteron<int>("player", "cylinders-seen", x => x == 3)
+                .AddCriteron<bool>("player", "seen-many-robins-01", x => !x)
                 .SetPayload("many-robins-03")
                 .SetNextEntry("seen-many-robins-03")
-                .FactIncrement("player", "cylinders-seen", 1)
-                .FactSet("player", "seen-many-robins-01", true);
+                .FactMutate<int>("player", "cylinders-seen", x => x + 1)
+                .FactSet<bool>("player", "seen-many-robins-01", true);
 
             builder.AddEntry("seen-robin")
-                .AddCriteron("query", "speaker", "protag")
-                .AddCriteron("query", "bird", "robin")
-                .AddGteCriteron("player", "cylinders-seen", 3)
+                .AddCriteron<string>("query", "speaker", x => x == "protag")
+                .AddCriteron<string>("query", "bird", x => x == "robin")
+                .AddCriteron<int>("player", "cylinders-seen", x => x >= 3)
                 .SetPayload("many-robins-01")
-                .FactIncrement("player", "cylinders-seen", 1)
+                .FactMutate<int>("player", "cylinders-seen", x => x + 1)
                 .SetNextEntry("seen-many-robins-02");
 
             builder.AddEntry("seen-robin")
-                .AddCriteron("query", "bird", "robin")
-                .AddGteCriteron("player", "cylinders-seen", 3)
+                .AddCriteron<string>("query", "bird", x => x == "robin")
+                .AddCriteron<int>("player", "cylinders-seen", x => x >= 3)
                 .SetPayload("many-robins-02")
+                .FactMutate<int>("player", "cylinders-seen", x => x + 1)
                 .SetNextEntry("seen-many-robins-01");
 
             builder.AddEntry("seen-many-robins-01")
@@ -75,6 +76,9 @@ namespace GrandCentral
 
             builder.AddEntry("seen-many-robins-02")
                 .SetPayload("seen-many-robins-twice");
+
+            builder.AddEntry("seen-many-robins-03")
+                .SetPayload("seen-many-robins-three");
 
             Rules.Add("bird-cylinders", builder.Finalize());
         }
