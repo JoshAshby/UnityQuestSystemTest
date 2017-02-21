@@ -17,14 +17,19 @@ namespace GrandCentral
                 _compareValue = val;
             }
 
-            public bool Check(IGenericValue rawValue)
+            public override string ToString()
             {
-                IGenericValue<T> typedValue = rawValue.OfType<T>();
+                return string.Format("{0}.{1} == {2}", FactKey, AccessKey, _compareValue.ToString());
+            }
+
+            public bool Check(object rawValue)
+            {
+                T typedValue = (T)rawValue;
 
                 if (typedValue == null)
                     return false;
 
-                return typedValue.Value.Equals(_compareValue);
+                return typedValue.Equals(_compareValue);
             }
         }
     }

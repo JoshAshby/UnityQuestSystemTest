@@ -39,18 +39,29 @@ namespace GrandCentral
 
             public bool Check(IQuery query)
             {
-                return Criteria.All(criterion => {
-                    IGenericValue val = null;
+                string log = "";
+
+                bool check = Criteria.All(criterion => {
+                    object val = null;
 
                     if (criterion.FactKey == "query")
                         val = query.Context[criterion.AccessKey];
                     else
                         val = StateController.Instance.State[criterion.FactKey][criterion.AccessKey];
 
-                    Debug.Log(val.ToString());
+                    bool checker = criterion.Check(val);
 
-                    return criterion.Check(val);
+                    string passFai = checker ? "Passed" : "FAILED";
+                    log += string.Format("[({0}) {1} {2}]", criterion.ToString(), passFai, val.ToString());
+
+                    return checker;
                 });
+
+                string passFail = check ? "Passed" : "FAILED";
+
+                Debug.LogFormat("Entry {0} {1}: {2}", Name, passFail, log);
+
+                return check;
             }
         }
     }

@@ -1,6 +1,5 @@
 using GrandCentral.Operator;
 using GrandCentral.Operator.Builders;
-using UnityEngine;
 
 namespace GrandCentral
 {
@@ -40,7 +39,7 @@ namespace GrandCentral
                 .AddCriteron("player", "cylinders-seen", 2)
                 .SetPayload("three-robins")
                 .SetNextEntry("seen-three-robins");
-            
+
             builder.AddEntry("seen-three-robins")
                 .SetPayload("seen-three-robins");
 

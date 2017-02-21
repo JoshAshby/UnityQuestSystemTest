@@ -35,13 +35,13 @@ namespace GrandCentral
 
             public IQuery Where(string key, string val)
             {
-                Context.Add(key, new GenericValue<string>(val));
+                Context.Add(key, val);
                 return this;
             }
 
             public IQuery Where(string key, int val)
             {
-                Context.Add(key, new GenericValue<int>(val));
+                Context.Add(key, val);
                 return this;
             }
 

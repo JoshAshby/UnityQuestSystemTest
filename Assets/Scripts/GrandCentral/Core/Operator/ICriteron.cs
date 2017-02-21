@@ -7,7 +7,7 @@ namespace GrandCentral
             string FactKey { get; }
             string AccessKey { get; }
 
-            bool Check(IGenericValue value);
+            bool Check(object value);
         }
     }
 }

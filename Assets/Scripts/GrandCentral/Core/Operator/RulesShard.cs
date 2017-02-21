@@ -16,7 +16,7 @@ namespace GrandCentral
 
             public string Query(IQuery query)
             {
-                IEntry entry = Entries.FirstOrDefault(x => x.Check(query));
+                IEntry entry = Entries.FirstOrDefault(x => x.Check(query) == true);
 
                 if (entry == null)
                     return null;

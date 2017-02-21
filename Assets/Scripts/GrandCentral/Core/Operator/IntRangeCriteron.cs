@@ -19,14 +19,16 @@ namespace GrandCentral
                 _highCompareValue = high;
             }
 
-            public bool Check(IGenericValue rawValue)
+            public override string ToString()
             {
-                IGenericValue<int> val = rawValue.OfType<int>();
+                return string.Format(" {0} <= {1}.{2} <= {3}", _lowCompareValue.ToString(), FactKey, AccessKey, _highCompareValue.ToString());
+            }
 
-                if (val == null)
-                    return false;
+            public bool Check(object rawValue)
+            {
+                int val = (int)rawValue;
 
-                return _lowCompareValue <= val.Value && val.Value <= _highCompareValue;
+                return _lowCompareValue <= val && val <= _highCompareValue;
             }
         }
 
@@ -45,14 +47,16 @@ namespace GrandCentral
                 _compareValue = val;
             }
 
-            public bool Check(IGenericValue rawValue)
+            public override string ToString()
             {
-                IGenericValue<int> val = rawValue.OfType<int>();
+                return string.Format("{0}.{1} >= {2}", FactKey, AccessKey, _compareValue.ToString());
+            }
 
-                if (val == null)
-                    return false;
+            public bool Check(object rawValue)
+            {
+                int val = (int)rawValue;
 
-                return val.Value <= _compareValue;
+                return val >= _compareValue;
             }
         }
 
@@ -71,14 +75,16 @@ namespace GrandCentral
                 _compareValue = val;
             }
 
-            public bool Check(IGenericValue rawValue)
+            public override string ToString()
             {
-                IGenericValue<int> val = rawValue.OfType<int>();
+                return string.Format("{0}.{1} > {2}", FactKey, AccessKey, _compareValue.ToString());
+            }
 
-                if (val == null)
-                    return false;
+            public bool Check(object rawValue)
+            {
+                int val = (int)rawValue;
 
-                return val.Value < _compareValue;
+                return val > _compareValue;
             }
         }
 
@@ -97,14 +103,16 @@ namespace GrandCentral
                 _compareValue = val;
             }
 
-            public bool Check(IGenericValue rawValue)
+            public override string ToString()
             {
-                IGenericValue<int> val = rawValue.OfType<int>();
+                return string.Format("{0}.{1} <= {2}", FactKey, AccessKey, _compareValue.ToString());
+            }
 
-                if (val == null)
-                    return false;
+            public bool Check(object rawValue)
+            {
+                int val = (int)rawValue;
 
-                return _compareValue <= val.Value;
+                return val <= _compareValue;
             }
         }
 
@@ -123,14 +131,16 @@ namespace GrandCentral
                 _compareValue = val;
             }
 
-            public bool Check(IGenericValue rawValue)
+            public override string ToString()
             {
-                IGenericValue<int> val = rawValue.OfType<int>();
+                return string.Format("{0}.{1} < {2}", FactKey, AccessKey, _compareValue.ToString());
+            }
 
-                if (val == null)
-                    return false;
+            public bool Check(object rawValue)
+            {
+                int val = (int)rawValue;
 
-                return _compareValue < val.Value;
+                return val < _compareValue;
             }
         }
     }

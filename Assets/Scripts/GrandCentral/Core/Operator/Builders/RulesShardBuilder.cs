@@ -28,7 +28,7 @@ namespace GrandCentral
 
                 public RulesShard Finalize()
                 {
-                    _database.Entries = _database.Entries.OrderBy(x => x.Length).ToList();
+                    _database.Entries = _database.Entries.OrderByDescending(x => x.Length).ToList();
 
                     return _database;
                 }
