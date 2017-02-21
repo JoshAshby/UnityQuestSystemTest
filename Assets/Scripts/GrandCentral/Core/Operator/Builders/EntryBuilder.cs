@@ -1,3 +1,6 @@
+using GrandCentral.Operator.Criterion;
+using GrandCentral.Operator.Mutations;
+
 namespace GrandCentral
 {
     namespace Operator
@@ -103,7 +106,7 @@ namespace GrandCentral
 
                 public IEntryBuilderMutations FactDecrement(string fact, string key, int val)
                 {
-                    Entry.StateMutations.Add(new DecrementMutation(fact, key, val));
+                    Entry.StateMutations.Add(new IncrementMutation(fact, key, -val));
                     return this;
                 }
 

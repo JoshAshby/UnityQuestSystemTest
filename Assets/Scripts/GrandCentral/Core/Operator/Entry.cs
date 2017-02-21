@@ -1,24 +1,13 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
+using GrandCentral.Operator.Criterion;
+using GrandCentral.Operator.Mutations;
 
 namespace GrandCentral
 {
     namespace Operator
     {
-        internal interface IEntry
-        {
-            string Segment { get; }
-            List<ICriterion> Criteria { get; }
-            List<IStateMutation> StateMutations { get; }
-
-            string Payload { get; }
-            string NextEntry { get; }
-
-            int Length { get; }
-            bool Check(IQuery query);
-        }
-
         internal class Entry : IEntry
         {
             public string Segment { get; internal set; }
@@ -44,20 +33,30 @@ namespace GrandCentral
             {
                 string log = "";
 
-                bool check = Criteria.All(criterion => {
+                bool check = Criteria.All(criterion =>
+                {
                     object val = null;
 
                     if (criterion.FactKey == "query")
                     {
-                        val = query.Context[criterion.AccessKey];
-                    } else {
-                        val = StateController.Instance.State[criterion.FactKey][criterion.AccessKey];
+                        query.Context.TryGetValue(criterion.AccessKey, out val);
+                    }
+                    else
+                    {
+                        StateController.Instance.State[criterion.FactKey].TryGetValue(criterion.AccessKey, out val);
                     }
 
                     bool checker = criterion.Check(val);
 
                     string passFai = checker ? "Passed" : "FAILED";
-                    log += string.Format("[({0}) {1} {2}]", criterion.ToString(), passFai, val.ToString());
+                    string valString;
+
+                    if (val == null)
+                        valString = "null";
+                    else
+                        valString = val.ToString();
+
+                    log += string.Format("[({0}) {1} {2}]", criterion.ToString(), passFai, valString);
 
                     return checker;
                 });

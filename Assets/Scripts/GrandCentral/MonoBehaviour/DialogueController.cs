@@ -47,18 +47,28 @@ namespace GrandCentral
                 .SetPayload("seen-three-robins");
 
             builder.AddEntry("seen-robin")
+                .AddCriteron("query", "speaker", "protag")
                 .AddCriteron("query", "bird", "robin")
                 .AddGteCriteron("player", "cylinders-seen", 3)
-                .SetPayload("many-robins")
-                .SetNextEntry("seen-many-robins-01");
+                .AddCriteron("player", "seen-many-robins-01", false)
+                .SetPayload("many-robins-03")
+                .SetNextEntry("seen-many-robins-03")
+                .FactIncrement("player", "cylinders-seen", 1)
+                .FactSet("player", "seen-many-robins-01", true);
+
+            builder.AddEntry("seen-robin")
+                .AddCriteron("query", "speaker", "protag")
+                .AddCriteron("query", "bird", "robin")
+                .AddGteCriteron("player", "cylinders-seen", 3)
+                .SetPayload("many-robins-01")
+                .FactIncrement("player", "cylinders-seen", 1)
+                .SetNextEntry("seen-many-robins-02");
 
             builder.AddEntry("seen-robin")
                 .AddCriteron("query", "bird", "robin")
-                .AddCriteron("player", "cylinders-seen", 3)
-                .AddCriteron("query", "speaker", "protag")
-                .SetPayload("many-robins")
-                .FactIncrement("player", "cylinders-seen", 1)
-                .SetNextEntry("seen-many-robins-02");
+                .AddGteCriteron("player", "cylinders-seen", 3)
+                .SetPayload("many-robins-02")
+                .SetNextEntry("seen-many-robins-01");
 
             builder.AddEntry("seen-many-robins-01")
                 .SetPayload("seen-many-robins");

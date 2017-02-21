@@ -13,7 +13,6 @@ namespace GrandCentral
         {
             StateShard shard = new StateShard();
             shard.Add("cylinders-seen", 0);
-            shard.Add("seen-one-robin-01", false);
 
             State.Add("player", shard);
         }
