@@ -8,6 +8,11 @@ namespace GrandCentral
     {
         public Rules Rules { get; private set; }
 
+        public IQuery From(string key, string segment)
+        {
+            return Query.From(Rules[key], segment);
+        }
+
         private void Awake()
         {
             Rules = new Rules();
@@ -50,11 +55,11 @@ namespace GrandCentral
                 .AddCriteron<string>("query", "speaker", x => x == "protag")
                 .AddCriteron<string>("query", "bird", x => x == "robin")
                 .AddCriteron<int>("player", "cylinders-seen", x => x == 3)
-                .AddCriteron<bool>("player", "seen-many-robins-01", x => !x)
+                .AddCriteron<bool>("player", "seen-many-robins-01", x => false)
                 .SetPayload("many-robins-03")
-                .SetNextEntry("seen-many-robins-03")
                 .FactMutate<int>("player", "cylinders-seen", x => x + 1)
-                .FactSet<bool>("player", "seen-many-robins-01", true);
+                .FactSet<bool>("player", "seen-many-robins-01", true)
+                .SetNextEntry("seen-many-robins-03");
 
             builder.AddEntry("seen-robin")
                 .AddCriteron<string>("query", "speaker", x => x == "protag")

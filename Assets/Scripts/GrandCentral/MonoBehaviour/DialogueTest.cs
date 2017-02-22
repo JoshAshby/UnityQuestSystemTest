@@ -10,7 +10,7 @@ namespace GrandCentral
 
         public void OnInteract()
         {
-            string res2 = DialogueController.Instance.Rules.From("bird-cylinders", "seen-robin")
+            string res2 = DialogueController.Instance.From("bird-cylinders", "seen-robin")
                 .Where("speaker", "protag")
                 .Where("bird", "robin")
                 .Select();
