@@ -6,9 +6,9 @@ namespace GrandCentral
     {
         public class Rules : Dictionary<string, RulesShard>
         {
-            public IQuery From(string key, string segment)
+            public string QueryFor(string partition, string name, StateShard context)
             {
-                return Query.From(this[key], segment);
+                return this[partition].QueryFor(name, context);
             }
         }
     }

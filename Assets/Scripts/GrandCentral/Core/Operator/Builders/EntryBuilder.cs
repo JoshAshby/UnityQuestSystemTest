@@ -30,6 +30,12 @@ namespace GrandCentral
                     return this;
                 }
 
+                public IEntryBuilderCriteria AddCriteron<T>(string key, Func<T, bool> compare)
+                {
+                    Entry.Criteria.Add(new ProcCriterion<T>(key, compare));
+                    return this;
+                }
+
                 public IEntryBuilderMutations FactMutate<T>(string fact, string key, Func<T, T> setter)
                 {
                     Entry.StateMutations.Add(new ProcMutation<T>(fact, key, setter));

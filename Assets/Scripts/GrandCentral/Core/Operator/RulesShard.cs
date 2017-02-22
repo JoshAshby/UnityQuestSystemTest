@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -14,9 +15,9 @@ namespace GrandCentral
                 Entries = new List<IEntry>();
             }
 
-            public string Query(IQuery query)
+            public string QueryFor(string name, StateShard context)
             {
-                IEntry entry = Entries.Where(x => x.Segment == query.Segment).FirstOrDefault(x => x.Check(query));
+                IEntry entry = Entries.Where(x => x.Name == name).FirstOrDefault(x => x.Check(context));
 
                 if (entry == null)
                     return null;

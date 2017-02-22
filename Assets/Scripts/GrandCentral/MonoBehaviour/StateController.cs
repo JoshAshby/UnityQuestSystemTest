@@ -11,10 +11,8 @@ namespace GrandCentral
 
         private void Awake()
         {
-            StateShard shard = new StateShard();
-            shard.Add("cylinders-seen", 0);
-
-            State.Add("player", shard);
+            State.Add("global", new StateShard());
+            State.Add("player", new StateShard());
         }
     }
 }

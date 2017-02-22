@@ -10,7 +10,7 @@ namespace GrandCentral
     {
         internal class Entry : IEntry
         {
-            public string Segment { get; internal set; }
+            public string Name { get; internal set; }
             public List<ICriterion> Criteria { get; internal set; }
             public List<IStateMutation> StateMutations { get; internal set; }
 
@@ -19,7 +19,7 @@ namespace GrandCentral
 
             public Entry(string segment)
             {
-                Segment = segment;
+                Name = segment;
                 Criteria = new List<ICriterion>();
                 StateMutations = new List<IStateMutation>();
             }
@@ -29,7 +29,7 @@ namespace GrandCentral
                 get { return Criteria.Count; }
             }
 
-            public bool Check(IQuery query)
+            public bool Check(StateShard context)
             {
                 string log = "";
 
@@ -37,33 +37,36 @@ namespace GrandCentral
                 {
                     object val = null;
 
-                    if (criterion.FactKey == "query")
-                    {
-                        query.Context.TryGetValue(criterion.AccessKey, out val);
-                    }
+                    string FactKey = criterion.FactKey;
+                    string AccessKey = criterion.AccessKey;
+
+                    if (context.ContainsKey(FactKey))
+                        FactKey = (string)context[FactKey];
+
+                    if (context.ContainsKey(AccessKey))
+                        val = context[AccessKey];
                     else
                     {
-                        StateController.Instance.State[criterion.FactKey].TryGetValue(criterion.AccessKey, out val);
+                        if (StateController.Instance.State[FactKey].ContainsKey(AccessKey))
+                            val = StateController.Instance.State[FactKey][AccessKey];
                     }
 
                     bool checker = criterion.Check(val);
 
-                    string passFai = checker ? "Passed" : "FAILED";
-                    string valString;
+                    string passFai = checker ? "<color=green>Passed</color>" : "<color=red>FAILED</color>";
+                    string valString = "null";
 
-                    if (val == null)
-                        valString = "null";
-                    else
+                    if (val != null)
                         valString = val.ToString();
 
-                    log += string.Format("[({0}) {1} {2}]", criterion.ToString(), passFai, valString);
+                    log += string.Format("[{0} {1} {2}]", criterion.ToString(), passFai, valString);
 
                     return checker;
                 });
 
-                string passFail = check ? "Passed" : "FAILED";
+                string passFail = check ? "<color=green>Passed</color>" : "<color=red>FAILED</color>";
 
-                Debug.LogFormat("Entry {0} {1}: {2}", Segment, passFail, log);
+                Debug.LogFormat("Entry {0} -> {1} => {2}\n{3}: {4}", Name, Payload, NextEntry, passFail, log);
 
                 return check;
             }

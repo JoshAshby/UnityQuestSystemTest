@@ -4,18 +4,23 @@ namespace GrandCentral
 {
     public class DialogueTest : MonoBehaviour, IInteractiveBehaviour
     {
+        [SerializeField]
+        private string BirdType;
+
         public void OnLookEnter() { }
         public void OnLookStay() { }
         public void OnLookExit() { }
 
         public void OnInteract()
         {
-            string res2 = DialogueController.Instance.From("bird-cylinders", "seen-robin")
-                .Where("speaker", "protag")
-                .Where("bird", "robin")
-                .Select();
+            StateShard context = new StateShard();
+            context.Add("speaker", "protag");
+            context.Add("listener", "");
+            context.Add("bird", BirdType);
 
-            Debug.Log(res2);
+            string res = DialogueController.Instance.QueryFor("bird-cylinders", "seen-robin", context);
+
+            Debug.Log(res);
         }
     }
 }

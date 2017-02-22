@@ -19,6 +19,14 @@ namespace GrandCentral
                     _compareValue = val;
                 }
 
+                public MatchCriterion(string key, T val)
+                {
+                    FactKey = "global";
+                    AccessKey = key;
+
+                    _compareValue = val;
+                }
+
                 public override string ToString()
                 {
                     return string.Format("{0}.{1} == {2}", FactKey, AccessKey, _compareValue.ToString());

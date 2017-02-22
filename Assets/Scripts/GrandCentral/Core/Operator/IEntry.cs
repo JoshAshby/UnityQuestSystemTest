@@ -8,7 +8,7 @@ namespace GrandCentral
     {
         internal interface IEntry
         {
-            string Segment { get; }
+            string Name { get; }
             List<ICriterion> Criteria { get; }
             List<IStateMutation> StateMutations { get; }
 
@@ -16,7 +16,7 @@ namespace GrandCentral
             string NextEntry { get; }
 
             int Length { get; }
-            bool Check(IQuery query);
+            bool Check(StateShard context);
         }
     }
 }

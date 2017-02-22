@@ -21,6 +21,14 @@ namespace GrandCentral
                     _compare = compare;
                 }
 
+                public ProcCriterion(string key, Func<T, bool> compare)
+                {
+                    FactKey = "global";
+                    AccessKey = key;
+
+                    _compare = compare;
+                }
+
                 public override string ToString()
                 {
                     // TODO: ((Expression<Func<T, bool>>)_compare).ToString()

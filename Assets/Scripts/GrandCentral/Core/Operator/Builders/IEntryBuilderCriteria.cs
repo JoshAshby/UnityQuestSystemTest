@@ -9,6 +9,7 @@ namespace GrandCentral
             public interface IEntryBuilderCriteria
             {
                 IEntryBuilderCriteria AddCriteron<T>(string fact, string key, Func<T, bool> proc);
+                IEntryBuilderCriteria AddCriteron<T>(string key, Func<T, bool> proc);
 
                 IEntryBuilderMutations SetPayload(string payload);
             }
