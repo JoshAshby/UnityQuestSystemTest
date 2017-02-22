@@ -59,14 +59,20 @@ namespace GrandCentral
                     if (val != null)
                         valString = val.ToString();
 
-                    log += string.Format("[{0} {1} {2}]", criterion.ToString(), passFai, valString);
+                    log += string.Format("\t[{0} {1}] {2}\n", criterion.ToString(), valString, passFai);
 
                     return checker;
                 });
 
                 string passFail = check ? "<color=green>Passed</color>" : "<color=red>FAILED</color>";
 
-                Debug.LogFormat("Entry {0} -> {1} => {2}\n{3}: {4}", Name, Payload, NextEntry, passFail, log);
+                string contextLog = "";
+                foreach(var con in context)
+                {
+                    contextLog += string.Format("{0} = {1}\n", con.Key, con.Value.ToString());
+                }
+
+                Debug.LogFormat("Entry {0} --resolves--> {1}\n<b>{3}</b>\n--- Context -----------\n{5}----------------------\n{4}--next-->{2}", Name, Payload, NextEntry, passFail, log, contextLog);
 
                 return check;
             }
