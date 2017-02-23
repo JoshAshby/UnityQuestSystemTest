@@ -1,8 +1,9 @@
 using System.Collections.Generic;
-using GrandCentral.Operator.Criterion;
-using GrandCentral.Operator.Mutations;
+using GrandCentral.FileCabinet;
+using GrandCentral.Switchboard.Criterion;
+using GrandCentral.Switchboard.Mutations;
 
-namespace GrandCentral.Operator
+namespace GrandCentral.Switchboard
 {
     internal interface IEntry
     {

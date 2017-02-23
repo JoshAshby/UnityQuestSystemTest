@@ -1,12 +1,13 @@
-using GrandCentral.Operator;
-using GrandCentral.Operator.Builders;
+using GrandCentral.FileCabinet;
+using GrandCentral.Switchboard;
+using GrandCentral.Switchboard.Builders;
 
 namespace GrandCentral
 {
-    [Prefab("Rules Controller", true)]
-    public class RulesController : Singleton<RulesController>
+    [Prefab("Switchboard Controller", true)]
+    public class SwitchboardController : Singleton<SwitchboardController>
     {
-        public RulesShard Rules { get; private set; }
+        public RuleDB Rules { get; private set; }
 
         public string QueryFor(string character, string name, FactShard context)
         {
@@ -25,7 +26,7 @@ namespace GrandCentral
 
         private void Awake()
         {
-            RulesShardBuilder builder = new RulesShardBuilder();
+            RuleDBBuilder builder = new RuleDBBuilder();
 
             builder.New();
 

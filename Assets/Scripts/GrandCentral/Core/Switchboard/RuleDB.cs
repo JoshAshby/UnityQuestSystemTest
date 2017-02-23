@@ -1,14 +1,15 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using GrandCentral.FileCabinet;
 
-namespace GrandCentral.Operator
+namespace GrandCentral.Switchboard
 {
-    public class RulesShard
+    public class RuleDB
     {
         internal List<IEntry> Entries;
 
-        public RulesShard()
+        public RuleDB()
         {
             Entries = new List<IEntry>();
         }

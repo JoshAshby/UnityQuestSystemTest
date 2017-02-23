@@ -1,8 +1,8 @@
 using System;
-using GrandCentral.Operator.Criterion;
-using GrandCentral.Operator.Mutations;
+using GrandCentral.Switchboard.Criterion;
+using GrandCentral.Switchboard.Mutations;
 
-namespace GrandCentral.Operator.Builders
+namespace GrandCentral.Switchboard.Builders
 {
     public class EntryBuilder : IEntryBuilderCriteria, IEntryBuilderMutations
     {

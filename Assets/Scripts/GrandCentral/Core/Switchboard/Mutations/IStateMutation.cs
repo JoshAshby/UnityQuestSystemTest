@@ -1,4 +1,4 @@
-namespace GrandCentral.Operator.Mutations
+namespace GrandCentral.Switchboard.Mutations
 {
     interface IStateMutation
     {

@@ -21,7 +21,7 @@ GameObject:
   - component: {fileID: 4216734879334344}
   - component: {fileID: 114650810243273168}
   m_Layer: 0
-  m_Name: Rules Controller
+  m_Name: Switchboard Controller
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -48,6 +48,6 @@ MonoBehaviour:
   m_GameObject: {fileID: 1909498942466738}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0025fcfad0b964a038e8d4e25426e0f9, type: 3}
+  m_Script: {fileID: 11500000, guid: 5b9f31c718ebe44e5bba928ffad7163d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 

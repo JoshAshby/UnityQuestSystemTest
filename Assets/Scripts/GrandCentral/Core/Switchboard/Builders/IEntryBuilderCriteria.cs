@@ -1,6 +1,6 @@
 using System;
 
-namespace GrandCentral.Operator.Builders
+namespace GrandCentral.Switchboard.Builders
 {
     public interface IEntryBuilderCriteria
     {

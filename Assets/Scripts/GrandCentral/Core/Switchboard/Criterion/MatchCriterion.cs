@@ -1,4 +1,4 @@
-namespace GrandCentral.Operator.Criterion
+namespace GrandCentral.Switchboard.Criterion
 {
     internal class MatchCriterion<T> : ICriterion
     {

@@ -1,18 +1,21 @@
-namespace GrandCentral.Operator.Mutations
+using System;
+using GrandCentral.FileCabinet;
+
+namespace GrandCentral.Switchboard.Mutations
 {
-    class SetMutation<T> : IStateMutation
+    class ProcMutation<T> : IStateMutation
     {
         public string Fact { get; internal set; }
         public string AccessKey { get; internal set; }
 
-        protected T _setVal;
+        protected Func<T, T> _setter;
 
-        public SetMutation(string fact, string key, T val)
+        public ProcMutation(string fact, string key, Func<T, T> setter)
         {
             Fact = fact;
             AccessKey = key;
 
-            _setVal = val;
+            _setter = setter;
         }
 
         public void Mutate()
@@ -25,7 +28,7 @@ namespace GrandCentral.Operator.Mutations
             if (!state[Fact].ContainsKey(AccessKey))
                 state[Fact].Add(AccessKey, default(T));
 
-            state[Fact][AccessKey] = _setVal;
+            state[Fact][AccessKey] = _setter((T)state[Fact][AccessKey]);
         }
     }
 }

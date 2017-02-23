@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace GrandCentral
+namespace GrandCentral.FileCabinet
 {
     public class FactShard : Dictionary<string, object> { }
 }

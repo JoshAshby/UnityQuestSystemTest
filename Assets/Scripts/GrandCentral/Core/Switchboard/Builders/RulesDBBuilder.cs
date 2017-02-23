@@ -1,14 +1,14 @@
 using System.Linq;
 
-namespace GrandCentral.Operator.Builders
+namespace GrandCentral.Switchboard.Builders
 {
-    public class RulesShardBuilder : IRulesShardBuilderEntry
+    public class RuleDBBuilder : IRuleDBEntryBuilder
     {
-        private RulesShard _database;
+        private RuleDB _database;
 
-        public IRulesShardBuilderEntry New()
+        public IRuleDBEntryBuilder New()
         {
-            _database = new RulesShard();
+            _database = new RuleDB();
             return this;
         }
 
@@ -22,7 +22,7 @@ namespace GrandCentral.Operator.Builders
             return entryBuilder;
         }
 
-        public RulesShard Finalize()
+        public RuleDB Finalize()
         {
             _database.Entries = _database.Entries.OrderByDescending(x => x.Length).ToList();
 

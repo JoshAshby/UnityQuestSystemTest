@@ -1,4 +1,5 @@
 ﻿using UnityEngine;
+using GrandCentral.FileCabinet;
 
 namespace GrandCentral
 {
@@ -16,7 +17,7 @@ namespace GrandCentral
             FactShard context = new FactShard();
             context.Add("bird", BirdType);
 
-            string res = RulesController.Instance.QueryFor("protag", "seen-robin", context);
+            string res = SwitchboardController.Instance.QueryFor("protag", "seen-robin", context);
 
             Debug.Log(res);
         }

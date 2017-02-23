@@ -1,6 +1,6 @@
 using System;
 
-namespace GrandCentral.Operator.Criterion
+namespace GrandCentral.Switchboard.Criterion
 {
     internal class ProcCriterion<T> : ICriterion
     {
