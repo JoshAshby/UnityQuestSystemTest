@@ -4,8 +4,8 @@ using UnityEngine;
 [AttributeUsage(AttributeTargets.Class, Inherited = true)]
 public class PrefabAttribute : Attribute
 {
-    public readonly string Name;
-    public readonly bool Persistent;
+    public string Name { get; private set; }
+    public bool Persistent { get; private set; }
 
     public PrefabAttribute(string name, bool persistent)
     {
@@ -31,17 +31,17 @@ public abstract class Singleton<T> : MonoBehaviour where T : MonoBehaviour
         {
             if (_instantiated) return _instance;
 
-            var type = typeof(T);
-            var objects = FindObjectsOfType<T>();
+            Type type = typeof(T);
+            T[] objects = FindObjectsOfType<T>();
 
-            var attribute = Attribute.GetCustomAttribute(type, typeof(PrefabAttribute)) as PrefabAttribute;
+            PrefabAttribute attribute = Attribute.GetCustomAttribute(type, typeof(PrefabAttribute)) as PrefabAttribute;
             if (attribute == null)
             {
                 Debug.LogError("There is no Prefab Atrribute for Singleton of type \"" + type + "\".");
                 return null;
             }
 
-            var prefabName = attribute.Name;
+            string prefabName = attribute.Name;
             if (String.IsNullOrEmpty(prefabName))
             {
                 Debug.LogError("Prefab name is empty for Singleton of type \"" + type + "\".");
@@ -50,14 +50,12 @@ public abstract class Singleton<T> : MonoBehaviour where T : MonoBehaviour
 
             if (objects.Length > 0)
             {
-                Instance = objects[0];
+                _instance = objects[0];
                 if (objects.Length > 1)
                 {
-                    Debug.LogWarning("There is more than one instance of Singleton of type \"" + type + "\". Keeping the first. Destroying the others.");
+                    Debug.LogWarning("There is more than one instance of Singleton of type \"" + type + "\" in the scene. Keeping the first. Destroying the others.");
                     for (var i = 1; i < objects.Length; i++) DestroyImmediate(objects[i].gameObject);
                 }
-
-                _instantiated = true;
 
                 if (attribute.Persistent)
                     DontDestroyOnLoad(_instance.gameObject);
@@ -65,7 +63,7 @@ public abstract class Singleton<T> : MonoBehaviour where T : MonoBehaviour
                 return _instance;
             }
 
-            var gameObject = Instantiate(Resources.Load<GameObject>(prefabName)) as GameObject;
+            GameObject gameObject = Instantiate(Resources.Load<GameObject>(prefabName)) as GameObject;
             if (gameObject == null)
             {
                 Debug.LogError("Could not find Prefab \"" + prefabName + "\" on Resources for Singleton of type \"" + type + "\".");
