@@ -4,78 +4,75 @@ using UnityEngine;
 using GrandCentral.Operator.Criterion;
 using GrandCentral.Operator.Mutations;
 
-namespace GrandCentral
+namespace GrandCentral.Operator
 {
-    namespace Operator
+    internal class Entry : IEntry
     {
-        internal class Entry : IEntry
+        public string Name { get; internal set; }
+        public List<ICriterion> Criteria { get; internal set; }
+        public List<IStateMutation> StateMutations { get; internal set; }
+
+        public string Payload { get; internal set; }
+        public string NextEntry { get; internal set; }
+
+        public Entry(string segment)
         {
-            public string Name { get; internal set; }
-            public List<ICriterion> Criteria { get; internal set; }
-            public List<IStateMutation> StateMutations { get; internal set; }
+            Name = segment;
+            Criteria = new List<ICriterion>();
+            StateMutations = new List<IStateMutation>();
+        }
 
-            public string Payload { get; internal set; }
-            public string NextEntry { get; internal set; }
+        public int Length
+        {
+            get { return Criteria.Count; }
+        }
 
-            public Entry(string segment)
+        public bool Check(FactShard context)
+        {
+            string log = "";
+
+            bool check = Criteria.All(criterion =>
             {
-                Name = segment;
-                Criteria = new List<ICriterion>();
-                StateMutations = new List<IStateMutation>();
-            }
+                object val = null;
 
-            public int Length
-            {
-                get { return Criteria.Count; }
-            }
+                string FactKey = criterion.FactKey;
+                string AccessKey = criterion.AccessKey;
 
-            public bool Check(StateShard context)
-            {
-                string log = "";
+                if (context.ContainsKey(FactKey))
+                    FactKey = (string)context[FactKey];
 
-                bool check = Criteria.All(criterion =>
+                if (context.ContainsKey(AccessKey))
+                    val = context[AccessKey];
+                else
                 {
-                    object val = null;
-
-                    string FactKey = criterion.FactKey;
-                    string AccessKey = criterion.AccessKey;
-
-                    if (context.ContainsKey(FactKey))
-                        FactKey = (string)context[FactKey];
-
-                    if (context.ContainsKey(AccessKey))
-                        val = context[AccessKey];
-                    else
-                    {
-                        if (StateController.Instance.State[FactKey].ContainsKey(AccessKey))
-                            val = StateController.Instance.State[FactKey][AccessKey];
-                    }
-
-                    bool checker = criterion.Check(val);
-
-                    string passFai = checker ? "<color=green>Passed</color>" : "<color=red>FAILED</color>";
-                    string valString = "null";
-
-                    if (val != null)
-                        valString = val.ToString();
-
-                    log += string.Format("\t[{0} {1}] {2}\n", criterion.ToString(), valString, passFai);
-
-                    return checker;
-                });
-
-                string passFail = check ? "<color=green>Passed</color>" : "<color=red>FAILED</color>";
-
-                string contextLog = "";
-                foreach(var con in context)
-                {
-                    contextLog += string.Format("{0} = {1}\n", con.Key, con.Value.ToString());
+                    if (FactsController.Instance.Facts[FactKey].ContainsKey(AccessKey))
+                        val = FactsController.Instance.Facts[FactKey][AccessKey];
                 }
 
-                Debug.LogFormat("Entry {0} --resolves--> {1}\n<b>{3}</b>\n--- Context -----------\n{5}----------------------\n{4}--next-->{2}", Name, Payload, NextEntry, passFail, log, contextLog);
+                bool checker = criterion.Check(val);
 
-                return check;
+                string passFai = checker ? "<color=green>Passed</color>" : "<color=red>FAILED</color>";
+                string valString = "null";
+
+                if (val != null)
+                    valString = val.ToString();
+
+                log += string.Format("\t[{0} {1}] {2}\n", criterion.ToString(), valString, passFai);
+
+                return checker;
+            });
+
+            string passFail = check ? "<color=green>Passed</color>" : "<color=red>FAILED</color>";
+
+            string contextLog = "";
+            foreach (var con in context)
+            {
+                contextLog += string.Format("{0} = {1}\n", con.Key, con.Value.ToString());
             }
+
+            Debug.LogFormat("Entry {0} --resolves--> {1}\n<b>{3}</b>\n--- Context -----------\n{5}----------------------\n{4}--next-->{2}", Name, Payload, NextEntry, passFail, log, contextLog);
+
+            return check;
         }
     }
 }

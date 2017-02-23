@@ -1,53 +1,47 @@
 using System;
 
-namespace GrandCentral
+namespace GrandCentral.Operator.Criterion
 {
-    namespace Operator
+    internal class ProcCriterion<T> : ICriterion
     {
-        namespace Criterion
+        public string FactKey { get; set; }
+        public string AccessKey { get; set; }
+
+        private Func<T, bool> _compare;
+
+        public ProcCriterion(string fact, string key, Func<T, bool> compare)
         {
-            internal class ProcCriterion<T> : ICriterion
-            {
-                public string FactKey { get; set; }
-                public string AccessKey { get; set; }
+            FactKey = fact;
+            AccessKey = key;
 
-                private Func<T, bool> _compare;
+            _compare = compare;
+        }
 
-                public ProcCriterion(string fact, string key, Func<T, bool> compare)
-                {
-                    FactKey = fact;
-                    AccessKey = key;
+        public ProcCriterion(string key, Func<T, bool> compare)
+        {
+            FactKey = "global";
+            AccessKey = key;
 
-                    _compare = compare;
-                }
+            _compare = compare;
+        }
 
-                public ProcCriterion(string key, Func<T, bool> compare)
-                {
-                    FactKey = "global";
-                    AccessKey = key;
+        public override string ToString()
+        {
+            // TODO: ((Expression<Func<T, bool>>)_compare).ToString()
+            return string.Format("{0}.{1}", FactKey, AccessKey);
+        }
 
-                    _compare = compare;
-                }
+        public bool Check(object rawValue)
+        {
+            if (rawValue == null)
+                rawValue = default(T);
 
-                public override string ToString()
-                {
-                    // TODO: ((Expression<Func<T, bool>>)_compare).ToString()
-                    return string.Format("{0}.{1}", FactKey, AccessKey);
-                }
+            T typedValue = (T)rawValue;
 
-                public bool Check(object rawValue)
-                {
-                    if (rawValue == null)
-                        rawValue = default(T);
+            if (typedValue == null)
+                return false;
 
-                    T typedValue = (T)rawValue;
-
-                    if (typedValue == null)
-                        return false;
-
-                    return _compare(typedValue);
-                }
-            }
+            return _compare(typedValue);
         }
     }
 }

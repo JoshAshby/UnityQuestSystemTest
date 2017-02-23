@@ -1,16 +1,10 @@
-namespace GrandCentral
+namespace GrandCentral.Operator.Criterion
 {
-    namespace Operator
+    internal interface ICriterion
     {
-        namespace Criterion
-        {
-            internal interface ICriterion
-            {
-                string FactKey { get; }
-                string AccessKey { get; }
+        string FactKey { get; }
+        string AccessKey { get; }
 
-                bool Check(object value);
-            }
-        }
+        bool Check(object value);
     }
 }

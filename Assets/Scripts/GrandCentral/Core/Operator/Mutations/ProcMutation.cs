@@ -1,39 +1,33 @@
 using System;
 
-namespace GrandCentral
+namespace GrandCentral.Operator.Mutations
 {
-    namespace Operator
+    class ProcMutation<T> : IStateMutation
     {
-        namespace Mutations
+        public string Fact { get; internal set; }
+        public string AccessKey { get; internal set; }
+
+        protected Func<T, T> _setter;
+
+        public ProcMutation(string fact, string key, Func<T, T> setter)
         {
-            class ProcMutation<T> : IStateMutation
-            {
-                public string Fact { get; internal set; }
-                public string AccessKey { get; internal set; }
+            Fact = fact;
+            AccessKey = key;
 
-                protected Func<T, T> _setter;
+            _setter = setter;
+        }
 
-                public ProcMutation(string fact, string key, Func<T, T> setter)
-                {
-                    Fact = fact;
-                    AccessKey = key;
+        public void Mutate()
+        {
+            Facts state = FactsController.Instance.Facts;
 
-                    _setter = setter;
-                }
+            if (!state.ContainsKey(Fact))
+                state.Add(Fact, new FactShard());
 
-                public void Mutate()
-                {
-                    State state = StateController.Instance.State;
+            if (!state[Fact].ContainsKey(AccessKey))
+                state[Fact].Add(AccessKey, default(T));
 
-                    if (!state.ContainsKey(Fact))
-                        state.Add(Fact, new StateShard());
-
-                    if (!state[Fact].ContainsKey(AccessKey))
-                        state[Fact].Add(AccessKey, default(T));
-
-                    state[Fact][AccessKey] = _setter((T)state[Fact][AccessKey]);
-                }
-            }
+            state[Fact][AccessKey] = _setter((T)state[Fact][AccessKey]);
         }
     }
 }

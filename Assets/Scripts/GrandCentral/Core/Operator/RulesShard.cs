@@ -2,30 +2,46 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace GrandCentral
+namespace GrandCentral.Operator
 {
-    namespace Operator
+    public class RulesShard
     {
-        public class RulesShard
+        internal List<IEntry> Entries;
+
+        public RulesShard()
         {
-            internal List<IEntry> Entries;
+            Entries = new List<IEntry>();
+        }
 
-            public RulesShard()
+        public string QueryFor(string name, FactShard context)
+        {
+            Random rng = new Random();
+
+            IEnumerable<IEntry> entries = Entries.Where(ent =>
             {
-                Entries = new List<IEntry>();
+                if (ent.Name != name)
+                    return false;
+
+                return ent.Check(context);
+            });
+
+            IEntry entry;
+            int length = entries.Count();
+            if (length > 2)
+                entry = entries.FirstOrDefault();
+            else
+            {
+                entries = entries.Where(ent => ent.Length == entries.First().Length);
+
+                entry = entries.ElementAtOrDefault(rng.Next(entries.Count()));
             }
 
-            public string QueryFor(string name, StateShard context)
-            {
-                IEntry entry = Entries.Where(x => x.Name == name).FirstOrDefault(x => x.Check(context));
+            if (entry == null)
+                return null;
 
-                if (entry == null)
-                    return null;
+            entry.StateMutations.ForEach(x => x.Mutate());
 
-                entry.StateMutations.ForEach(x => x.Mutate());
-
-                return entry.Payload;
-            }
+            return entry.Payload;
         }
     }
 }

@@ -13,12 +13,10 @@ namespace GrandCentral
 
         public void OnInteract()
         {
-            StateShard context = new StateShard();
-            context.Add("speaker", "protag");
-            context.Add("listener", "");
+            FactShard context = new FactShard();
             context.Add("bird", BirdType);
 
-            string res = DialogueController.Instance.QueryFor("bird-cylinders", "seen-robin", context);
+            string res = RulesController.Instance.QueryFor("protag", "seen-robin", context);
 
             Debug.Log(res);
         }

@@ -3,20 +3,28 @@ using GrandCentral.Operator.Builders;
 
 namespace GrandCentral
 {
-    [Prefab("Dialogue Controller", true)]
-    public class DialogueController : Singleton<DialogueController>
+    [Prefab("Rules Controller", true)]
+    public class RulesController : Singleton<RulesController>
     {
-        public Rules Rules { get; private set; }
+        public RulesShard Rules { get; private set; }
 
-        public string QueryFor(string partition, string name, StateShard context)
+        public string QueryFor(string character, string name, FactShard context)
         {
-            return Rules.QueryFor(partition, name, context);
+            context.Add("speaker", character);
+
+            return Rules.QueryFor(name, context);
+        }
+
+        public string QueryFor(string character, string name)
+        {
+            FactShard context = new FactShard();
+            context.Add("speaker", character);
+
+            return Rules.QueryFor(name, context);
         }
 
         private void Awake()
         {
-            Rules = new Rules();
-
             RulesShardBuilder builder = new RulesShardBuilder();
 
             builder.New();
@@ -85,7 +93,7 @@ namespace GrandCentral
             builder.AddEntry("seen-many-robins-03")
                 .SetPayload("seen-many-robins-three");
 
-            Rules.Add("bird-cylinders", builder.Finalize());
+            Rules = builder.Finalize();
         }
     }
 }

@@ -1,37 +1,31 @@
-namespace GrandCentral
+namespace GrandCentral.Operator.Mutations
 {
-    namespace Operator
+    class SetMutation<T> : IStateMutation
     {
-        namespace Mutations
+        public string Fact { get; internal set; }
+        public string AccessKey { get; internal set; }
+
+        protected T _setVal;
+
+        public SetMutation(string fact, string key, T val)
         {
-            class SetMutation<T> : IStateMutation
-            {
-                public string Fact { get; internal set; }
-                public string AccessKey { get; internal set; }
+            Fact = fact;
+            AccessKey = key;
 
-                protected T _setVal;
+            _setVal = val;
+        }
 
-                public SetMutation(string fact, string key, T val)
-                {
-                    Fact = fact;
-                    AccessKey = key;
+        public void Mutate()
+        {
+            Facts state = FactsController.Instance.Facts;
 
-                    _setVal = val;
-                }
+            if (!state.ContainsKey(Fact))
+                state.Add(Fact, new FactShard());
 
-                public void Mutate()
-                {
-                    State state = StateController.Instance.State;
+            if (!state[Fact].ContainsKey(AccessKey))
+                state[Fact].Add(AccessKey, default(T));
 
-                    if (!state.ContainsKey(Fact))
-                        state.Add(Fact, new StateShard());
-
-                    if (!state[Fact].ContainsKey(AccessKey))
-                        state[Fact].Add(AccessKey, default(T));
-
-                    state[Fact][AccessKey] = _setVal;
-                }
-            }
+            state[Fact][AccessKey] = _setVal;
         }
     }
 }

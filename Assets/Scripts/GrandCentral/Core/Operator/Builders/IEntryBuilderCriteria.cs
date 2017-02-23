@@ -1,27 +1,21 @@
 using System;
 
-namespace GrandCentral
+namespace GrandCentral.Operator.Builders
 {
-    namespace Operator
+    public interface IEntryBuilderCriteria
     {
-        namespace Builders
-        {
-            public interface IEntryBuilderCriteria
-            {
-                IEntryBuilderCriteria AddCriteron<T>(string fact, string key, Func<T, bool> proc);
-                IEntryBuilderCriteria AddCriteron<T>(string key, Func<T, bool> proc);
+        IEntryBuilderCriteria AddCriteron<T>(string fact, string key, Func<T, bool> proc);
+        IEntryBuilderCriteria AddCriteron<T>(string key, Func<T, bool> proc);
 
-                IEntryBuilderMutations SetPayload(string payload);
-            }
+        IEntryBuilderMutations SetPayload(string payload);
+    }
 
-            public interface IEntryBuilderMutations
-            {
-                IEntryBuilderMutations FactMutate<T>(string fact, string key, Func<T, T> proc);
+    public interface IEntryBuilderMutations
+    {
+        IEntryBuilderMutations FactMutate<T>(string fact, string key, Func<T, T> proc);
 
-                IEntryBuilderMutations FactSet<T>(string fact, string key, T val);
+        IEntryBuilderMutations FactSet<T>(string fact, string key, T val);
 
-                IEntryBuilderMutations SetNextEntry(string name);
-            }
-        }
+        IEntryBuilderMutations SetNextEntry(string name);
     }
 }

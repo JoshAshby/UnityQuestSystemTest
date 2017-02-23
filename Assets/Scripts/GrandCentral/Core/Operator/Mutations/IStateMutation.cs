@@ -1,16 +1,10 @@
-namespace GrandCentral
+namespace GrandCentral.Operator.Mutations
 {
-    namespace Operator
+    interface IStateMutation
     {
-        namespace Mutations
-        {
-            interface IStateMutation
-            {
-                string Fact { get; }
-                string AccessKey { get; }
+        string Fact { get; }
+        string AccessKey { get; }
 
-                void Mutate();
-            }
-        }
+        void Mutate();
     }
 }

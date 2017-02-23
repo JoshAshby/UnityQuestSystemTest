@@ -1,50 +1,44 @@
-namespace GrandCentral
+namespace GrandCentral.Operator.Criterion
 {
-    namespace Operator
+    internal class MatchCriterion<T> : ICriterion
     {
-        namespace Criterion
+        public string FactKey { get; set; }
+        public string AccessKey { get; set; }
+
+        private T _compareValue;
+
+        public MatchCriterion(string fact, string key, T val)
         {
-            internal class MatchCriterion<T> : ICriterion
-            {
-                public string FactKey { get; set; }
-                public string AccessKey { get; set; }
+            FactKey = fact;
+            AccessKey = key;
 
-                private T _compareValue;
+            _compareValue = val;
+        }
 
-                public MatchCriterion(string fact, string key, T val)
-                {
-                    FactKey = fact;
-                    AccessKey = key;
+        public MatchCriterion(string key, T val)
+        {
+            FactKey = "global";
+            AccessKey = key;
 
-                    _compareValue = val;
-                }
+            _compareValue = val;
+        }
 
-                public MatchCriterion(string key, T val)
-                {
-                    FactKey = "global";
-                    AccessKey = key;
+        public override string ToString()
+        {
+            return string.Format("{0}.{1} == {2}", FactKey, AccessKey, _compareValue.ToString());
+        }
 
-                    _compareValue = val;
-                }
+        public bool Check(object rawValue)
+        {
+            if (rawValue == null)
+                rawValue = default(T);
 
-                public override string ToString()
-                {
-                    return string.Format("{0}.{1} == {2}", FactKey, AccessKey, _compareValue.ToString());
-                }
+            T typedValue = (T)rawValue;
 
-                public bool Check(object rawValue)
-                {
-                    if (rawValue == null)
-                        rawValue = default(T);
+            if (typedValue == null)
+                return false;
 
-                    T typedValue = (T)rawValue;
-
-                    if (typedValue == null)
-                        return false;
-
-                    return typedValue.Equals(_compareValue);
-                }
-            }
+            return typedValue.Equals(_compareValue);
         }
     }
 }

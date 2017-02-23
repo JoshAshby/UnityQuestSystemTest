@@ -1,38 +1,32 @@
 using System.Linq;
 
-namespace GrandCentral
+namespace GrandCentral.Operator.Builders
 {
-    namespace Operator
+    public class RulesShardBuilder : IRulesShardBuilderEntry
     {
-        namespace Builders
+        private RulesShard _database;
+
+        public IRulesShardBuilderEntry New()
         {
-            public class RulesShardBuilder : IRulesShardBuilderEntry
-            {
-                private RulesShard _database;
+            _database = new RulesShard();
+            return this;
+        }
 
-                public IRulesShardBuilderEntry New()
-                {
-                    _database = new RulesShard();
-                    return this;
-                }
+        public IEntryBuilderCriteria AddEntry(string name)
+        {
+            EntryBuilder entryBuilder = new EntryBuilder();
+            entryBuilder.New(name);
 
-                public IEntryBuilderCriteria AddEntry(string name)
-                {
-                    EntryBuilder entryBuilder = new EntryBuilder();
-                    entryBuilder.New(name);
+            _database.Entries.Add(entryBuilder.Entry);
 
-                    _database.Entries.Add(entryBuilder.Entry);
+            return entryBuilder;
+        }
 
-                    return entryBuilder;
-                }
+        public RulesShard Finalize()
+        {
+            _database.Entries = _database.Entries.OrderByDescending(x => x.Length).ToList();
 
-                public RulesShard Finalize()
-                {
-                    _database.Entries = _database.Entries.OrderByDescending(x => x.Length).ToList();
-
-                    return _database;
-                }
-            }
+            return _database;
         }
     }
 }

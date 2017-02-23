@@ -1,13 +1,7 @@
-namespace GrandCentral
+namespace GrandCentral.Operator.Builders
 {
-    namespace Operator
+    public interface IRulesShardBuilderEntry
     {
-        namespace Builders
-        {
-            public interface IRulesShardBuilderEntry
-            {
-                IRulesShardBuilderEntry New();
-            }
-        }
+        IRulesShardBuilderEntry New();
     }
 }

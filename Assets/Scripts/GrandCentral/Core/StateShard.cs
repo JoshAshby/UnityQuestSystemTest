@@ -2,5 +2,5 @@ using System.Collections.Generic;
 
 namespace GrandCentral
 {
-    public class StateShard : Dictionary<string, object> { }
+    public class FactShard : Dictionary<string, object> { }
 }
