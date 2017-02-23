@@ -7,7 +7,7 @@ using GrandCentral.Switchboard.Mutations;
 
 namespace GrandCentral.Switchboard
 {
-    internal class Entry : IEntry
+    public class Entry : IEntry
     {
         public string Name { get; internal set; }
         public List<ICriterion> Criteria { get; internal set; }

@@ -2,7 +2,7 @@ using GrandCentral.FileCabinet;
 
 namespace GrandCentral.Switchboard.Mutations
 {
-    class SetMutation<T> : IStateMutation
+    public class SetMutation<T> : IStateMutation
     {
         public string Fact { get; internal set; }
         public string AccessKey { get; internal set; }

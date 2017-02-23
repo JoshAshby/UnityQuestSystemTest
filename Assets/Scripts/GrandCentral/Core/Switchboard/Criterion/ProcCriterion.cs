@@ -2,7 +2,7 @@ using System;
 
 namespace GrandCentral.Switchboard.Criterion
 {
-    internal class ProcCriterion<T> : ICriterion
+    public class ProcCriterion<T> : ICriterion
     {
         public string FactKey { get; set; }
         public string AccessKey { get; set; }

@@ -1,6 +1,6 @@
 namespace GrandCentral.Switchboard.Criterion
 {
-    internal interface ICriterion
+    public interface ICriterion
     {
         string FactKey { get; }
         string AccessKey { get; }

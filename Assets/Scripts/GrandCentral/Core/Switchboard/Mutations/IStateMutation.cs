@@ -1,6 +1,6 @@
 namespace GrandCentral.Switchboard.Mutations
 {
-    interface IStateMutation
+    public interface IStateMutation
     {
         string Fact { get; }
         string AccessKey { get; }

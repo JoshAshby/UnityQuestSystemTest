@@ -17,9 +17,7 @@ namespace GrandCentral
             FactShard context = new FactShard();
             context.Add("bird", BirdType);
 
-            string res = SwitchboardController.Instance.QueryFor("protag", "seen-robin", context);
-
-            Debug.Log(res);
+            DialogueController.Instance.Request("protag", "seen-robin", context);
         }
     }
 }

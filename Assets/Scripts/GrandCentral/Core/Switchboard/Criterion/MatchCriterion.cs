@@ -1,6 +1,6 @@
 namespace GrandCentral.Switchboard.Criterion
 {
-    internal class MatchCriterion<T> : ICriterion
+    public class MatchCriterion<T> : ICriterion
     {
         public string FactKey { get; set; }
         public string AccessKey { get; set; }

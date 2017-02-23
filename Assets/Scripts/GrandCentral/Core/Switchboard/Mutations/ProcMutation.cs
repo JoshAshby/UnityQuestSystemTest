@@ -3,7 +3,7 @@ using GrandCentral.FileCabinet;
 
 namespace GrandCentral.Switchboard.Mutations
 {
-    class ProcMutation<T> : IStateMutation
+    public class ProcMutation<T> : IStateMutation
     {
         public string Fact { get; internal set; }
         public string AccessKey { get; internal set; }

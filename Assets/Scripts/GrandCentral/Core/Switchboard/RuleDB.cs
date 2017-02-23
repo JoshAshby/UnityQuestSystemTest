@@ -14,7 +14,7 @@ namespace GrandCentral.Switchboard
             Entries = new List<IEntry>();
         }
 
-        public string QueryFor(string name, FactShard context)
+        public IEntry QueryFor(string name, FactShard context)
         {
             Random rng = new Random();
 
@@ -42,7 +42,7 @@ namespace GrandCentral.Switchboard
 
             entry.StateMutations.ForEach(x => x.Mutate());
 
-            return entry.Payload;
+            return entry;
         }
     }
 }

@@ -9,14 +9,14 @@ namespace GrandCentral
     {
         public RuleDB Rules { get; private set; }
 
-        public string QueryFor(string character, string name, FactShard context)
+        public IEntry QueryFor(string character, string name, FactShard context)
         {
             context.Add("speaker", character);
 
             return Rules.QueryFor(name, context);
         }
 
-        public string QueryFor(string character, string name)
+        public IEntry QueryFor(string character, string name)
         {
             FactShard context = new FactShard();
             context.Add("speaker", character);
