@@ -1,22 +1,19 @@
 using GrandCentral.FileCabinet;
 using GrandCentral.Switchboard;
-using GrandCentral.Telegraph;
+using UnityEngine;
 
 namespace GrandCentral
 {
-    public class DialogueRequest : IMessage {
-        public IEntry Entry { get; set; }
-    }
-    
-    [Prefab("Dialogue Controller")]
+    [Prefab("Dialogue Controller", true)]
     public class DialogueController : Singleton<DialogueController>
     {
-        public void Request(string character, string name, FactShard context)
+        public void RequestLine(string character, string line, FactShard context)
         {
-            IEntry entry = SwitchboardController.Instance.QueryFor(character, name, context);
+            Debug.LogFormat("DialogueController - Got request for {1} from {0}", character, line);
+            IEntry entry = SwitchboardController.Instance.QueryFor(character, line, context);
 
             if (entry != null)
-                TelegraphController.Instance.Bus.Publish<DialogueRequest>(new DialogueRequest{ Entry = entry });
+                TelegraphController.Instance.Bus.Publish<DialogueRequest>(new DialogueRequest { Entry = entry });
         }
     }
 }

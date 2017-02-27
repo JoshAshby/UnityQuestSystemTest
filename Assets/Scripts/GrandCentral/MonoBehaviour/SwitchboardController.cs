@@ -1,27 +1,28 @@
 using GrandCentral.FileCabinet;
 using GrandCentral.Switchboard;
 using GrandCentral.Switchboard.Builders;
+using UnityEngine;
 
 namespace GrandCentral
 {
     [Prefab("Switchboard Controller", true)]
     public class SwitchboardController : Singleton<SwitchboardController>
     {
-        public RuleDB Rules { get; private set; }
+        public RuleDB Database { get; private set; }
 
-        public IEntry QueryFor(string character, string name, FactShard context)
+        public IEntry QueryFor(string character, string line, FactShard context)
         {
             context.Add("speaker", character);
 
-            return Rules.QueryFor(name, context);
+            return Database.QueryFor(line, context);
         }
 
-        public IEntry QueryFor(string character, string name)
+        public IEntry QueryFor(string character, string line)
         {
             FactShard context = new FactShard();
             context.Add("speaker", character);
 
-            return Rules.QueryFor(name, context);
+            return Database.QueryFor(line, context);
         }
 
         private void Awake()
@@ -94,7 +95,7 @@ namespace GrandCentral
             builder.AddEntry("seen-many-robins-03")
                 .SetPayload("seen-many-robins-three");
 
-            Rules = builder.Finalize();
+            Database = builder.Finalize();
         }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using GrandCentral.FileCabinet;
+using GrandCentral.Switchboard;
 
 namespace GrandCentral
 {
@@ -17,7 +18,7 @@ namespace GrandCentral
             FactShard context = new FactShard();
             context.Add("bird", BirdType);
 
-            DialogueController.Instance.Request("protag", "seen-robin", context);
+            DialogueController.Instance.RequestLine("protag", "seen-robin", context);
         }
     }
 }

@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
-using GrandCentral;
 using GrandCentral.Telegraph;
+using GrandCentral;
 
 [RequireComponent(typeof(CanvasGroup))]
 public class DialogueDisplay : MonoBehaviour, IHandle<DialogueRequest>
@@ -18,6 +18,16 @@ public class DialogueDisplay : MonoBehaviour, IHandle<DialogueRequest>
         _canvasGroup.alpha = 0f;
     }
 
+    private void Start()
+    {
+        TelegraphController.Instance.Bus.Subscribe(this);
+    }
+
+    // private void OnDestroy()
+    // {
+    //     TelegraphController.Instance.Bus.Unsubscribe(this);
+    // }
+
     public void ShowInfo(string info)
     {
         _text.text = info;
@@ -32,6 +42,7 @@ public class DialogueDisplay : MonoBehaviour, IHandle<DialogueRequest>
 
     public void Handle(DialogueRequest msg)
     {
-        Debug.LogFormat("Got entry {0} - [{1}] -- next --> {3}", msg.Entry.Name, msg.Entry.Payload, msg.Entry.NextEntry);
+        Debug.LogFormat("DialogueDisplay - Got entry {0} - [{1}] -- next --> {2}", msg.Entry.Name, msg.Entry.Payload, msg.Entry.NextEntry);
+        ShowInfo(msg.Entry.Payload);
     }
 }

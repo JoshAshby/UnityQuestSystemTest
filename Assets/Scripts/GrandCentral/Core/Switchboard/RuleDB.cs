@@ -1,7 +1,7 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using GrandCentral.FileCabinet;
+using UnityEngine;
 
 namespace GrandCentral.Switchboard
 {
@@ -14,27 +14,26 @@ namespace GrandCentral.Switchboard
             Entries = new List<IEntry>();
         }
 
-        public IEntry QueryFor(string name, FactShard context)
+        public IEntry QueryFor(string line, FactShard context)
         {
-            Random rng = new Random();
-
-            IEnumerable<IEntry> entries = Entries.Where(ent =>
+            List<IEntry> entries = Entries.Where(ent =>
             {
-                if (ent.Name != name)
+                if (ent.Name != line)
                     return false;
 
                 return ent.Check(context);
-            });
+            }).ToList();
 
             IEntry entry;
             int length = entries.Count();
-            if (length > 2)
+
+            if (length <= 1)
                 entry = entries.FirstOrDefault();
             else
             {
-                entries = entries.Where(ent => ent.Length == entries.First().Length);
+                entries = entries.Where(ent => ent.Length == entries.First().Length).ToList();
 
-                entry = entries.ElementAtOrDefault(rng.Next(entries.Count()));
+                entry = entries.ElementAtOrDefault(Random.Range(0, Entries.Count()));
             }
 
             if (entry == null)
