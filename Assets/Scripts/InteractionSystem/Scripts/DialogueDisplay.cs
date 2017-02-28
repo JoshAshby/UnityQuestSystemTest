@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.UI;
-using GrandCentral.Telegraph;
 using GrandCentral;
+using GrandCentral.Telegraph;
 
 [RequireComponent(typeof(CanvasGroup))]
 public class DialogueDisplay : MonoBehaviour, IHandle<DialogueRequest>
@@ -20,13 +20,13 @@ public class DialogueDisplay : MonoBehaviour, IHandle<DialogueRequest>
 
     private void Start()
     {
-        TelegraphController.Instance.Bus.Subscribe(this);
+        TelegraphController.Subscribe(this);
     }
 
-    // private void OnDestroy()
-    // {
-    //     TelegraphController.Instance.Bus.Unsubscribe(this);
-    // }
+    private void OnDestroy()
+    {
+        TelegraphController.Unsubscribe(this);
+    }
 
     public void ShowInfo(string info)
     {

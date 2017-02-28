@@ -10,19 +10,19 @@ namespace GrandCentral
     {
         public RuleDB Database { get; private set; }
 
-        public IEntry QueryFor(string character, string line, FactShard context)
+        public static IEntry QueryFor(string character, string line, FactShard context)
         {
             context.Add("speaker", character);
 
-            return Database.QueryFor(line, context);
+            return Instance.Database.QueryFor(line, context);
         }
 
-        public IEntry QueryFor(string character, string line)
+        public static IEntry QueryFor(string character, string line)
         {
             FactShard context = new FactShard();
             context.Add("speaker", character);
 
-            return Database.QueryFor(line, context);
+            return Instance.Database.QueryFor(line, context);
         }
 
         private void Awake()
