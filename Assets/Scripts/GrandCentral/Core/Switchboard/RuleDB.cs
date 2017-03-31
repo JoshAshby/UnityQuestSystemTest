@@ -33,7 +33,10 @@ namespace GrandCentral.Switchboard
             {
                 entries = entries.Where(ent => ent.Length == entries.First().Length).ToList();
 
-                entry = entries.ElementAtOrDefault(Random.Range(0, Entries.Count()));
+                int count = entries.Count();
+                int index = Random.Range(0, count);
+
+                entry = entries.ElementAtOrDefault(index);
             }
 
             if (entry == null)

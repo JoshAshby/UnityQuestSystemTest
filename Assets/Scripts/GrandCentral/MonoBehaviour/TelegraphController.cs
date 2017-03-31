@@ -6,32 +6,11 @@ using UnityEngine;
 
 namespace GrandCentral
 {
-    [Prefab("Telegraph Controller", true)]
-    public class TelegraphController : Singleton<TelegraphController>
+    public static class TelegraphController
     {
-        protected IDictionary<Type, IList<object>> _subscribers;
+        private static IDictionary<Type, IList<object>> _subscribers = new Dictionary<Type, IList<object>>();
 
         public static void Publish<T>(T message) where T : IMessage
-        {
-            Instance._Publish<T>(message);
-        }
-
-        public static void Subscribe(object subscriber)
-        {
-            Instance._Subscribe(subscriber);
-        }
-
-        public static void Unsubscribe(object subscriber)
-        {
-            Instance._Unsubscribe(subscriber);
-        }
-
-        private void Awake()
-        {
-            _subscribers = new Dictionary<Type, IList<object>>();
-        }
-
-        private void _Publish<T>(T message) where T : IMessage
         {
             if (!_subscribers.ContainsKey(typeof(T)) || !_subscribers[typeof(T)].Any())
             {
@@ -43,7 +22,17 @@ namespace GrandCentral
                 ((IHandle<T>)handler).Handle(message);
         }
 
-        private List<Type> GetHandledMessageTypes(object subscriber)
+        public static void Subscribe(object subscriber)
+        {
+            GetHandledMessageTypes(subscriber).ForEach(message => _Subscribe(message, subscriber));
+        }
+
+        public static void Unsubscribe(object subscriber)
+        {
+            GetHandledMessageTypes(subscriber).ForEach(message => _Unsubscribe(message, subscriber));
+        }
+
+        private static List<Type> GetHandledMessageTypes(object subscriber)
         {
             return subscriber.GetType()
                 .GetInterfaces()
@@ -52,12 +41,7 @@ namespace GrandCentral
                 .ToList();
         }
 
-        private void _Subscribe(object subscriber)
-        {
-            GetHandledMessageTypes(subscriber).ForEach(message => _Subscribe(message, subscriber));
-        }
-
-        private void _Subscribe(Type messageType, object subscriber)
+        private static void _Subscribe(Type messageType, object subscriber)
         {
             if (!_subscribers.ContainsKey(messageType))
                 _subscribers[messageType] = new List<object>();
@@ -65,12 +49,7 @@ namespace GrandCentral
             _subscribers[messageType].Add(subscriber);
         }
 
-        private void _Unsubscribe(object subscriber)
-        {
-            GetHandledMessageTypes(subscriber).ForEach(message => _Unsubscribe(message, subscriber));
-        }
-
-        private void _Unsubscribe(Type messageType, object subscriber)
+        private static void _Unsubscribe(Type messageType, object subscriber)
         {
             if (!_subscribers.ContainsKey(messageType) || !_subscribers[messageType].Contains(subscriber))
             {

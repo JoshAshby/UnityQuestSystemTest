@@ -18,7 +18,7 @@ namespace GrandCentral
         }
 
         protected Dictionary<string, string> Lines;
-        
+
         public void Awake()
         {
             Lines = new Dictionary<string, string>();

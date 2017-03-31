@@ -8,7 +8,7 @@ namespace GrandCentral
     [Prefab("Switchboard Controller", true)]
     public class SwitchboardController : Singleton<SwitchboardController>
     {
-        public RuleDB Database { get; private set; }
+        protected RuleDB Database;
 
         public static IEntry QueryFor(string character, string line, FactShard context)
         {
