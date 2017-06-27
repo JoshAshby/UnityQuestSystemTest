@@ -1,16 +1,15 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using GrandCentral.Telegraph;
 using UnityEngine;
 
-namespace GrandCentral
+namespace GrandCentral.Events
 {
-    public static class TelegraphController
+    public static class EventsController
     {
         private static IDictionary<Type, IList<object>> _subscribers = new Dictionary<Type, IList<object>>();
 
-        public static void Publish<T>(T message) where T : IMessage
+        public static void Publish<T>(T message) where T : IEvent
         {
             if (!_subscribers.ContainsKey(typeof(T)) || !_subscribers[typeof(T)].Any())
             {

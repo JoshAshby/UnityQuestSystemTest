@@ -1,17 +1,28 @@
 using UnityEngine;
 using UnityEngine.UI;
 using GrandCentral;
-using GrandCentral.Telegraph;
+using GrandCentral.Events;
+using GrandCentral.Switchboard;
+using GrandCentral.Facts;
 
 [RequireComponent(typeof(CanvasGroup))]
 public class DialogueDisplay : MonoBehaviour, IHandle<DialogueRequest>
 {
+    public static void RequestLine(string character, string line, FactDictionary context)
+    {
+        Debug.LogFormat("DialogueController - Got request for {1} from {0}", character, line);
+        IEntry entry = SwitchboardController.QueryFor(character, line, context);
+
+        if (entry != null)
+            EventsController.Publish<DialogueRequest>(new DialogueRequest { Entry = entry });
+    }
+
     private Text _text = null;
     private CanvasGroup _canvasGroup = null;
 
     private void Awake()
     {
-        _text        = GetComponentInChildren<Text>();
+        _text = GetComponentInChildren<Text>();
         _canvasGroup = GetComponent<CanvasGroup>();
 
         _text.text = "";
@@ -20,12 +31,12 @@ public class DialogueDisplay : MonoBehaviour, IHandle<DialogueRequest>
 
     private void Start()
     {
-        TelegraphController.Subscribe(this);
+        EventsController.Subscribe(this);
     }
 
     private void OnDestroy()
     {
-        TelegraphController.Unsubscribe(this);
+        EventsController.Unsubscribe(this);
     }
 
     public void ShowInfo(string info)

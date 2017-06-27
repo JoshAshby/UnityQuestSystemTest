@@ -4,11 +4,11 @@ namespace GrandCentral.Switchboard.Builders
 {
     public class RuleDBBuilder : IRuleDBEntryBuilder
     {
-        private RuleDB _database;
+        private RuleDatabase _database;
 
         public IRuleDBEntryBuilder New()
         {
-            _database = new RuleDB();
+            _database = new RuleDatabase();
             return this;
         }
 
@@ -22,7 +22,7 @@ namespace GrandCentral.Switchboard.Builders
             return entryBuilder;
         }
 
-        public RuleDB Finalize()
+        public RuleDatabase Finalize()
         {
             _database.Entries = _database.Entries.OrderByDescending(x => x.Length).ToList();
 

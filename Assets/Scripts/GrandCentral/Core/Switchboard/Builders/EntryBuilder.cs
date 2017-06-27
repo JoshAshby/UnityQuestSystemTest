@@ -40,7 +40,7 @@ namespace GrandCentral.Switchboard.Builders
 
         public IEntryBuilderMutations FactSet<T>(string fact, string key, T val)
         {
-            Entry.StateMutations.Add(new SetMutation<T>(fact, key, val));
+            Entry.StateMutations.Add(new ProcMutation<T>(fact, key, (T currentVal) => val));
             return this;
         }
 

@@ -1,4 +1,4 @@
-using GrandCentral.FileCabinet;
+using GrandCentral.Facts;
 using GrandCentral.Switchboard;
 using GrandCentral.Switchboard.Builders;
 using UnityEngine;
@@ -8,9 +8,9 @@ namespace GrandCentral
     [Prefab("Switchboard Controller", true)]
     public class SwitchboardController : Singleton<SwitchboardController>
     {
-        protected RuleDB Database;
+        protected RuleDatabase Database;
 
-        public static IEntry QueryFor(string character, string line, FactShard context)
+        public static IEntry QueryFor(string character, string line, FactDictionary context)
         {
             context.Add("speaker", character);
 
@@ -19,9 +19,14 @@ namespace GrandCentral
 
         public static IEntry QueryFor(string character, string line)
         {
-            FactShard context = new FactShard();
+            FactDictionary context = new FactDictionary();
             context.Add("speaker", character);
 
+            return Instance.Database.QueryFor(line, context);
+        }
+
+        public static IEntry QueryFor(string line, FactDictionary context)
+        {
             return Instance.Database.QueryFor(line, context);
         }
 

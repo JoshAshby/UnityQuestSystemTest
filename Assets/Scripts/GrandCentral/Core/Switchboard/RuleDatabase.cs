@@ -1,20 +1,20 @@
 using System.Collections.Generic;
 using System.Linq;
-using GrandCentral.FileCabinet;
+using GrandCentral.Facts;
 using UnityEngine;
 
 namespace GrandCentral.Switchboard
 {
-    public class RuleDB
+    public class RuleDatabase
     {
         internal List<IEntry> Entries;
 
-        public RuleDB()
+        public RuleDatabase()
         {
             Entries = new List<IEntry>();
         }
 
-        public IEntry QueryFor(string line, FactShard context)
+        public IEntry QueryFor(string line, FactDictionary context)
         {
             List<IEntry> entries = Entries.Where(ent =>
             {

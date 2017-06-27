@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using GrandCentral.FileCabinet;
+using GrandCentral.Facts;
 using GrandCentral.Switchboard.Criterion;
 using GrandCentral.Switchboard.Mutations;
 
@@ -11,10 +11,11 @@ namespace GrandCentral.Switchboard
     {
         public string Name { get; internal set; }
         public List<ICriterion> Criteria { get; internal set; }
+
         public List<IStateMutation> StateMutations { get; internal set; }
+        public string NextEntry { get; internal set; }
 
         public string Payload { get; internal set; }
-        public string NextEntry { get; internal set; }
 
         public Entry(string segment)
         {
@@ -28,7 +29,7 @@ namespace GrandCentral.Switchboard
             get { return Criteria.Count; }
         }
 
-        public bool Check(FactShard context)
+        public bool Check(FactDictionary context)
         {
             string log = "";
 
@@ -46,8 +47,8 @@ namespace GrandCentral.Switchboard
                     val = context[AccessKey];
                 else
                 {
-                    if (FactsController.Instance.Facts[FactKey].ContainsKey(AccessKey))
-                        val = FactsController.Instance.Facts[FactKey][AccessKey];
+                    if (FactsController.Instance.FactDatabase[FactKey].ContainsKey(AccessKey))
+                        val = FactsController.Instance.FactDatabase[FactKey][AccessKey];
                 }
 
                 bool checker = criterion.Check(val);

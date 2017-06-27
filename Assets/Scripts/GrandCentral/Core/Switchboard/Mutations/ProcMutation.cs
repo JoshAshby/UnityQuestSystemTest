@@ -1,5 +1,5 @@
 using System;
-using GrandCentral.FileCabinet;
+using GrandCentral.Facts;
 
 namespace GrandCentral.Switchboard.Mutations
 {
@@ -20,10 +20,10 @@ namespace GrandCentral.Switchboard.Mutations
 
         public void Mutate()
         {
-            Facts state = FactsController.Instance.Facts;
+            Facts.FactDatabase state = FactsController.Instance.FactDatabase;
 
             if (!state.ContainsKey(Fact))
-                state.Add(Fact, new FactShard());
+                state.Add(Fact, new FactDictionary());
 
             if (!state[Fact].ContainsKey(AccessKey))
                 state[Fact].Add(AccessKey, default(T));
