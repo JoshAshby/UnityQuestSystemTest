@@ -1,22 +1,14 @@
 using UnityEngine;
 using UnityEngine.UI;
 using GrandCentral;
-using GrandCentral.Events;
-using GrandCentral.Switchboard;
-using GrandCentral.Facts;
+
+public class DialogueEvent : IEvent {
+    public IEntry Entry { get; set; }
+}
 
 [RequireComponent(typeof(CanvasGroup))]
-public class DialogueDisplay : MonoBehaviour, IHandle<DialogueRequest>
+public class DialogueDisplay : MonoBehaviour, IHandle<DialogueEvent>
 {
-    public static void RequestLine(string character, string line, FactDictionary context)
-    {
-        Debug.LogFormat("DialogueController - Got request for {1} from {0}", character, line);
-        IEntry entry = SwitchboardController.QueryFor(character, line, context);
-
-        if (entry != null)
-            EventsController.Publish<DialogueRequest>(new DialogueRequest { Entry = entry });
-    }
-
     private Text _text = null;
     private CanvasGroup _canvasGroup = null;
 
@@ -31,12 +23,12 @@ public class DialogueDisplay : MonoBehaviour, IHandle<DialogueRequest>
 
     private void Start()
     {
-        EventsController.Subscribe(this);
+        EventBus.Subscribe(this);
     }
 
     private void OnDestroy()
     {
-        EventsController.Unsubscribe(this);
+        EventBus.Unsubscribe(this);
     }
 
     public void ShowInfo(string info)
@@ -51,7 +43,7 @@ public class DialogueDisplay : MonoBehaviour, IHandle<DialogueRequest>
         _text.text = "";
     }
 
-    public void Handle(DialogueRequest msg)
+    public void Handle(DialogueEvent msg)
     {
         Debug.LogFormat("DialogueDisplay - Got entry {0} - [{1}] -- next --> {2}", msg.Entry.Name, msg.Entry.Payload, msg.Entry.NextEntry);
         ShowInfo(msg.Entry.Payload);
