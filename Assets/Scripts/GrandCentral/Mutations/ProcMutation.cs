@@ -19,7 +19,7 @@ namespace GrandCentral.Mutations
 
         public void Mutate()
         {
-            FactDatabase state = FactsController.Instance.FactDatabase;
+            FactDatabase state = Pannier.FactDatabase;
 
             if (!state.ContainsKey(Fact))
                 state.Add(Fact, new FactDictionary());

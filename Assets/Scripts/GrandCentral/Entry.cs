@@ -29,7 +29,7 @@ namespace GrandCentral
             get { return Criteria.Count; }
         }
 
-        public bool Check(FactDictionary context)
+        public bool Check(FactDictionary context, FactDatabase FactDatabase)
         {
             string log = "";
 
@@ -47,8 +47,8 @@ namespace GrandCentral
                     val = context[AccessKey];
                 else
                 {
-                    if (FactsController.Instance.FactDatabase[FactKey].ContainsKey(AccessKey))
-                        val = FactsController.Instance.FactDatabase[FactKey][AccessKey];
+                    if (FactDatabase[FactKey].ContainsKey(AccessKey))
+                        val = FactDatabase[FactKey][AccessKey];
                 }
 
                 bool checker = criterion.Check(val);

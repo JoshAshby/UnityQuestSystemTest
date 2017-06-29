@@ -1,23 +1,33 @@
-using GrandCentral.Builders;
+﻿using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
+using GrandCentral.Builders;
 
 namespace GrandCentral
 {
-    [Prefab("Context Aware Request", true)]
-    public class ContextAwareRequest : Singleton<ContextAwareRequest>
+    public static class Pannier
     {
-        protected ContextAwareRuleDatabase Database;
+        public static FactDatabase FactDatabase { get; private set; }
+        public static RuleDatabase RuleDatabase { get; private set; }
 
-        public static void Request(string line, FactDictionary context)
+        public static IEntry Request(string line, FactDictionary context)
         {
-            IEntry entry = Instance.Database.QueryFor(line, context);
+            IEntry entry = RuleDatabase.QueryFor(line, context, FactDatabase);
 
             if (entry != null)
                 EventBus.Publish<ContextAwareEvent>(new ContextAwareEvent { Entry = entry });
+
+            return entry;
         }
 
-        private void Awake()
+        public static void Builders()
         {
+            FactDatabase = new FactDatabase();
+
+            FactDatabase.Add("global", new FactDictionary());
+            FactDatabase.Add("player", new FactDictionary());
+
+
             RuleDBBuilder builder = new RuleDBBuilder();
 
             builder.New();
@@ -86,7 +96,7 @@ namespace GrandCentral
             builder.AddEntry("seen-many-robins-03")
                 .SetPayload("seen-many-robins-three");
 
-            Database = builder.Finalize();
+            RuleDatabase = builder.Finalize();
         }
     }
 }

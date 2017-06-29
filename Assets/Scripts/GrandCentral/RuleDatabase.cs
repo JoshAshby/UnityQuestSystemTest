@@ -4,23 +4,25 @@ using UnityEngine;
 
 namespace GrandCentral
 {
-    public class ContextAwareRuleDatabase
+    public class RuleDatabase
     {
         internal List<IEntry> Entries;
 
-        public ContextAwareRuleDatabase()
+        public RuleDatabase()
         {
+            // If speed becomes an issue, this could be broken up
+            // into a dictionary of entry lists
             Entries = new List<IEntry>();
         }
 
-        public IEntry QueryFor(string line, FactDictionary context)
+        public IEntry QueryFor(string line, FactDictionary context, FactDatabase FactDatabase)
         {
             List<IEntry> entries = Entries.Where(ent =>
             {
                 if (ent.Name != line)
                     return false;
 
-                return ent.Check(context);
+                return ent.Check(context, FactDatabase);
             }).ToList();
 
             IEntry entry;
@@ -30,7 +32,9 @@ namespace GrandCentral
                 entry = entries.FirstOrDefault();
             else
             {
-                entries = entries.Where(ent => ent.Length == entries.First().Length).ToList();
+                entries = entries
+                          .Where(ent => ent.Length == entries.First().Length)
+                          .ToList();
 
                 int count = entries.Count();
                 int index = Random.Range(0, count);

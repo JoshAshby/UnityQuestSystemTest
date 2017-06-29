@@ -4,29 +4,14 @@ using UnityEngine;
 namespace GrandCentral
 {
     [Prefab("Facts Controller", true)]
-    public class FactsController : Singleton<FactsController>
+    public class FactsDisplay : MonoBehaviour
     {
-        public FactDatabase FactDatabase { get; private set; }
-
-        [SerializeField]
-        private bool Debug = false;
-
-        private void Awake()
-        {
-            FactDatabase = new FactDatabase();
-            FactDatabase.Add("global", new FactDictionary());
-            FactDatabase.Add("player", new FactDictionary());
-        }
-
         private void OnGUI()
         {
-            if(!Debug)
-                return;
-
             int c = 1;
             int height = 22;
 
-            foreach (var shard in FactDatabase)
+            foreach (var shard in Pannier.FactDatabase)
             {
                 GUI.Label(new Rect(10, c * height, 300, height), shard.Key);
                 c++;

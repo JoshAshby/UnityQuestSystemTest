@@ -16,6 +16,6 @@ public class DialogueTest : MonoBehaviour, IInteractiveBehaviour
         context.Add("bird", BirdType);
         context.Add("speaker", "protag");
 
-        ContextAwareRequest.Request("seen-bird", context);
+        Pannier.Request("seen-robin", context);
     }
 }

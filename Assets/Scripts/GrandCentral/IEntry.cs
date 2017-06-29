@@ -16,6 +16,6 @@ namespace GrandCentral
         string Payload { get; }
 
         int Length { get; }
-        bool Check(FactDictionary context);
+        bool Check(FactDictionary context, FactDatabase FactDatabase);
     }
 }

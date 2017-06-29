@@ -4,11 +4,11 @@ namespace GrandCentral.Builders
 {
     public class RuleDBBuilder : IRuleDBEntryBuilder
     {
-        private ContextAwareRuleDatabase _database;
+        private RuleDatabase _database;
 
         public IRuleDBEntryBuilder New()
         {
-            _database = new ContextAwareRuleDatabase();
+            _database = new RuleDatabase();
             return this;
         }
 
@@ -22,7 +22,7 @@ namespace GrandCentral.Builders
             return entryBuilder;
         }
 
-        public ContextAwareRuleDatabase Finalize()
+        public RuleDatabase Finalize()
         {
             _database.Entries = _database.Entries.OrderByDescending(x => x.Length).ToList();
 
