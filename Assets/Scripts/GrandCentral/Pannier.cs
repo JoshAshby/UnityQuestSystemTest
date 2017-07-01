@@ -22,81 +22,62 @@ namespace GrandCentral
 
         public static void Builders()
         {
-            FactDatabase = new FactDatabase();
+            FactDatabase = new FactDatabase { { "global", new FactDictionary() }, { "player", new FactDictionary() } };
 
-            FactDatabase.Add("global", new FactDictionary());
-            FactDatabase.Add("player", new FactDictionary());
-
-
-            RuleDBBuilder builder = new RuleDBBuilder();
-
-            builder.New();
-
-            builder.AddEntry("seen-robin")
-                .AddCriteron<string>("bird", x => x == "robin")
-                .AddCriteron<int>("global", "cylinders-seen", x => x == 0)
-                .SetPayload("one-robin")
-                .FactMutate<int>("global", "cylinders-seen", x => x + 1)
-                .SetNextEntry("seen-one-robin-01");
-
-            builder.AddEntry("seen-robin")
-                .AddCriteron<string>("bird", x => x == "robin")
-                .AddCriteron<int>("global", "cylinders-seen", x => x == 1)
-                .SetPayload("two-robins")
-                .FactMutate<int>("global", "cylinders-seen", x => x + 1)
-                .SetNextEntry("seen-two-robins-01");
-
-            builder.AddEntry("seen-robin")
-                .AddCriteron<string>("bird", x => x == "robin")
-                .AddCriteron<int>("global", "cylinders-seen", x => x == 2)
-                .SetPayload("three-robins")
-                .FactMutate<int>("global", "cylinders-seen", x => x + 1)
-                .SetNextEntry("seen-three-robins-01");
-
-            builder.AddEntry("seen-robin")
-                .AddCriteron<string>("speaker", x => x == "protag")
-                .AddCriteron<string>("bird", x => x == "robin")
-                .AddCriteron<int>("global", "cylinders-seen", x => x == 3)
-                .AddCriteron<bool>("global", "seen-many-robins-01", x => !x)
-                .SetPayload("many-robins-03")
-                .FactMutate<int>("global", "cylinders-seen", x => x + 1)
-                .FactSet<bool>("global", "seen-many-robins-01", true)
-                .SetNextEntry("seen-many-robins-03");
-
-            builder.AddEntry("seen-robin")
-                .AddCriteron<string>("speaker", x => x == "protag")
-                .AddCriteron<string>("bird", x => x == "robin")
-                .AddCriteron<int>("global", "cylinders-seen", x => x >= 3)
-                .SetPayload("many-robins-01")
-                .FactMutate<int>("global", "cylinders-seen", x => x + 1)
-                .SetNextEntry("seen-many-robins-02");
-
-            builder.AddEntry("seen-robin")
-                .AddCriteron<string>("bird", x => x == "robin")
-                .AddCriteron<int>("global", "cylinders-seen", x => x >= 3)
-                .SetPayload("many-robins-02")
-                .FactMutate<int>("global", "cylinders-seen", x => x + 1)
-                .SetNextEntry("seen-many-robins-01");
-
-            builder.AddEntry("seen-one-robin-01")
-                .SetPayload("seen-one-robin");
-
-            builder.AddEntry("seen-two-robins-01")
-                .SetPayload("seen-two-robins");
-
-            builder.AddEntry("seen-three-robins-01")
-                .SetPayload("seen-three-robins");
-
-            builder.AddEntry("seen-many-robins-01")
-                .SetPayload("seen-many-robins");
-
-            builder.AddEntry("seen-many-robins-02")
-                .SetPayload("seen-many-robins-twice");
-
-            builder.AddEntry("seen-many-robins-03")
-                .SetPayload("seen-many-robins-three");
-
-            RuleDatabase = builder.Finalize();
+            RuleDatabase = new RuleDBBuilder()
+                .AddEntry("seen-robin")
+                    .AddCriteron<string>("bird", x => x == "robin")
+                    .AddCriteron<int>("global", "cylinders-seen", x => x == 0)
+                    .OnMatch()
+                    .FactMutate<int>("global", "cylinders-seen", x => x + 1)
+                    .ReturnPayload("one-robin")
+                .AddEntry("seen-robin")
+                    .AddCriteron<string>("bird", x => x == "robin")
+                    .AddCriteron<int>("global", "cylinders-seen", x => x == 1)
+                    .OnMatch()
+                    .FactMutate<int>("global", "cylinders-seen", x => x + 1)
+                    .ReturnPayload("two-robins")
+                .AddEntry("seen-robin")
+                    .AddCriteron<string>("bird", x => x == "robin")
+                    .AddCriteron<int>("global", "cylinders-seen", x => x == 2)
+                    .OnMatch()
+                    .FactMutate<int>("global", "cylinders-seen", x => x + 1)
+                    .ReturnPayload("three-robins")
+                .AddEntry("seen-robin")
+                    .AddCriteron<string>("speaker", x => x == "protag")
+                    .AddCriteron<string>("bird", x => x == "robin")
+                    .AddCriteron<int>("global", "cylinders-seen", x => x == 3)
+                    .AddCriteron<bool>("global", "seen-many-robins-01", x => !x)
+                    .OnMatch()
+                    .FactMutate<int>("global", "cylinders-seen", x => x + 1)
+                    .FactSet<bool>("global", "seen-many-robins-01", true)
+                    .ReturnPayload("many-robins-03")
+                .AddEntry("seen-robin")
+                    .AddCriteron<string>("speaker", x => x == "protag")
+                    .AddCriteron<string>("bird", x => x == "robin")
+                    .AddCriteron<int>("global", "cylinders-seen", x => x >= 3)
+                    .OnMatch()
+                    .FactMutate<int>("global", "cylinders-seen", x => x + 1)
+                    .ReturnPayload("many-robins-01")
+                .AddEntry("seen-robin")
+                    .AddCriteron<string>("bird", x => x == "robin")
+                    .AddCriteron<int>("global", "cylinders-seen", x => x >= 3)
+                    .OnMatch()
+                    .FactMutate<int>("global", "cylinders-seen", x => x + 1)
+                    .ReturnPayload("many-robins-02")
+                .AddEntry("seen-one-robin-01")
+                    .ReturnPayload("seen-one-robin")
+                .AddEntry("seen-two-robins-01")
+                    .ReturnPayload("seen-two-robins")
+                .AddEntry("seen-three-robins-01")
+                    .ReturnPayload("seen-three-robins")
+                .AddEntry("seen-many-robins-01")
+                    .ReturnPayload("seen-many-robins")
+                .AddEntry("seen-many-robins-02")
+                    .ReturnPayload("seen-many-robins-twice")
+                .AddEntry("seen-many-robins-03")
+                    .ReturnPayload("seen-many-robins-three")
+                .Finalize();
         }
     }
 }

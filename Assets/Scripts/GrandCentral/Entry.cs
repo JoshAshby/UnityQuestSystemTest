@@ -13,7 +13,6 @@ namespace GrandCentral
         public List<ICriterion> Criteria { get; internal set; }
 
         public List<IStateMutation> StateMutations { get; internal set; }
-        public string NextEntry { get; internal set; }
 
         public string Payload { get; internal set; }
 
@@ -72,7 +71,7 @@ namespace GrandCentral
                 contextLog += string.Format("{0} = {1}\n", con.Key, con.Value.ToString());
             }
 
-            Debug.LogFormat("Entry - {0} --resolves--> {1}\n<b>{3}</b>\n--- Context -----------\n{5}----------------------\n{4}--next-->{2}", Name, Payload, NextEntry, passFail, log, contextLog);
+            Debug.LogFormat("Entry - {0} --resolves--> {1}\n<b>{2}</b>\n--- Context -----------\n{4}----------------------\n{3}", Name, Payload, passFail, log, contextLog);
 
             return check;
         }

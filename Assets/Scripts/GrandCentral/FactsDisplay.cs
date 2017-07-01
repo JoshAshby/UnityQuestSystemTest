@@ -1,37 +1,34 @@
 using System.Collections.Generic;
 using UnityEngine;
+using GrandCentral;
 
-namespace GrandCentral
+public class FactsDisplay : MonoBehaviour
 {
-    [Prefab("Facts Controller", true)]
-    public class FactsDisplay : MonoBehaviour
+    private void OnGUI()
     {
-        private void OnGUI()
+        int c = 1;
+        int height = 22;
+
+        foreach (var shard in Pannier.FactDatabase)
         {
-            int c = 1;
-            int height = 22;
+            GUI.Label(new Rect(10, c * height, 300, height), shard.Key);
+            c++;
 
-            foreach (var shard in Pannier.FactDatabase)
+            List<string> toRemove = new List<string>();
+
+            foreach (var entry in shard.Value)
             {
-                GUI.Label(new Rect(10, c * height, 300, height), shard.Key);
+                string k = string.Format("{0} -> {1}", entry.Key, entry.Value.ToString());
+                if (GUI.Button(new Rect(5, (c * height) + 1, 18, height - 2), "X"))
+                    toRemove.Add(entry.Key);
+
+                GUI.Label(new Rect(30, c * height, 300, height), k);
                 c++;
+            }
 
-                List<string> toRemove = new List<string>();
-
-                foreach (var entry in shard.Value)
-                {
-                    string k = string.Format("{0} -> {1}", entry.Key, entry.Value.ToString());
-                    if (GUI.Button(new Rect(5, (c * height) + 1, 18, height - 2), "X"))
-                        toRemove.Add(entry.Key);
-
-                    GUI.Label(new Rect(30, c * height, 300, height), k);
-                    c++;
-                }
-
-                foreach (var removal in toRemove)
-                {
-                    shard.Value.Remove(removal);
-                }
+            foreach (var removal in toRemove)
+            {
+                shard.Value.Remove(removal);
             }
         }
     }

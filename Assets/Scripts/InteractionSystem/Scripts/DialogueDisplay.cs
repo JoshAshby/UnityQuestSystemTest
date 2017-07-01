@@ -45,7 +45,7 @@ public class DialogueDisplay : MonoBehaviour, IHandle<DialogueEvent>
 
     public void Handle(DialogueEvent msg)
     {
-        Debug.LogFormat("DialogueDisplay - Got entry {0} - [{1}] -- next --> {2}", msg.Entry.Name, msg.Entry.Payload, msg.Entry.NextEntry);
+        Debug.LogFormat("DialogueDisplay - Got entry {0} - [{1}]", msg.Entry.Name, msg.Entry.Payload);
         ShowInfo(msg.Entry.Payload);
     }
 }

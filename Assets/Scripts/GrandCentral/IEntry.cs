@@ -11,7 +11,6 @@ namespace GrandCentral
         List<ICriterion> Criteria { get; }
 
         List<IStateMutation> StateMutations { get; }
-        string NextEntry { get; }
 
         string Payload { get; }
 
