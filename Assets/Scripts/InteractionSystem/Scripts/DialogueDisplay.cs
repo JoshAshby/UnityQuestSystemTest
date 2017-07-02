@@ -3,7 +3,7 @@ using UnityEngine.UI;
 using GrandCentral;
 
 public class DialogueEvent : IEvent {
-    public IEntry Entry { get; set; }
+    public IDialogueEntry DialogueEntry { get; set; }
 }
 
 [RequireComponent(typeof(CanvasGroup))]
@@ -45,7 +45,7 @@ public class DialogueDisplay : MonoBehaviour, IHandle<DialogueEvent>
 
     public void Handle(DialogueEvent msg)
     {
-        Debug.LogFormat("DialogueDisplay - Got entry {0} - [{1}]", msg.Entry.Name, msg.Entry.Payload);
-        ShowInfo(msg.Entry.Payload);
+        Debug.LogFormat("DialogueDisplay - Got entry {0} - [{1}]", msg.DialogueEntry.Key, msg.DialogueEntry.DisplayText);
+        ShowInfo(msg.DialogueEntry.DisplayText);
     }
 }
