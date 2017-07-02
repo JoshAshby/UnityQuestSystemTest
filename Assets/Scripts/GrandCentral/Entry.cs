@@ -39,13 +39,13 @@ namespace GrandCentral
                 string FactKey = criterion.FactKey;
                 string AccessKey = criterion.AccessKey;
 
-                if (context.ContainsKey(FactKey))
-                    FactKey = (string)context[FactKey];
-
                 if (context.ContainsKey(AccessKey))
                     val = context[AccessKey];
                 else
                 {
+                    if (context.ContainsKey(FactKey))
+                        FactKey = (string)context[FactKey];
+
                     if (FactDatabase[FactKey].ContainsKey(AccessKey))
                         val = FactDatabase[FactKey][AccessKey];
                 }

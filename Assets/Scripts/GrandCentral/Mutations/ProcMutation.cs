@@ -17,10 +17,8 @@ namespace GrandCentral.Mutations
             _setter = setter;
         }
 
-        public void Mutate()
+        public void Mutate(FactDatabase state)
         {
-            FactDatabase state = Pannier.FactDatabase;
-
             if (!state.ContainsKey(Fact))
                 state.Add(Fact, new FactDictionary());
 

@@ -45,7 +45,7 @@ namespace GrandCentral
             if (entry == null)
                 return null;
 
-            entry.StateMutations.ForEach(x => x.Mutate());
+            entry.StateMutations.ForEach(x => x.Mutate(FactDatabase));
 
             return entry;
         }

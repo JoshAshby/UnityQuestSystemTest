@@ -9,13 +9,32 @@ namespace GrandCentral
     {
         private static bool built = false;
 
-        public static FactDatabase FactDatabase { get; private set; }
-        public static RuleDatabase RuleDatabase { get; private set; }
-        public static DialogueDatabase DialogueDatabase { get; private set; }
+        private static FactDatabase _factDatabase = null;
+        private static RuleDatabase _ruleDatabase = null;
+        private static DialogueDatabase _dialogueDatabase = null;
+
+        public static FactDatabase FactDatabase
+        {
+            get { initDB(); return _factDatabase; }
+            private set { _factDatabase = value; }
+        }
+
+        public static RuleDatabase RuleDatabase
+        {
+            get { initDB(); return _ruleDatabase; }
+            private set { _ruleDatabase = value; }
+        }
+
+        public static DialogueDatabase DialogueDatabase
+        {
+           get { initDB(); return _dialogueDatabase; }
+           private set { _dialogueDatabase = value; }
+        }
 
         public static IEntry Request(string line, FactDictionary context)
         {
             initDB();
+
             IEntry entry = RuleDatabase.QueryFor(line, context, FactDatabase);
 
             if (entry != null)
@@ -24,18 +43,19 @@ namespace GrandCentral
             return entry;
         }
 
-        public static IDialogueEntry GetDialogue(string line)
+        public static IDialogueEntry GetDialogue(string line, FactDictionary context)
         {
             initDB();
-            return DialogueDatabase[ line ].Evaluate( FactDatabase );
+
+            return DialogueDatabase[ line ].Evaluate( FactDatabase, context );
         }
 
         public static IDialogueEntry RequestDialogue(string line, FactDictionary context)
         {
             initDB();
-            IEntry entry = RuleDatabase.QueryFor(line, context, FactDatabase);
 
-            IDialogueEntry dialogueEntry = GetDialogue( entry.Payload );
+            IEntry entry = RuleDatabase.QueryFor(line, context, FactDatabase);
+            IDialogueEntry dialogueEntry = GetDialogue( entry.Payload, context );
 
             if (entry != null)
                 EventBus.Publish<DialogueEvent>(new DialogueEvent { DialogueEntry = dialogueEntry });
@@ -54,8 +74,6 @@ namespace GrandCentral
                 { "player", new FactDictionary() }
             };
 
-            DialogueDatabase = new DialogueDatabase();
-
             IRuleDatabaseBuilder ruleBuilder = new RuleDatabaseBuilder();
             IDialogueDatabaseBuilder dialogueBuilder = new DialogueDatabaseBuilder();
 
@@ -68,7 +86,7 @@ namespace GrandCentral
                     .ReturnPayload("seen-one-robin");
 
             dialogueBuilder
-                .NewEntry("one-robin")
+                .NewEntry("seen-one-robin")
                     .DisplayText("You've seen one robin!")
                     .NewChoice("seen-one-robin-01")
                         .AddCriteron<string>("bird", x => x == "robin")

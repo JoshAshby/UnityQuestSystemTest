@@ -5,6 +5,6 @@ namespace GrandCentral.Mutations
         string Fact { get; }
         string AccessKey { get; }
 
-        void Mutate();
+        void Mutate(FactDatabase database);
     }
 }

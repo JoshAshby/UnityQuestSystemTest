@@ -31,7 +31,7 @@ namespace GrandCentral
 
         List<IDialogueChoice> Choices { get; }
 
-        IDialogueEntry Evaluate(FactDatabase FactDatabase);
+        IDialogueEntry Evaluate(FactDatabase FactDatabase, FactDictionary context);
     }
 
     public class DialogueChoice : IDialogueChoice
@@ -73,7 +73,7 @@ namespace GrandCentral
             Choices = new List<IDialogueChoice> ();
         }
 
-        public IDialogueEntry Evaluate(FactDatabase FactDatabase)
+        public IDialogueEntry Evaluate(FactDatabase FactDatabase, FactDictionary context)
         {
             List<IDialogueChoice> choices = Choices.FindAll(choice => {
                 return choice.Criterion.All(criterion => {
@@ -82,8 +82,16 @@ namespace GrandCentral
                     string FactKey = criterion.FactKey;
                     string AccessKey = criterion.AccessKey;
 
-                    if (FactDatabase[FactKey].ContainsKey(AccessKey))
-                        val = FactDatabase[FactKey][AccessKey];
+                    if (context.ContainsKey(AccessKey))
+                        val = context[AccessKey];
+                    else
+                    {
+                        if (context.ContainsKey(FactKey))
+                            FactKey = (string)context[FactKey];
+
+                        if (FactDatabase[FactKey].ContainsKey(AccessKey))
+                            val = FactDatabase[FactKey][AccessKey];
+                    }
 
                     return criterion.Check(val);
                 });
