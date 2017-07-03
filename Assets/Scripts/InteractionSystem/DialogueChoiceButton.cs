@@ -18,4 +18,7 @@ public class DialogueChoiceButton : MonoBehaviour
         _text.text = choice.Label;
         _key = choice.Key;
     }
+
+    public void SelectChoice()
+    {}
 }

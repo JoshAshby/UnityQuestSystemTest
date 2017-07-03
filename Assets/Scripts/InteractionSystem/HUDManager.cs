@@ -4,22 +4,38 @@ using UnityEngine;
 /// Handles keeping the HUD objects update to date with whats going on as
 /// part of the CrosshairSystem, as its raycast hits and doesn't hit objects
 /// </summmary>
-public class HUDManager : MonoBehaviour
+public class HUDManager : Singleton<HUDManager>
 {
     [Header("UI Canvas")]
     [SerializeField]
-    private Reticle ReticleObj = null;
+    private Reticle ReticlePrefab = null;
 
     [SerializeField]
-    private ReticleInfo ReticleInfoObj = null;
+    private ReticleInfo ReticleInfoPrefab = null;
+
+    [SerializeField]
+    private DialogueDisplay DialogueDisplayPrefab = null;
 
     private CanvasGroup _canvasGroup = null;
     private CrosshairSystem _crosshair = null;
+
+    private Reticle _reticle = null;
+    private ReticleInfo _reticleInfo = null;
+    private DialogueDisplay _dialogueDisplay = null;
 
     private void Awake()
     {
         _crosshair = GetComponentInParent<CrosshairSystem>();
         _canvasGroup = GetComponent<CanvasGroup>();
+
+        _reticle = Instantiate(ReticlePrefab) as Reticle;
+        _reticle.transform.parent = transform;
+
+        _reticleInfo = Instantiate(ReticleInfoPrefab) as ReticleInfo;
+        _reticleInfo.transform.parent = transform;
+
+        _dialogueDisplay = Instantiate(DialogueDisplayPrefab) as DialogueDisplay;
+        _dialogueDisplay.transform.parent = transform;
 
         _crosshair.OnLookChange += OnLookChange;
         _crosshair.OnInteract += OnInteract;
@@ -57,8 +73,8 @@ public class HUDManager : MonoBehaviour
         if (obj != null)
             Debug.LogFormat("Looking at tranform group {0}", obj.name);
 
-        ReticleObj.LookAt(obj);
-        ReticleInfoObj.ShowInfo(obj);
+        _reticle.LookAt(obj);
+        _reticleInfo.ShowInfo(obj);
     }
 
     public void OnInteract(Transform obj)
@@ -66,6 +82,6 @@ public class HUDManager : MonoBehaviour
         if (obj != null)
             Debug.LogFormat("Interacting with tranform group {0}", obj.name);
 
-        ReticleObj.InteractWith(obj);
+        _reticle.InteractWith(obj);
     }
 }

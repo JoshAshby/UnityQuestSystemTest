@@ -46,7 +46,7 @@ namespace GrandCentral
         public DialogueChoice(string key)
         {
             Key = key;
-            Criterion = new List<ICriterion> ();
+            Criterion = new List<ICriterion>();
         }
     }
 
@@ -70,13 +70,15 @@ namespace GrandCentral
         public DialogueEntryMeta(string key)
         {
             Key = key;
-            Choices = new List<IDialogueChoice> ();
+            Choices = new List<IDialogueChoice>();
         }
 
         public IDialogueEntry Evaluate(FactDatabase FactDatabase, FactDictionary context)
         {
-            List<IDialogueChoice> choices = Choices.FindAll(choice => {
-                return choice.Criterion.All(criterion => {
+            List<IDialogueChoice> choices = Choices.FindAll(choice =>
+            {
+                return choice.Criterion.All(criterion =>
+                {
                     object val = null;
 
                     string FactKey = criterion.FactKey;
@@ -97,7 +99,8 @@ namespace GrandCentral
                 });
             });
 
-            return new DialogueEntry {
+            return new DialogueEntry
+            {
                 Key = Key,
                 DisplayText = DisplayText,
                 Choices = choices
