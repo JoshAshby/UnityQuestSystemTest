@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+
 using UnityEngine;
 using GrandCentral.Builders;
 
@@ -33,8 +34,6 @@ namespace GrandCentral
 
         public static IEntry Request(string line, FactDictionary context)
         {
-            initDB();
-
             IEntry entry = RuleDatabase.QueryFor(line, context, FactDatabase);
 
             if (entry != null)
@@ -45,15 +44,11 @@ namespace GrandCentral
 
         public static IDialogueEntry GetDialogue(string line, FactDictionary context)
         {
-            initDB();
-
             return DialogueDatabase[ line ].Evaluate( FactDatabase, context );
         }
 
         public static IDialogueEntry RequestDialogue(string line, FactDictionary context)
         {
-            initDB();
-
             IEntry entry = RuleDatabase.QueryFor(line, context, FactDatabase);
             IDialogueEntry dialogueEntry = GetDialogue( entry.Payload, context );
 
