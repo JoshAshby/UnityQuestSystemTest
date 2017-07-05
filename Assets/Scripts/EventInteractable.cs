@@ -12,6 +12,6 @@ public class EventInteractable : MonoBehaviour, IInteractiveBehaviour
 
     public void OnInteract()
     {
-        Pannier.PublishEvent(EventName);
+        Pannier.Publish(EventName);
     }
 }

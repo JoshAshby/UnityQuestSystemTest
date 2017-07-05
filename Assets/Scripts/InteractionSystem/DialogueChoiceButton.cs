@@ -1,24 +1,24 @@
-using UnityEngine;
-using UnityEngine.UI;
+// using UnityEngine;
+// using UnityEngine.UI;
 
-using GrandCentral;
+// using GrandCentral;
 
-public class DialogueChoiceButton : MonoBehaviour
-{
-    private Text _text = null;
-    private string _key = null;
+// public class DialogueChoiceButton : MonoBehaviour
+// {
+//     private Text _text = null;
+//     private string _key = null;
 
-    private void Awake()
-    {
-        _text = GetComponentInChildren<Text>();
-    }
+//     private void Awake()
+//     {
+//         _text = GetComponentInChildren<Text>();
+//     }
 
-    public void Setup(IDialogueChoice choice)
-    {
-        _text.text = choice.Label;
-        _key = choice.Key;
-    }
+//     public void Setup(IDialogueChoice choice)
+//     {
+//         _text.text = choice.Label;
+//         _key = choice.Key;
+//     }
 
-    public void SelectChoice()
-    {}
-}
+//     public void SelectChoice()
+//     {}
+// }

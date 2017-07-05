@@ -4,23 +4,23 @@ namespace GrandCentral.Criterion
 {
     public class ProcCriterion<T> : ICriterion
     {
+        public string Hint { get; set; }
         public string FactKey { get; set; }
-        public string AccessKey { get; set; }
 
         private Func<T, bool> _compare;
 
         public ProcCriterion(string fact, string key, Func<T, bool> compare)
         {
-            FactKey = fact;
-            AccessKey = key;
+            Hint = fact;
+            FactKey = key;
 
             _compare = compare;
         }
 
         public ProcCriterion(string key, Func<T, bool> compare)
         {
-            FactKey = "global";
-            AccessKey = key;
+            Hint = "global";
+            FactKey = key;
 
             _compare = compare;
         }
@@ -28,7 +28,7 @@ namespace GrandCentral.Criterion
         public override string ToString()
         {
             // TODO: ((Expression<Func<T, bool>>)_compare).ToString()
-            return string.Format("{0}.{1}", FactKey, AccessKey);
+            return string.Format("{0}.{1}", Hint, FactKey);
         }
 
         public bool Check(object rawValue)

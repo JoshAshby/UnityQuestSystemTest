@@ -2,30 +2,24 @@ using System;
 
 namespace GrandCentral.Mutations
 {
-    public class ProcMutation<T> : IStateMutation
+    public class ProcMutation<T> : IMutation
     {
-        public string Fact { get; internal set; }
-        public string AccessKey { get; internal set; }
+        public string Hint { get; internal set; }
+        public string FactKey { get; internal set; }
 
         protected Func<T, T> _setter;
 
         public ProcMutation(string fact, string key, Func<T, T> setter)
         {
-            Fact = fact;
-            AccessKey = key;
+            Hint = fact;
+            FactKey = key;
 
             _setter = setter;
         }
 
-        public void Mutate(FactDatabase state)
+        public void Mutate(BlackboardsContainer state)
         {
-            if (!state.ContainsKey(Fact))
-                state.Add(Fact, new FactDictionary());
-
-            if (!state[Fact].ContainsKey(AccessKey))
-                state[Fact].Add(AccessKey, default(T));
-
-            state[Fact][AccessKey] = _setter((T)state[Fact][AccessKey]);
+            state.Set<T>(Hint, FactKey, _setter(state.Get<T>(Hint, FactKey)));
         }
     }
 }

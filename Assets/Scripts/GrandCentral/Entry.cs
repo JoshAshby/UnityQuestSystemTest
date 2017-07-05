@@ -4,31 +4,51 @@ using UnityEngine;
 using GrandCentral;
 using GrandCentral.Criterion;
 using GrandCentral.Mutations;
+using System.Xml.Serialization;
 
 namespace GrandCentral
 {
     public class Entry : IEntry
     {
+        public string EventName { get; internal set; }
+
         public string Name { get; internal set; }
+
+        [XmlIgnore]
         public List<ICriterion> Criteria { get; internal set; }
 
-        public List<IStateMutation> StateMutations { get; internal set; }
+        [XmlArray("Criteria")]
+        public ICriterion[] XmlCriteria
+        {
+            get { return Criteria.ToArray(); }
+            set { Criteria = value.ToList(); }
+        }
 
-        public string Payload { get; internal set; }
+        [XmlIgnore]
+        public List<IMutation> BlackboardMutations { get; internal set; }
+
+        [XmlArray("BlackboardMutations")]
+        public IMutation[] XmlBlackboardMutations
+        {
+            get { return BlackboardMutations.ToArray(); }
+            set { BlackboardMutations = value.ToList(); }
+        }
 
         public Entry(string segment)
         {
             Name = segment;
             Criteria = new List<ICriterion>();
-            StateMutations = new List<IStateMutation>();
+            BlackboardMutations = new List<IMutation>();
         }
+
+        public Entry() { }
 
         public int Length
         {
             get { return Criteria.Count; }
         }
 
-        public bool Check(FactDictionary context, FactDatabase FactDatabase)
+        public bool Check(Blackboard context, BlackboardsContainer FactDatabase)
         {
             string log = "";
 
@@ -36,18 +56,17 @@ namespace GrandCentral
             {
                 object val = null;
 
+                string BlackboardHint = criterion.Hint;
                 string FactKey = criterion.FactKey;
-                string AccessKey = criterion.AccessKey;
 
-                if (context.ContainsKey(AccessKey))
-                    val = context[AccessKey];
+                if (context.ContainsKey(FactKey))
+                    val = context.Get<object>(FactKey);
                 else
                 {
-                    if (context.ContainsKey(FactKey))
-                        FactKey = (string)context[FactKey];
+                    if (context.ContainsKey(BlackboardHint))
+                        BlackboardHint = context.Get<string>(BlackboardHint);
 
-                    if (FactDatabase[FactKey].ContainsKey(AccessKey))
-                        val = FactDatabase[FactKey][AccessKey];
+                    val = FactDatabase.Get<object>(BlackboardHint, FactKey);
                 }
 
                 bool checker = criterion.Check(val);
@@ -66,12 +85,12 @@ namespace GrandCentral
             string passFail = check ? "<color=green>Passed</color>" : "<color=red>FAILED</color>";
 
             string contextLog = "";
-            foreach (var con in context)
+            foreach (var con in context.XmlData)
             {
                 contextLog += string.Format("{0} = {1}\n", con.Key, con.Value.ToString());
             }
 
-            Debug.LogFormat("Entry - {0} --resolves--> {1}\n<b>{2}</b>\n--- Context -----------\n{4}----------------------\n{3}", Name, Payload, passFail, log, contextLog);
+            Debug.LogFormat("Entry - {0}\n<b>{1}</b>\n--- Context -----------\n{3}----------------------\n{2}", Name, passFail, log, contextLog);
 
             return check;
         }

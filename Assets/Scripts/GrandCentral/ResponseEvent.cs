@@ -1,6 +1,6 @@
 namespace GrandCentral
 {
-    public class ContextAwareEvent : IEvent {
+    public class ResponseEvent : IEvent {
         public IEntry Entry { get; set; }
     }
 }

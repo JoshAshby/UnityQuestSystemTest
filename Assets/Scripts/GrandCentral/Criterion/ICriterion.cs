@@ -2,8 +2,8 @@ namespace GrandCentral.Criterion
 {
     public interface ICriterion
     {
+        string Hint { get; }
         string FactKey { get; }
-        string AccessKey { get; }
 
         bool Check(object value);
     }

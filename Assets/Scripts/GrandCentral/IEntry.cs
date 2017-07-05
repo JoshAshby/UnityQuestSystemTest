@@ -7,14 +7,14 @@ namespace GrandCentral
 {
     public interface IEntry
     {
+        string EventName { get; }
+
         string Name { get; }
         List<ICriterion> Criteria { get; }
 
-        List<IStateMutation> StateMutations { get; }
-
-        string Payload { get; }
+        List<IMutation> BlackboardMutations { get; }
 
         int Length { get; }
-        bool Check(FactDictionary context, FactDatabase FactDatabase);
+        bool Check(Blackboard context, BlackboardsContainer BlackboardsContainer);
     }
 }

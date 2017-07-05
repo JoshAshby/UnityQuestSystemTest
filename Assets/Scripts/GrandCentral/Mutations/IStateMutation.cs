@@ -1,10 +1,10 @@
 namespace GrandCentral.Mutations
 {
-    public interface IStateMutation
+    public interface IMutation
     {
-        string Fact { get; }
-        string AccessKey { get; }
+        string Hint { get; }
+        string FactKey { get; }
 
-        void Mutate(FactDatabase database);
+        void Mutate(BlackboardsContainer BlackboardsContainer);
     }
 }

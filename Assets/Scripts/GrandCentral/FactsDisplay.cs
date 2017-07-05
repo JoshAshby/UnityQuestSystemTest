@@ -9,14 +9,14 @@ public class FactsDisplay : MonoBehaviour
         int c = 1;
         int height = 22;
 
-        foreach (var shard in Pannier.FactDatabase)
+        foreach (var shard in Pannier.Instance.BlackboardsContainer.Blackboards)
         {
             GUI.Label(new Rect(10, c * height, 300, height), shard.Key);
             c++;
 
             List<string> toRemove = new List<string>();
 
-            foreach (var entry in shard.Value)
+            foreach (var entry in shard.Value.Facts)
             {
                 string k = string.Format("{0} -> {1}", entry.Key, entry.Value.ToString());
                 if (GUI.Button(new Rect(5, (c * height) + 1, 18, height - 2), "X"))

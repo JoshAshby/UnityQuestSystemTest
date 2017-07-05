@@ -13,15 +13,15 @@ public class HUDManager : Singleton<HUDManager>
     [SerializeField]
     private ReticleInfo ReticleInfoPrefab = null;
 
-    [SerializeField]
-    private DialogueDisplay DialogueDisplayPrefab = null;
+    // [SerializeField]
+    // private DialogueDisplay DialogueDisplayPrefab = null;
 
     private CanvasGroup _canvasGroup = null;
     private CrosshairSystem _crosshair = null;
 
     private Reticle _reticle = null;
     private ReticleInfo _reticleInfo = null;
-    private DialogueDisplay _dialogueDisplay = null;
+    // private DialogueDisplay _dialogueDisplay = null;
 
     private void Awake()
     {
@@ -34,8 +34,8 @@ public class HUDManager : Singleton<HUDManager>
         _reticleInfo = Instantiate(ReticleInfoPrefab) as ReticleInfo;
         _reticleInfo.transform.parent = transform;
 
-        _dialogueDisplay = Instantiate(DialogueDisplayPrefab) as DialogueDisplay;
-        _dialogueDisplay.transform.parent = transform;
+        // _dialogueDisplay = Instantiate(DialogueDisplayPrefab) as DialogueDisplay;
+        // _dialogueDisplay.transform.parent = transform;
 
         _crosshair.OnLookChange += OnLookChange;
         _crosshair.OnInteract += OnInteract;
