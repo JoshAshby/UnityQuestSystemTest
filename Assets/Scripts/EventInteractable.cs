@@ -1,5 +1,4 @@
 ﻿using UnityEngine;
-using GrandCentral;
 
 public class EventInteractable : MonoBehaviour, IInteractiveBehaviour
 {
@@ -12,6 +11,6 @@ public class EventInteractable : MonoBehaviour, IInteractiveBehaviour
 
     public void OnInteract()
     {
-        Pannier.PublishEvent(EventName);
+        aaPannier.Publish(EventName, Target: this.gameObject);
     }
 }
