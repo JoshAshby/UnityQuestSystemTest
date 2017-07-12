@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -13,8 +14,22 @@ public class aaEventHandler
     [SerializeField]
     public List<aaResponse> Responses = new List<aaResponse>();
 
-    public void Execute(aaEvent eventA)
+    public int Length
     {
-        Debug.Log(eventA.EventName);
+        get { return Criteria.Count + Padding; }
     }
+
+    public void Execute(aaEvent @event)
+    {
+        if (@event.EventName != EventName)
+            return;
+
+        if (!Criteria.TrueForAll(criterion => criterion.Check(@event)))
+            return;
+
+        Responses.ForEach(response => response.Execute(@event));
+    }
+
+    public override string ToString() =>
+        $"aaEventHandler(Score: {Length}, Criteria: {Criteria.Count}, Padding: {Padding}, Responses: {Responses.Count})";
 }

@@ -7,29 +7,26 @@ class aaPannier : Singleton<aaPannier>
 {
     public List<aaEventsDatabase> EventDatabases;
 
-    public static void Publish(string EventName, GameObject Target=null, GameObject Sender=null)
+    public static void Publish(string EventName, GameObject Target = null, GameObject Sender = null)
     {
         Instance.PublishEvent(EventName, Target: Target, Sender: Sender);
     }
 
-    public void PublishEvent(string EventName, GameObject Target=null, GameObject Sender=null)
+    public void PublishEvent(string EventName, GameObject Target = null, GameObject Sender = null)
     {
-        aaEvent eventA = new aaEvent{ EventName = EventName, Target = Target, Sender = Sender};
+        aaEvent @event = new aaEvent { EventName = EventName, Target = Target, Sender = Sender };
 
-        foreach(var db in EventDatabases)
+        foreach (var db in EventDatabases)
         {
-            foreach(var handle in db.Handlers)
+            foreach (var handle in db.Handlers)
             {
-                if(EventName != handle.EventName)
-                    continue;
-
-                handle.Execute(eventA);
+                handle.Execute(@event);
             }
         }
     }
 
-    private void Awake()
-    {
+    // TODO: Make this handle loading only the inital ones marked for load
+    // And handle dynamic unloading/loading per scene
+    private void Awake() =>
         EventDatabases = Resources.LoadAll<aaEventsDatabase>("EventDatabases/").ToList();
-    }
 }
