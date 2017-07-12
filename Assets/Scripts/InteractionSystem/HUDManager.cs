@@ -13,8 +13,6 @@ public class HUDManager : Singleton<HUDManager>
     [SerializeField]
     private ReticleInfo ReticleInfoPrefab = null;
 
-    // [SerializeField]
-
     private CanvasGroup _canvasGroup = null;
     private CrosshairSystem _crosshair = null;
 
