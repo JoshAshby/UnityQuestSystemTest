@@ -13,4 +13,29 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::aaEventsDatabase
   Handlers:
   - EventName: OnInteractRobin01
+    Criteria:
+    - Hint: global
+      FactKey: 
+      Comparitor: 4
+    - Hint: global
+      FactKey: 
+      Comparitor: 2
+    - Hint: global
+      FactKey: 
+      Comparitor: 0
+    - Hint: global
+      FactKey: 
+      Comparitor: 0
+    - Hint: global
+      FactKey: 
+      Comparitor: 0
+    Padding: 5
+  - EventName: OnInteractRobin02
+    Criteria:
+    - Hint: global
+      FactKey: 
+      Comparitor: 0
+    - Hint: global
+      FactKey: 
+      Comparitor: 0
     Padding: 0

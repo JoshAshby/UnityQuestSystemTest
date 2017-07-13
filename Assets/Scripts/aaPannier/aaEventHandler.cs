@@ -2,19 +2,22 @@ using System;
 using System.Linq;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEditor;
 
 [Serializable]
 public class aaEventHandler
 {
+    [SerializeField]
     public string EventName;
     [SerializeField]
     public List<aaCriterion> Criteria = new List<aaCriterion>();
+    [SerializeField]
     public int Padding = 0;
 
     [SerializeField]
     public List<aaResponse> Responses = new List<aaResponse>();
 
-    public int Length
+    public int Weight
     {
         get { return Criteria.Count + Padding; }
     }
@@ -31,5 +34,27 @@ public class aaEventHandler
     }
 
     public override string ToString() =>
-        $"aaEventHandler(Score: {Length}, Criteria: {Criteria.Count}, Padding: {Padding}, Responses: {Responses.Count})";
+        $"aaEventHandler(Score: {Weight}, Criteria: {Criteria.Count}, Padding: {Padding}, Responses: {Responses.Count})";
+
+    public void OnCustomGUI()
+    {
+    #if UNITY_EDITOR
+        EditorGUILayout.BeginVertical();
+
+        EditorGUILayout.LabelField($"({Weight}) {EventName}");
+
+        EventName = EditorGUILayout.TextField(EventName);
+        Padding = EditorGUILayout.IntField(Padding);
+
+        Criteria.ForEach(criterion => criterion.OnCustomGUI());
+        if(GUILayout.Button("Add Criterion"))
+            Criteria.Add(new aaCriterion());
+
+        Responses.ForEach(response => response.OnCustomGUI());
+        if(GUILayout.Button("Add Response"))
+            Responses.Add(new aaDebugResponse());
+
+        EditorGUILayout.EndVertical();
+    #endif
+    }
 }

@@ -9,24 +9,22 @@ using UnityEngine;
 public class aaEventsDatabase : ScriptableObject
 {
     public List<aaEventHandler> Handlers = new List<aaEventHandler>();
+
+    public void Handle(aaEvent @event) =>
+        Handlers.ForEach(handler => handler.Execute(@event));
 }
 
-// [CustomEditor(typeof(aaEventsDatabase))]
-// public class aaEventsDatabaseEditor : Editor
-// {
-//     SerializedProperty Handlers;
+[CustomEditor(typeof(aaEventsDatabase))]
+public class aaEventsDatabaseEditor : Editor
+{
+     aaEventsDatabase db;
 
-//     private void OnEnable()
-//     {
-//         Handlers = serializedObject.FindProperty("Handlers");
-//     }
+    private void OnEnable() =>
+        db = (aaEventsDatabase)target;
 
-//     public override void OnInspectorGUI()
-//     {
-//         serializedObject.Update();
-
-//         EditorGUILayout.PropertyField(Handlers);
-
-//         serializedObject.ApplyModifiedProperties();
-//     }
-// }
+    public override void OnInspectorGUI()
+    {
+        db.Handlers.ForEach(handler => handler.OnCustomGUI());
+        EditorUtility.SetDirty(target);
+    }
+}
