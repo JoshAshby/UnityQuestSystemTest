@@ -5,10 +5,10 @@ using UnityEngine;
 using UnityEditor;
 
 [Serializable]
-public class aaEventHandler
+public class aaEventHandler : ScriptableObject
 {
     [SerializeField]
-    public string EventName;
+    public string EventName = "Untitled";
     [SerializeField]
     public List<aaCriterion> Criteria = new List<aaCriterion>();
     [SerializeField]
@@ -48,11 +48,11 @@ public class aaEventHandler
 
         Criteria.ForEach(criterion => criterion.OnCustomGUI());
         if(GUILayout.Button("Add Criterion"))
-            Criteria.Add(new aaCriterion());
+            Criteria.Add(ScriptableObject.CreateInstance<aaCriterion>());
 
         Responses.ForEach(response => response.OnCustomGUI());
         if(GUILayout.Button("Add Response"))
-            Responses.Add(new aaDebugResponse());
+            Responses.Add(ScriptableObject.CreateInstance<aaDebugResponse>());
 
         EditorGUILayout.EndVertical();
     #endif

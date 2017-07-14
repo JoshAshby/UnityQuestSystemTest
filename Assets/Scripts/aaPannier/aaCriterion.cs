@@ -3,7 +3,7 @@ using UnityEditor;
 using UnityEngine;
 
 [Serializable]
-public class aaCriterion
+public class aaCriterion : ScriptableObject
 {
     public enum Comparisons
     {

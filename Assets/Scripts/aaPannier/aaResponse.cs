@@ -3,7 +3,7 @@ using UnityEditor;
 using UnityEngine;
 
 [Serializable]
-public abstract class aaResponse
+public abstract class aaResponse : ScriptableObject
 {
     public abstract void Execute(aaEvent @event);
     public abstract void OnCustomGUI();
@@ -25,5 +25,6 @@ public class aaDebugResponse : aaResponse
     #endif
     }
 
-    public override string GetDebugText() => $"";
+    public override string GetDebugText() =>
+        $"";
 }
