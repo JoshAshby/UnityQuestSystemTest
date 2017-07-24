@@ -8,7 +8,7 @@ using UnityEditor;
 public class aaEventHandler : ScriptableObject
 {
     [SerializeField]
-    public string EventName = "Untitled";
+    public string EventName = "UntitledEvent";
     [SerializeField]
     public List<aaCriterion> Criteria = new List<aaCriterion>();
     [SerializeField]
@@ -38,23 +38,37 @@ public class aaEventHandler : ScriptableObject
 
     public void OnCustomGUI()
     {
-    #if UNITY_EDITOR
+#if UNITY_EDITOR
         EditorGUILayout.BeginVertical();
 
         EditorGUILayout.LabelField($"({Weight}) {EventName}");
 
+        EditorGUILayout.BeginHorizontal();
         EventName = EditorGUILayout.TextField(EventName);
         Padding = EditorGUILayout.IntField(Padding);
+        EditorGUILayout.EndHorizontal();
 
         Criteria.ForEach(criterion => criterion.OnCustomGUI());
-        if(GUILayout.Button("Add Criterion"))
-            Criteria.Add(ScriptableObject.CreateInstance<aaCriterion>());
+        if (GUILayout.Button("Add Criterion"))
+        {
+            aaCriterion newCriteria = ScriptableObject.CreateInstance<aaCriterion>();
+            Criteria.Add(newCriteria);
+            AssetDatabase.AddObjectToAsset(newCriteria, this);
+            EditorUtility.SetDirty(this);
+            AssetDatabase.ImportAsset(AssetDatabase.GetAssetPath(this));
+        }
 
         Responses.ForEach(response => response.OnCustomGUI());
-        if(GUILayout.Button("Add Response"))
-            Responses.Add(ScriptableObject.CreateInstance<aaDebugResponse>());
+        if (GUILayout.Button("Add Response"))
+        {
+            aaResponse newResponse = ScriptableObject.CreateInstance<aaDebugResponse>();
+            Responses.Add(newResponse);
+            AssetDatabase.AddObjectToAsset(newResponse, this);
+            EditorUtility.SetDirty(this);
+            AssetDatabase.ImportAsset(AssetDatabase.GetAssetPath(this));
+        }
 
         EditorGUILayout.EndVertical();
-    #endif
+#endif
     }
 }

@@ -26,10 +26,10 @@ public class aaCriterion : ScriptableObject
     {
         get
         {
-            if(Comparitor == Comparisons.Is || Comparitor == Comparisons.IsNot)
+            if (Comparitor == Comparisons.Is || Comparitor == Comparisons.IsNot)
                 return (_blackboardValue as bool?) ?? default(bool);
 
-            if(Comparitor == Comparisons.StringEq || Comparitor == Comparisons.StringNotEq)
+            if (Comparitor == Comparisons.StringEq || Comparitor == Comparisons.StringNotEq)
                 return (_blackboardValue as string) != null ? (_blackboardValue as string) : default(string);
 
             return (_blackboardValue as int?) ?? default(int);
@@ -44,10 +44,10 @@ public class aaCriterion : ScriptableObject
     {
         get
         {
-            if(Comparitor == Comparisons.Is || Comparitor == Comparisons.IsNot)
+            if (Comparitor == Comparisons.Is || Comparitor == Comparisons.IsNot)
                 return (_comparisonValue as bool?) ?? default(bool);
 
-            if(Comparitor == Comparisons.StringEq || Comparitor == Comparisons.StringNotEq)
+            if (Comparitor == Comparisons.StringEq || Comparitor == Comparisons.StringNotEq)
                 return (_comparisonValue as string) != null ? (_comparisonValue as string) : default(string);
 
             return (_comparisonValue as int?) ?? default(int);
@@ -59,10 +59,10 @@ public class aaCriterion : ScriptableObject
     {
         get
         {
-            if(Comparitor == Comparisons.Is || Comparitor == Comparisons.IsNot)
+            if (Comparitor == Comparisons.Is || Comparitor == Comparisons.IsNot)
                 return typeof(bool);
 
-            if(Comparitor == Comparisons.StringEq || Comparitor == Comparisons.StringNotEq)
+            if (Comparitor == Comparisons.StringEq || Comparitor == Comparisons.StringNotEq)
                 return typeof(string);
 
             return typeof(int);
@@ -71,7 +71,7 @@ public class aaCriterion : ScriptableObject
 
     public bool Check(aaEvent @event)
     {
-        switch(Comparitor)
+        switch (Comparitor)
         {
             default: return false;
             case Comparisons.Is:
@@ -99,22 +99,22 @@ public class aaCriterion : ScriptableObject
 
     public void OnCustomGUI()
     {
-    #if UNITY_EDITOR
-        EditorGUILayout.BeginVertical();
+#if UNITY_EDITOR
+        EditorGUILayout.BeginHorizontal();
 
-        Hint    = EditorGUILayout.TextField(GUIContent.none, Hint);
+        Hint = EditorGUILayout.TextField(GUIContent.none, Hint);
         FactKey = EditorGUILayout.TextField(GUIContent.none, FactKey);
 
         Comparitor = (Comparisons)EditorGUILayout.EnumPopup(GUIContent.none, Comparitor);
 
-        if(ComparisonType == typeof(bool))
+        if (ComparisonType == typeof(bool))
             ComparisonValue = GUILayout.Toggle((bool)ComparisonValue, "");
-        if(ComparisonType == typeof(int))
+        if (ComparisonType == typeof(int))
             ComparisonValue = EditorGUILayout.IntField(GUIContent.none, (int)ComparisonValue);
-        if(ComparisonType == typeof(string))
+        if (ComparisonType == typeof(string))
             ComparisonValue = EditorGUILayout.TextField(GUIContent.none, (string)ComparisonValue);
 
-        EditorGUILayout.EndVertical();
-    #endif
+        EditorGUILayout.EndHorizontal();
+#endif
     }
 }
