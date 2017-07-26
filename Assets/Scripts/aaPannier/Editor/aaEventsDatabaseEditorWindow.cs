@@ -1,6 +1,46 @@
+using System.Collections.Generic;
 using System.Linq;
 using UnityEditor;
 using UnityEngine;
+
+static class aaEditorUtil
+{
+    static public bool ColoredButton(string text, Color color, params GUILayoutOption[] options)
+    {
+        Color temp = GUI.color;
+        GUI.color = color;
+
+        bool shouldRemove = GUILayout.Button(text, options);
+
+        GUI.color = temp;
+
+        return shouldRemove;
+    }
+
+    static public bool ColoredButton(string text, Color color, GUIStyle style, params GUILayoutOption[] options)
+    {
+        Color temp = GUI.color;
+        GUI.color = color;
+
+        bool shouldRemove = GUILayout.Button(text, style, options);
+
+        GUI.color = temp;
+
+        return shouldRemove;
+    }
+
+    static public bool ColoredButton(string text, Color color)
+    {
+        Color temp = GUI.color;
+        GUI.color = color;
+
+        bool shouldRemove = GUILayout.Button(text);
+
+        GUI.color = temp;
+
+        return shouldRemove;
+    }
+}
 
 public class aaEventsDatabaseEditorWindow : EditorWindow
 {
@@ -10,156 +50,222 @@ public class aaEventsDatabaseEditorWindow : EditorWindow
         GetWindow<aaEventsDatabaseEditorWindow>(false, "Events Database", true);
     }
 
-    private int selectedIndex = 0;
+    private bool initd = false;
+
+    private int selectedDatabaseIndex = 0;
+    private int selectedHandleIndex = 0;
     private aaEventsDatabase[] databases;
 
-    private aaEventsDatabase db
+    private aaEventsDatabase selectedDatabase
     {
-        get { return databases.Count() > selectedIndex ? databases[selectedIndex] : null; }
+        get { return databases.Count() > selectedDatabaseIndex ? databases[selectedDatabaseIndex] : null; }
     }
+
+    private aaEventHandler selectedHandler
+    {
+        get { return selectedDatabase.Handlers.Count() > selectedHandleIndex ? selectedDatabase.Handlers[selectedHandleIndex] : null; }
+    }
+
+    private void Init()
+    {
+        if (initd)
+            return;
+
+        databases = Resources.FindObjectsOfTypeAll<aaEventsDatabase>();
+    }
+
+    private float toolbarHeight = 0;
+    private int sideWindowWidth = 300;
+    private Vector2 scrollPosition;
 
     private void OnGUI()
     {
-        databases = Resources.FindObjectsOfTypeAll<aaEventsDatabase>();
-        selectedIndex = EditorGUILayout.Popup(selectedIndex, databases.ToList().Select(x => x.Name).ToArray());
+        Init();
 
-        if (db != null)
+        EditorGUILayout.BeginHorizontal();
+        selectedDatabaseIndex = EditorGUILayout.Popup(selectedDatabaseIndex, databases.ToList().Select(x => x.Name).ToArray());
+        EditorGUILayout.EndHorizontal();
+
+        if (Event.current.type == EventType.Repaint)
+            toolbarHeight = GUILayoutUtility.GetLastRect().yMax + 6;
+
+        GUILayout.Box("", GUILayout.ExpandWidth(true), GUILayout.Height(1));
+
+        if (selectedDatabase != null)
             DrawDB();
     }
 
     private void DrawDB()
     {
-        EditorGUI.BeginChangeCheck();
-        db.Name = EditorGUILayout.TextField(db.Name);
+        Rect sideWindowRect = new Rect(3, toolbarHeight, sideWindowWidth, position.height - toolbarHeight - 3);
+        GUILayout.BeginArea(sideWindowRect, GUI.skin.box);
 
-        if (GUILayout.Button("Add Handler"))
+        EditorGUILayout.BeginHorizontal(EditorStyles.toolbar);
+        GUILayout.FlexibleSpace();
+        if (aaEditorUtil.ColoredButton("+", Color.green, EditorStyles.toolbarButton))
             AddHandler();
+        EditorGUILayout.EndHorizontal();
 
-        ListHandlers();
+        int? removeHandleIndex = null;
+        scrollPosition = EditorGUILayout.BeginScrollView(scrollPosition, GUILayout.ExpandHeight(true));
+        for (int handleIndex = 0; handleIndex < selectedDatabase.Handlers.Count; handleIndex++)
+        {
+            EditorGUILayout.BeginHorizontal();
+            var handle = selectedDatabase.Handlers[handleIndex];
+            Color color = handleIndex == selectedHandleIndex ? Color.grey : GUI.color;
 
-        if (EditorGUI.EndChangeCheck())
-            Dirty();
+            if (aaEditorUtil.ColoredButton($"{handle.EventName} ({handle.Padding})", color, EditorStyles.miniButtonLeft))
+                selectedHandleIndex = handleIndex;
+
+            if (aaEditorUtil.ColoredButton("-", Color.red, EditorStyles.miniButtonRight, GUILayout.ExpandWidth(false)))
+                removeHandleIndex = handleIndex;
+
+            EditorGUILayout.EndHorizontal();
+        }
+        EditorGUILayout.EndScrollView();
+
+        if (removeHandleIndex != null)
+            RemoveHandle((int)removeHandleIndex);
+
+        GUILayout.EndArea();
+
+        Rect canvasRect = new Rect(sideWindowWidth + 3, toolbarHeight, position.width - sideWindowWidth - 3, position.height - toolbarHeight - 3);
+        GUILayout.BeginArea(canvasRect);
+
+        if (selectedHandler != null)
+            DrawHandler();
+
+        GUILayout.EndArea();
     }
 
     private void AddHandler()
     {
         aaEventHandler handler = ScriptableObject.CreateInstance<aaEventHandler>();
-        db.Handlers.Add(handler);
+        selectedDatabase.Handlers.Add(handler);
 
-        AssetDatabase.AddObjectToAsset(handler, db);
+        AssetDatabase.AddObjectToAsset(handler, selectedDatabase);
         Dirty();
     }
 
-    private void ListHandlers()
+    private void RemoveHandle(int index)
     {
-        int? removeHandleIndex = null;
+        if (!EditorUtility.DisplayDialog("Are you sure?", "Are you sure you want to delete this handler? This will lose any unsaved work", "Yup", "NO!"))
+            return;
 
-        for (int handleIndex = 0; handleIndex < db.Handlers.Count; handleIndex++)
-        {
+        var handle = selectedDatabase.Handlers[(int)index];
+        DestroyImmediate(handle, true);
+        selectedDatabase.Handlers.RemoveAt((int)index);
+        Dirty();
+    }
 
-            var handle = db.Handlers[handleIndex];
+    private void DrawHandler()
+    {
 
-            EditorGUILayout.BeginVertical();
-
-            EditorGUILayout.LabelField($"({handle.Weight}) {handle.EventName}");
-
-            EditorGUILayout.BeginHorizontal();
-            handle.EventName = EditorGUILayout.TextField(handle.EventName);
-            handle.Padding = EditorGUILayout.IntField(handle.Padding);
-
-            removeHandleIndex = RemoveButton(handleIndex);
-
-            EditorGUILayout.EndHorizontal();
-
-            int? removeCriteriaIndex = null;
-            for (int criteriaIndex = 0; criteriaIndex < handle.Criteria.Count; criteriaIndex++)
-            {
-                var criteria = handle.Criteria[criteriaIndex];
-
-                EditorGUILayout.BeginHorizontal();
-                criteria.OnCustomGUI();
-                removeCriteriaIndex = RemoveButton(criteriaIndex);
-                EditorGUILayout.EndHorizontal();
-            }
-
-            if (removeCriteriaIndex != null)
-            {
-                var criteria = handle.Criteria[(int)removeCriteriaIndex];
-                DestroyImmediate(criteria, true);
-                handle.Criteria.RemoveAt((int)removeCriteriaIndex);
-                Dirty();
-            }
-
-            if (GUILayout.Button("Add Criterion"))
-            {
-                aaCriterion newCriteria = ScriptableObject.CreateInstance<aaCriterion>();
-                handle.Criteria.Add(newCriteria);
-                AssetDatabase.AddObjectToAsset(newCriteria, handle);
-                Dirty();
-            }
-
-            int? removeResponseIndex = null;
-            for (int responseIndex = 0; responseIndex < handle.Responses.Count; responseIndex++)
-            {
-                var response = handle.Responses[responseIndex];
-
-                EditorGUILayout.BeginHorizontal();
-                response.OnCustomGUI();
-                removeResponseIndex = RemoveButton(responseIndex);
-                EditorGUILayout.EndHorizontal();
-            }
-
-            if (removeResponseIndex != null)
-            {
-                var response = handle.Responses[(int)removeResponseIndex];
-                DestroyImmediate(response, true);
-                handle.Criteria.RemoveAt((int)removeResponseIndex);
-                Dirty();
-            }
-
-            if (GUILayout.Button("Add Response"))
-            {
-                aaResponse newResponse = ScriptableObject.CreateInstance<aaDebugResponse>();
-                handle.Responses.Add(newResponse);
-                AssetDatabase.AddObjectToAsset(newResponse, handle);
-                Dirty();
-            }
-
-            EditorGUILayout.EndVertical();
-        }
-
-        if (removeHandleIndex != null)
-        {
-            var handle = db.Handlers[(int)removeHandleIndex];
-            DestroyImmediate(handle, true);
-            db.Handlers.RemoveAt((int)removeHandleIndex);
-            Dirty();
-        }
     }
 
     private void Dirty()
     {
-        EditorUtility.SetDirty(db);
-        AssetDatabase.ImportAsset(AssetDatabase.GetAssetPath(db));
+        EditorUtility.SetDirty(selectedDatabase);
+        AssetDatabase.Refresh();
+        // AssetDatabase.ImportAsset(AssetDatabase.GetAssetPath(db));
     }
 
     private void Save()
     {
-        EditorUtility.SetDirty(db);
+        EditorUtility.SetDirty(selectedDatabase);
         AssetDatabase.SaveAssets();
     }
 
-    private int? RemoveButton(int index)
-    {
-        int? removeIndex = null;
-        Color temp = GUI.color;
+    // class DatabaseDetail
+    // {
+    //     public aaEventsDatabase asset;
 
-        GUI.color = new Color(1f, 0f, 0f);
-        if (GUILayout.Button("-", GUILayout.Width(20)))
-            removeIndex = index;
+    //     public DatabaseDetail(aaEventsDatabase database)
+    //     {
+    //         this.asset = database;
+    //     }
 
-        GUI.color = temp;
+    //     public void Draw()
+    //     {
+    //         asset.Name = EditorGUILayout.TextField(asset.Name);
 
-        return removeIndex;
-    }
+    //         GUILayout.Button("Add Handler");
+
+    //         for (int handleIndex = 0; handleIndex < asset.Handlers.Count; handleIndex++)
+    //         {
+    //             var handle = asset.Handlers[handleIndex];
+    //         }
+    //     }
+    // }
+
+    // private class CriterionDetail
+    // {
+    //     public aaCriterion asset;
+
+    //     public CriterionDetail(aaCriterion criterion)
+    //     {
+    //         this.asset = criterion;
+    //     }
+
+    //     public void Draw()
+    //     {
+    //         EditorGUILayout.BeginHorizontal();
+    //         asset.OnCustomGUI();
+    //         EditorGUILayout.EndHorizontal();
+    //     }
+    // }
+
+    // private class ResponseDetail
+    // {
+    //     public aaResponse asset;
+
+    //     public ResponseDetail(aaResponse response)
+    //     {
+    //         this.asset = response;
+    //     }
+
+    //     public void Draw()
+    //     {
+    //         EditorGUILayout.BeginHorizontal();
+    //         asset.OnCustomGUI();
+    //         EditorGUILayout.EndHorizontal();
+    //     }
+    // }
+
+    // private class HandleDetail
+    // {
+    //     public aaEventHandler asset;
+
+    //     public HandleDetail(aaEventHandler handle)
+    //     {
+    //         this.asset = handle;
+    //     }
+
+    //     public void DrawHandle()
+    //     {
+    //         EditorGUILayout.BeginVertical();
+
+    //         EditorGUILayout.BeginHorizontal();
+
+    //         asset.EventName = EditorGUILayout.TextField(asset.EventName);
+    //         asset.Padding = EditorGUILayout.IntField(asset.Padding);
+
+    //         bool shouldRemove = aaEditorUtil.RemoveButton("-");
+
+    //         EditorGUILayout.EndHorizontal();
+
+    //         DrawCriteria();
+    //         DrawResponses();
+
+    //         EditorGUILayout.EndVertical();
+    //     }
+
+    //     private void DrawCriteria()
+    //     {
+    //     }
+
+    //     private void DrawResponses()
+    //     {
+    //     }
+    // }
 }

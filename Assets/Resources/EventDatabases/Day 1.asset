@@ -30,7 +30,7 @@ MonoBehaviour:
   Criteria: []
   Padding: 0
   Responses:
-  - {fileID: 114604351249744334}
+  - {fileID: 0}
 --- !u!114 &114604351249744334
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -70,4 +70,4 @@ MonoBehaviour:
   Criteria: []
   Padding: 0
   Responses:
-  - {fileID: 114736341989945184}
+  - {fileID: 0}
