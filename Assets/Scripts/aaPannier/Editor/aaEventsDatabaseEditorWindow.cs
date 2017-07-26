@@ -106,9 +106,9 @@ public class aaEventsDatabaseEditorWindow : EditorWindow
         Rect sideWindowRect = new Rect(3, toolbarHeight, sideWindowWidth, position.height - toolbarHeight - 3);
         GUILayout.BeginArea(sideWindowRect, GUI.skin.box);
 
-        EditorGUILayout.BeginHorizontal(EditorStyles.toolbar);
-        GUILayout.FlexibleSpace();
-        if (aaEditorUtil.ColoredButton("+", Color.green, EditorStyles.toolbarButton))
+        EditorGUILayout.BeginHorizontal();
+        EditorGUILayout.LabelField("Handlers");
+        if (aaEditorUtil.ColoredButton("+", Color.green, GUILayout.ExpandWidth(false)))
             AddHandler();
         EditorGUILayout.EndHorizontal();
 
@@ -159,16 +159,19 @@ public class aaEventsDatabaseEditorWindow : EditorWindow
         if (aaEditorUtil.ColoredButton("+", Color.green, GUILayout.ExpandWidth(false)))
             AddCriterion();
         EditorGUILayout.EndHorizontal();
+
         int? removeCriterionIndex = null;
         for (int criterionIndex = 0; criterionIndex < selectedHandler.Criteria.Count; criterionIndex++)
         {
             var criterion = selectedHandler.Criteria[criterionIndex];
-            EditorGUILayout.BeginHorizontal();
+            EditorGUILayout.BeginHorizontal(GUI.skin.box);
             criterion.OnCustomGUI();
             if (aaEditorUtil.ColoredButton("-", Color.red, GUILayout.ExpandWidth(false)))
                 removeCriterionIndex = criterionIndex;
             EditorGUILayout.EndHorizontal();
         }
+        if (removeCriterionIndex != null)
+            RemoveCriterion((int)removeCriterionIndex);
 
         GUILayout.Box("", GUILayout.ExpandWidth(true), GUILayout.Height(1));
 
@@ -182,12 +185,14 @@ public class aaEventsDatabaseEditorWindow : EditorWindow
         for (int responseIndex = 0; responseIndex < selectedHandler.Responses.Count; responseIndex++)
         {
             var response = selectedHandler.Responses[responseIndex];
-            EditorGUILayout.BeginHorizontal();
+            EditorGUILayout.BeginHorizontal(GUI.skin.box);
             response.OnCustomGUI();
             if (aaEditorUtil.ColoredButton("-", Color.red, GUILayout.ExpandWidth(false)))
                 removeResponseIndex = responseIndex;
             EditorGUILayout.EndHorizontal();
         }
+        if (removeResponseIndex != null)
+            RemoveResponse((int)removeResponseIndex);
 
         EditorGUILayout.EndVertical();
         EditorGUILayout.EndScrollView();
@@ -204,8 +209,8 @@ public class aaEventsDatabaseEditorWindow : EditorWindow
 
     private void RemoveHandle(int index)
     {
-        if (!EditorUtility.DisplayDialog("Are you sure?", "Are you sure you want to delete this handler? This will lose any unsaved work", "Yup", "NO!"))
-            return;
+        // if (!EditorUtility.DisplayDialog("Are you sure?", "Are you sure you want to delete this handler? This will lose any unsaved work", "Yup", "NO!"))
+        //     return;
 
         var handle = selectedDatabase.Handlers[(int)index];
         DestroyImmediate(handle, true);
@@ -222,12 +227,34 @@ public class aaEventsDatabaseEditorWindow : EditorWindow
         Dirty();
     }
 
+    private void RemoveCriterion(int index)
+    {
+        // if (!EditorUtility.DisplayDialog("Are you sure?", "Are you sure you want to delete this criterion", "Yup", "NO!"))
+        //     return;
+
+        var criteria = selectedHandler.Criteria[(int)index];
+        DestroyImmediate(criteria, true);
+        selectedHandler.Criteria.RemoveAt((int)index);
+        Dirty();
+    }
+
     private void AddResponse()
     {
         aaResponse response = ScriptableObject.CreateInstance<aaDebugResponse>();
         selectedHandler.Responses.Add(response);
 
         AssetDatabase.AddObjectToAsset(response, selectedHandler);
+        Dirty();
+    }
+
+    private void RemoveResponse(int index)
+    {
+        // if (!EditorUtility.DisplayDialog("Are you sure?", "Are you sure you want to delete this response", "Yup", "NO!"))
+        //     return;
+
+        var response = selectedHandler.Responses[(int)index];
+        DestroyImmediate(response, true);
+        selectedHandler.Responses.RemoveAt((int)index);
         Dirty();
     }
 
@@ -249,97 +276,4 @@ public class aaEventsDatabaseEditorWindow : EditorWindow
         GUIUtility.hotControl = 0;
         GUIUtility.keyboardControl = 0;
     }
-
-    // class DatabaseDetail
-    // {
-    //     public aaEventsDatabase asset;
-
-    //     public DatabaseDetail(aaEventsDatabase database)
-    //     {
-    //         this.asset = database;
-    //     }
-
-    //     public void Draw()
-    //     {
-    //         asset.Name = EditorGUILayout.TextField(asset.Name);
-
-    //         GUILayout.Button("Add Handler");
-
-    //         for (int handleIndex = 0; handleIndex < asset.Handlers.Count; handleIndex++)
-    //         {
-    //             var handle = asset.Handlers[handleIndex];
-    //         }
-    //     }
-    // }
-
-    // private class CriterionDetail
-    // {
-    //     public aaCriterion asset;
-
-    //     public CriterionDetail(aaCriterion criterion)
-    //     {
-    //         this.asset = criterion;
-    //     }
-
-    //     public void Draw()
-    //     {
-    //         EditorGUILayout.BeginHorizontal();
-    //         asset.OnCustomGUI();
-    //         EditorGUILayout.EndHorizontal();
-    //     }
-    // }
-
-    // private class ResponseDetail
-    // {
-    //     public aaResponse asset;
-
-    //     public ResponseDetail(aaResponse response)
-    //     {
-    //         this.asset = response;
-    //     }
-
-    //     public void Draw()
-    //     {
-    //         EditorGUILayout.BeginHorizontal();
-    //         asset.OnCustomGUI();
-    //         EditorGUILayout.EndHorizontal();
-    //     }
-    // }
-
-    // private class HandleDetail
-    // {
-    //     public aaEventHandler asset;
-
-    //     public HandleDetail(aaEventHandler handle)
-    //     {
-    //         this.asset = handle;
-    //     }
-
-    //     public void DrawHandle()
-    //     {
-    //         EditorGUILayout.BeginVertical();
-
-    //         EditorGUILayout.BeginHorizontal();
-
-    //         asset.EventName = EditorGUILayout.TextField(asset.EventName);
-    //         asset.Padding = EditorGUILayout.IntField(asset.Padding);
-
-    //         bool shouldRemove = aaEditorUtil.RemoveButton("-");
-
-    //         EditorGUILayout.EndHorizontal();
-
-    //         DrawCriteria();
-    //         DrawResponses();
-
-    //         EditorGUILayout.EndVertical();
-    //     }
-
-    //     private void DrawCriteria()
-    //     {
-    //     }
-
-    //     private void DrawResponses()
-    //     {
-    //     }
-    // }
 }
