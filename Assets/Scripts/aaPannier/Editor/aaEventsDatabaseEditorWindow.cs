@@ -76,27 +76,33 @@ public class aaEventsDatabaseEditorWindow : EditorWindow
 
     private float toolbarHeight = 0;
     private int sideWindowWidth = 300;
-    private Vector2 scrollPosition;
+    private Vector2 handlerListScrollPosition;
+    private Vector2 handlerScrollPosition;
 
     private void OnGUI()
     {
         Init();
 
-        EditorGUILayout.BeginHorizontal();
+        EditorGUILayout.BeginHorizontal(GUI.skin.box);
         selectedDatabaseIndex = EditorGUILayout.Popup(selectedDatabaseIndex, databases.ToList().Select(x => x.Name).ToArray());
+        if (aaEditorUtil.ColoredButton("Save", Color.white, GUILayout.ExpandWidth(false)))
+            Save();
         EditorGUILayout.EndHorizontal();
-
-        if (Event.current.type == EventType.Repaint)
-            toolbarHeight = GUILayoutUtility.GetLastRect().yMax + 6;
 
         GUILayout.Box("", GUILayout.ExpandWidth(true), GUILayout.Height(1));
 
         if (selectedDatabase != null)
             DrawDB();
+
+        // if (GUI.Button(new Rect(0, 0, position.width, position.height), "", GUIStyle.none))
+        //     Defocus();
     }
 
     private void DrawDB()
     {
+        if (Event.current.type == EventType.Repaint)
+            toolbarHeight = GUILayoutUtility.GetLastRect().yMax + 6;
+
         Rect sideWindowRect = new Rect(3, toolbarHeight, sideWindowWidth, position.height - toolbarHeight - 3);
         GUILayout.BeginArea(sideWindowRect, GUI.skin.box);
 
@@ -107,17 +113,17 @@ public class aaEventsDatabaseEditorWindow : EditorWindow
         EditorGUILayout.EndHorizontal();
 
         int? removeHandleIndex = null;
-        scrollPosition = EditorGUILayout.BeginScrollView(scrollPosition, GUILayout.ExpandHeight(true));
+        handlerScrollPosition = EditorGUILayout.BeginScrollView(handlerScrollPosition, GUILayout.ExpandHeight(true));
         for (int handleIndex = 0; handleIndex < selectedDatabase.Handlers.Count; handleIndex++)
         {
             EditorGUILayout.BeginHorizontal();
             var handle = selectedDatabase.Handlers[handleIndex];
             Color color = handleIndex == selectedHandleIndex ? Color.grey : GUI.color;
 
-            if (aaEditorUtil.ColoredButton($"{handle.EventName} ({handle.Padding})", color, EditorStyles.miniButtonLeft))
+            if (aaEditorUtil.ColoredButton($"{handle.EventName} ({handle.Padding})", color))
                 selectedHandleIndex = handleIndex;
 
-            if (aaEditorUtil.ColoredButton("-", Color.red, EditorStyles.miniButtonRight, GUILayout.ExpandWidth(false)))
+            if (aaEditorUtil.ColoredButton("-", Color.red, GUILayout.ExpandWidth(false)))
                 removeHandleIndex = handleIndex;
 
             EditorGUILayout.EndHorizontal();
@@ -129,13 +135,62 @@ public class aaEventsDatabaseEditorWindow : EditorWindow
 
         GUILayout.EndArea();
 
-        Rect canvasRect = new Rect(sideWindowWidth + 3, toolbarHeight, position.width - sideWindowWidth - 3, position.height - toolbarHeight - 3);
+        Rect canvasRect = new Rect(sideWindowWidth + 6, toolbarHeight, position.width - sideWindowWidth - 10, position.height - toolbarHeight - 3);
         GUILayout.BeginArea(canvasRect);
 
         if (selectedHandler != null)
             DrawHandler();
 
         GUILayout.EndArea();
+    }
+
+    private void DrawHandler()
+    {
+        EditorGUILayout.BeginHorizontal(GUI.skin.box);
+        selectedHandler.EventName = EditorGUILayout.TextField("EventName:", selectedHandler.EventName);
+        selectedHandler.Padding = EditorGUILayout.IntField("Padding:", selectedHandler.Padding);
+        EditorGUILayout.EndHorizontal();
+
+        handlerScrollPosition = EditorGUILayout.BeginScrollView(handlerScrollPosition, GUILayout.ExpandHeight(true));
+        EditorGUILayout.BeginVertical();
+
+        EditorGUILayout.BeginHorizontal();
+        EditorGUILayout.LabelField("Criteria");
+        if (aaEditorUtil.ColoredButton("+", Color.green, GUILayout.ExpandWidth(false)))
+            AddCriterion();
+        EditorGUILayout.EndHorizontal();
+        int? removeCriterionIndex = null;
+        for (int criterionIndex = 0; criterionIndex < selectedHandler.Criteria.Count; criterionIndex++)
+        {
+            var criterion = selectedHandler.Criteria[criterionIndex];
+            EditorGUILayout.BeginHorizontal();
+            criterion.OnCustomGUI();
+            if (aaEditorUtil.ColoredButton("-", Color.red, GUILayout.ExpandWidth(false)))
+                removeCriterionIndex = criterionIndex;
+            EditorGUILayout.EndHorizontal();
+        }
+
+        GUILayout.Box("", GUILayout.ExpandWidth(true), GUILayout.Height(1));
+
+        EditorGUILayout.BeginHorizontal();
+        EditorGUILayout.LabelField("Responses");
+        if (aaEditorUtil.ColoredButton("+", Color.green, GUILayout.ExpandWidth(false)))
+            AddResponse();
+        EditorGUILayout.EndHorizontal();
+
+        int? removeResponseIndex = null;
+        for (int responseIndex = 0; responseIndex < selectedHandler.Responses.Count; responseIndex++)
+        {
+            var response = selectedHandler.Responses[responseIndex];
+            EditorGUILayout.BeginHorizontal();
+            response.OnCustomGUI();
+            if (aaEditorUtil.ColoredButton("-", Color.red, GUILayout.ExpandWidth(false)))
+                removeResponseIndex = responseIndex;
+            EditorGUILayout.EndHorizontal();
+        }
+
+        EditorGUILayout.EndVertical();
+        EditorGUILayout.EndScrollView();
     }
 
     private void AddHandler()
@@ -158,9 +213,22 @@ public class aaEventsDatabaseEditorWindow : EditorWindow
         Dirty();
     }
 
-    private void DrawHandler()
+    private void AddCriterion()
     {
+        aaCriterion criterion = ScriptableObject.CreateInstance<aaCriterion>();
+        selectedHandler.Criteria.Add(criterion);
 
+        AssetDatabase.AddObjectToAsset(criterion, selectedHandler);
+        Dirty();
+    }
+
+    private void AddResponse()
+    {
+        aaResponse response = ScriptableObject.CreateInstance<aaDebugResponse>();
+        selectedHandler.Responses.Add(response);
+
+        AssetDatabase.AddObjectToAsset(response, selectedHandler);
+        Dirty();
     }
 
     private void Dirty()
@@ -174,6 +242,12 @@ public class aaEventsDatabaseEditorWindow : EditorWindow
     {
         EditorUtility.SetDirty(selectedDatabase);
         AssetDatabase.SaveAssets();
+    }
+
+    private void Defocus()
+    {
+        GUIUtility.hotControl = 0;
+        GUIUtility.keyboardControl = 0;
     }
 
     // class DatabaseDetail

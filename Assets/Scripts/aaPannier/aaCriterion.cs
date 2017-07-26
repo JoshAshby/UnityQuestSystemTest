@@ -100,11 +100,13 @@ public class aaCriterion : ScriptableObject
     public void OnCustomGUI()
     {
 #if UNITY_EDITOR
+        EditorGUILayout.BeginVertical();
         EditorGUILayout.BeginHorizontal();
-
         Hint = EditorGUILayout.TextField(GUIContent.none, Hint);
         FactKey = EditorGUILayout.TextField(GUIContent.none, FactKey);
+        EditorGUILayout.EndHorizontal();
 
+        EditorGUILayout.BeginHorizontal();
         Comparitor = (Comparisons)EditorGUILayout.EnumPopup(GUIContent.none, Comparitor);
 
         if (ComparisonType == typeof(bool))
@@ -113,8 +115,8 @@ public class aaCriterion : ScriptableObject
             ComparisonValue = EditorGUILayout.IntField(GUIContent.none, (int)ComparisonValue);
         if (ComparisonType == typeof(string))
             ComparisonValue = EditorGUILayout.TextField(GUIContent.none, (string)ComparisonValue);
-
         EditorGUILayout.EndHorizontal();
+        EditorGUILayout.EndVertical();
 #endif
     }
 }
