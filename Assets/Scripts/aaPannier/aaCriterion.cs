@@ -19,7 +19,7 @@ public class aaCriterion : ScriptableObject
 
     private object _blackboardValue
     {
-        get { return ""; }
+        get { return aaPannier.Instance.BlackboardDatabase.GetFact(Hint, FactKey); }
     }
 
     public object BlackboardValue
@@ -38,8 +38,8 @@ public class aaCriterion : ScriptableObject
 
     public Comparisons Comparitor = Comparisons.Is;
 
+    [SerializeField]
     private object _comparisonValue;
-
     public object ComparisonValue
     {
         get

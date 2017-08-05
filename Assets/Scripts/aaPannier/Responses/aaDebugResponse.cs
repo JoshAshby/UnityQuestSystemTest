@@ -3,6 +3,7 @@ using UnityEditor;
 using UnityEngine;
 
 [Serializable]
+[aaResponse(DisplayName = "Debug")]
 public class aaDebugResponse : aaResponse
 {
     public string CustomMessage = "";

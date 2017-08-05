@@ -14,8 +14,8 @@ MonoBehaviour:
   Name: Day 1
   Handlers:
   - {fileID: 114515039976971284}
-  - {fileID: 114784215497425606}
---- !u!114 &114126083350236778
+  - {fileID: 114851442690615466}
+--- !u!114 &114115992979094832
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_PrefabParentObject: {fileID: 0}
@@ -23,10 +23,31 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 100b303c6a57c4b77896dec6d19151fa, type: 3}
+  m_Script: {fileID: 11500000, guid: 7fa127e7a18684a2d9749166c5c9a54b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  CustomMessage: 
+  Hint: global
+  FactKey: test
+  Comparitor: 0
+--- !u!114 &114399409790037898
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e214cbc42a621448dadf7b754cf55bc8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Hint: global
+  Fact:
+    Key: test
+    ValueType: 0
+    _intValue: 5
+    _boolValue: 0
+    _stringValue: 
+  ValueType: 0
 --- !u!114 &114515039976971284
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -40,12 +61,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   EventName: OnInteractRobin01
   Criteria:
-  - {fileID: 114720566889124010}
-  - {fileID: 114840025703365944}
+  - {fileID: 114115992979094832}
   Padding: 0
   Responses:
   - {fileID: 114696732450949986}
-  - {fileID: 114126083350236778}
+  - {fileID: 114399409790037898}
 --- !u!114 &114604351249744334
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -69,21 +89,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 100b303c6a57c4b77896dec6d19151fa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  CustomMessage: 
---- !u!114 &114720566889124010
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_PrefabParentObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 0}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7fa127e7a18684a2d9749166c5c9a54b, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  Hint: global
-  FactKey: 
-  Comparitor: 0
+  CustomMessage: testing one
 --- !u!114 &114736341989945184
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -96,7 +102,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   CustomMessage: Robin oh-two
---- !u!114 &114784215497425606
+--- !u!114 &114851442690615466
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_PrefabParentObject: {fileID: 0}
@@ -110,8 +116,9 @@ MonoBehaviour:
   EventName: OnInteractRobin02
   Criteria: []
   Padding: 0
-  Responses: []
---- !u!114 &114840025703365944
+  Responses:
+  - {fileID: 114929889922886126}
+--- !u!114 &114876057047518522
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_PrefabParentObject: {fileID: 0}
@@ -119,9 +126,19 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7fa127e7a18684a2d9749166c5c9a54b, type: 3}
+  m_Script: {fileID: 11500000, guid: 100b303c6a57c4b77896dec6d19151fa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Hint: global
-  FactKey: 
-  Comparitor: 0
+  CustomMessage: testing bird
+--- !u!114 &114929889922886126
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 100b303c6a57c4b77896dec6d19151fa, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  CustomMessage: Testing bird

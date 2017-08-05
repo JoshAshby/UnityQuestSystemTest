@@ -1,5 +1,7 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using UnityEditor;
 using UnityEngine;
 
@@ -66,6 +68,21 @@ public class aaEventsDatabaseEditorWindow : EditorWindow
         get { return selectedDatabase.Handlers.Count() > selectedHandleIndex ? selectedDatabase.Handlers[selectedHandleIndex] : null; }
     }
 
+    private static KeyValuePair<string, Type>[] ResponseTypesAndNames()
+    {
+        return AppDomain.CurrentDomain.GetAssemblies()
+            .SelectMany(assembly => assembly.GetTypes())
+            .Where(type => type.IsClass && !type.IsAbstract && type.IsSubclassOf(typeof(aaResponse)))
+            .SelectMany(x =>
+            {
+                return x.GetCustomAttributes(typeof(aaResponseAttribute), false)
+                    .Select(y => (aaResponseAttribute)y)
+                    .Select(y => new KeyValuePair<string, Type>(y.DisplayName, x));
+            }).ToArray();
+    }
+
+    private KeyValuePair<string, Type>[] ResponseTypes { get; } = ResponseTypesAndNames();
+
     private void Init()
     {
         if (initd)
@@ -94,8 +111,8 @@ public class aaEventsDatabaseEditorWindow : EditorWindow
         if (selectedDatabase != null)
             DrawDB();
 
-        // if (GUI.Button(new Rect(0, 0, position.width, position.height), "", GUIStyle.none))
-        //     Defocus();
+        if (GUI.Button(new Rect(0, 0, position.width, position.height), "", GUIStyle.none))
+            Defocus();
     }
 
     private void DrawDB()
@@ -156,8 +173,6 @@ public class aaEventsDatabaseEditorWindow : EditorWindow
 
         EditorGUILayout.BeginHorizontal();
         EditorGUILayout.LabelField("Criteria");
-        if (aaEditorUtil.ColoredButton("+", Color.green, GUILayout.ExpandWidth(false)))
-            AddCriterion();
         EditorGUILayout.EndHorizontal();
 
         int? removeCriterionIndex = null;
@@ -173,12 +188,17 @@ public class aaEventsDatabaseEditorWindow : EditorWindow
         if (removeCriterionIndex != null)
             RemoveCriterion((int)removeCriterionIndex);
 
+        EditorGUILayout.BeginHorizontal();
+        EditorGUILayout.Space();
+        if (aaEditorUtil.ColoredButton("+", Color.green, GUILayout.ExpandWidth(false)))
+            AddCriterion();
+        EditorGUILayout.EndHorizontal();
+
+        EditorGUILayout.Separator();
         GUILayout.Box("", GUILayout.ExpandWidth(true), GUILayout.Height(1));
 
         EditorGUILayout.BeginHorizontal();
         EditorGUILayout.LabelField("Responses");
-        if (aaEditorUtil.ColoredButton("+", Color.green, GUILayout.ExpandWidth(false)))
-            AddResponse();
         EditorGUILayout.EndHorizontal();
 
         int? removeResponseIndex = null;
@@ -193,6 +213,15 @@ public class aaEventsDatabaseEditorWindow : EditorWindow
         }
         if (removeResponseIndex != null)
             RemoveResponse((int)removeResponseIndex);
+
+        EditorGUILayout.BeginHorizontal();
+        EditorGUILayout.LabelField("Add Response");
+        foreach (var typePair in ResponseTypes)
+        {
+            if (aaEditorUtil.ColoredButton(typePair.Key, Color.green, GUILayout.ExpandWidth(false)))
+                AddResponse(typePair.Value);
+        }
+        EditorGUILayout.EndHorizontal();
 
         EditorGUILayout.EndVertical();
         EditorGUILayout.EndScrollView();
@@ -238,9 +267,9 @@ public class aaEventsDatabaseEditorWindow : EditorWindow
         Dirty();
     }
 
-    private void AddResponse()
+    private void AddResponse(Type type)
     {
-        aaResponse response = ScriptableObject.CreateInstance<aaDebugResponse>();
+        aaResponse response = (aaResponse)ScriptableObject.CreateInstance(type);
         selectedHandler.Responses.Add(response);
 
         AssetDatabase.AddObjectToAsset(response, selectedHandler);
